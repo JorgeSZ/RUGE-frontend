@@ -1,0 +1,179 @@
+<div class="page-header">
+  <div>
+    <h2>Servidores</h2>
+    <span class="sub">{{ eventCtx.activeEvent?.name }}</span>
+  </div>
+  <button class="btn-primary" (click)="openCreate()">+ Agregar Servidor</button>
+</div>
+
+<!-- URL pública de registro -->
+<div class="url-bar">
+  <label>Enlace de registro público:</label>
+  <div class="url-row">
+    <input type="text" [value]="publicUrl" readonly class="url-input" />
+    <button class="btn-copy" (click)="copyUrl()" [class.copied]="copied">
+      <lucide-icon [name]="copied ? 'copy-check' : 'copy'" [size]="14" [strokeWidth]="1.5"></lucide-icon> {{ copied ? 'Copiado' : 'Copiar' }}
+    </button>
+  </div>
+</div>
+
+<div class="card form-card" *ngIf="showForm">
+  <h3>{{ editingId ? 'Editar' : 'Nuevo' }} Servidor</h3>
+  <form [formGroup]="form" (ngSubmit)="submit()">
+    <div class="form-row">
+      <div class="field">
+        <label>Nombre *</label>
+        <input formControlName="firstName" placeholder="Nombre" />
+      </div>
+      <div class="field">
+        <label>1er Apellido *</label>
+        <input formControlName="firstLastName" placeholder="Primer apellido" />
+      </div>
+      <div class="field">
+        <label>2do Apellido</label>
+        <input formControlName="secondLastName" placeholder="Segundo apellido" />
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="field">
+        <label>Cédula</label>
+        <input formControlName="cedula" placeholder="Número de documento" />
+      </div>
+      <div class="field">
+        <label>Fecha de Nacimiento</label>
+        <input type="date" formControlName="birthDate" />
+      </div>
+      <div class="field">
+        <label>Estado Civil</label>
+        <select formControlName="maritalStatus">
+          <option value="">— ninguno —</option>
+          <option *ngFor="let m of maritalStatuses" [value]="m">{{ m }}</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="field">
+        <label>Correo</label>
+        <input formControlName="email" placeholder="correo@ejemplo.com" />
+      </div>
+      <div class="field">
+        <label>Teléfono</label>
+        <input formControlName="phone" placeholder="+1 555..." />
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="field">
+        <label>Iglesia</label>
+        <input formControlName="church" placeholder="Nombre de la iglesia" />
+      </div>
+      <div class="field">
+        <label>País</label>
+        <input formControlName="country" placeholder="País" />
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="field">
+        <label>Comisión</label>
+        <select formControlName="commissionId">
+          <option value="">— sin asignar —</option>
+          <option *ngFor="let c of commissions" [value]="c.id">{{ c.name }}</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Tribu</label>
+        <select formControlName="tribeId">
+          <option value="">— sin asignar —</option>
+          <option *ngFor="let t of tribes" [value]="t.id">{{ t.name }}</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="field checkboxes">
+        <label><input type="checkbox" formControlName="hasDiscipleship" /> Tiene Discipulado</label>
+        <label *ngIf="form.get('hasDiscipleship')?.value">
+          <input type="checkbox" formControlName="hasDiscipleshipPatch" /> ¿Ya tiene su parche de discípulo?
+        </label>
+        <label><input type="checkbox" formControlName="hasGroup" /> Tiene Grupo</label>
+      </div>
+    </div>
+    <div class="form-actions">
+      <button class="btn-secondary" type="button" (click)="cancel()">Cancelar</button>
+      <button class="btn-primary" type="submit" [disabled]="form.invalid">Guardar</button>
+    </div>
+  </form>
+</div>
+
+<!-- Reasignar comisión -->
+<div class="card form-card" *ngIf="reassigningId">
+  <h3>Reasignar Comisión</h3>
+  <form [formGroup]="reassignForm" (ngSubmit)="confirmReassign()">
+    <div class="form-row">
+      <div class="field">
+        <label>Nueva Comisión *</label>
+        <select formControlName="commissionId">
+          <option *ngFor="let c of commissions" [value]="c.id">{{ c.name }}</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-actions">
+      <button class="btn-secondary" type="button" (click)="reassigningId = null">Cancelar</button>
+      <button class="btn-primary" type="submit" [disabled]="reassignForm.invalid">Reasignar</button>
+    </div>
+  </form>
+</div>
+
+<div class="toolbar">
+  <label>Filtrar por comisión:</label>
+  <select [(ngModel)]="filterCommissionId">
+    <option value="">Todas las comisiones</option>
+    <option *ngFor="let c of commissions" [value]="c.id">{{ c.name }}</option>
+  </select>
+  <span class="count">{{ filtered.length }} servidores</span>
+</div>
+
+<div *ngIf="loading" class="loading">Cargando...</div>
+
+<table *ngIf="!loading" class="data-table">
+  <thead>
+    <tr>
+      <th>Nombre</th>
+      <th>Cédula</th>
+      <th>Edad</th>
+      <th>Correo</th>
+      <th>Teléfono</th>
+      <th>Iglesia</th>
+      <th>Comisión</th>
+      <th>Check-in</th>
+      <th>QR</th>
+      <th>Acciones</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let s of filtered">
+      <td>{{ s.firstLastName }} {{ s.firstName }} {{ s.secondLastName || '' }}</td>
+      <td>{{ s.cedula || '—' }}</td>
+      <td>{{ s.age ?? '—' }}</td>
+      <td>{{ s.email || '—' }}</td>
+      <td>{{ s.phone || '—' }}</td>
+      <td>{{ s.church || '—' }}</td>
+      <td>{{ s.commissionName || '—' }}</td>
+      <td>
+        <span [class]="s.checkInCompleted ? 'badge-ok' : 'badge-pending'">
+          {{ s.checkInCompleted ? 'Realizado' : 'Pendiente' }}
+        </span>
+      </td>
+      <td>
+        <a *ngIf="s.qrCode" [href]="getQrUrl(s)" target="_blank" class="btn-sm">Ver QR</a>
+        <span *ngIf="!s.qrCode">—</span>
+      </td>
+      <td class="actions">
+        <button class="btn-sm" (click)="openEdit(s)">Editar</button>
+        <button class="btn-sm" (click)="openReassign(s)">Reasignar</button>
+        <button class="btn-sm danger" (click)="delete(s.id)">Eliminar</button>
+      </td>
+    </tr>
+    <tr *ngIf="filtered.length === 0">
+      <td colspan="10" class="empty">No hay servidores.</td>
+    </tr>
+  </tbody>
+</table>

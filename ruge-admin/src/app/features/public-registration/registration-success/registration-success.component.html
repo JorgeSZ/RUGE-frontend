@@ -1,0 +1,30 @@
+<div class="public-page" *ngIf="result">
+  <div class="success-card">
+    <div class="success-icon"><lucide-icon name="check" [size]="36" [strokeWidth]="2"></lucide-icon></div>
+    <h1>¡Registro Exitoso!</h1>
+    <p class="welcome">Bienvenido/a, <strong>{{ result.fullName }}</strong></p>
+    <p class="type-badge">{{ type }}</p>
+
+    <div class="qr-section">
+      <p class="qr-instructions">
+        Guarda este código QR. Lo necesitarás el día del evento para hacer check-in.
+      </p>
+      <div class="qr-container" *ngIf="result.qrImageUrl">
+        <img [src]="result.qrImageUrl" alt="Tu código QR" class="qr-image" />
+      </div>
+      <div class="qr-token" *ngIf="result.qrToken">
+        <span>Código: </span><strong>{{ result.qrToken }}</strong>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn-download" (click)="downloadQr()" *ngIf="result.qrImageUrl">
+        Descargar QR como imagen
+      </button>
+    </div>
+
+    <p class="note">
+      Si tienes alguna pregunta, comunícate con los organizadores del evento.
+    </p>
+  </div>
+</div>

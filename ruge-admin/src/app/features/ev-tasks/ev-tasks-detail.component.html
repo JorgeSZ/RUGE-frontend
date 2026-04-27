@@ -1,0 +1,194 @@
+<div *ngIf="loading" class="skeleton-table">
+  <div class="skeleton-row" *ngFor="let i of [1,2,3,4,5]"></div>
+</div>
+
+<div *ngIf="!loading && detail as d">
+
+  <!-- Breadcrumb -->
+  <div class="breadcrumb">
+    <a routerLink="/ev-tasks">Eventos</a>
+    <span class="breadcrumb-sep">›</span>
+    <span>{{ d.segmentName }}</span>
+  </div>
+
+  <!-- Header -->
+  <div class="page-header">
+    <div>
+      <h2>{{ d.segmentName }}</h2>
+      <div class="header-sub">
+        {{ d.completadas }}/{{ d.total }} tareas completadas
+        <span class="oblig-badge-header" *ngIf="d.pendientesObligatorias > 0">
+          {{ d.pendientesObligatorias }} obligatoria(s) pendiente(s)
+        </span>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button class="btn-outline" (click)="exportCsv()">Exportar CSV</button>
+      <button class="btn-outline" (click)="showBulk = true">Importar lista</button>
+      <button class="btn-primary" (click)="openAdd()">+ Agregar tarea</button>
+    </div>
+  </div>
+
+  <!-- Summary cards -->
+  <div class="summary-cards">
+    <div class="summary-card">
+      <div class="summary-value">{{ d.total }}</div>
+      <div class="summary-label">Total</div>
+    </div>
+    <div class="summary-card summary-card-green">
+      <div class="summary-value">{{ d.completadas }}</div>
+      <div class="summary-label">Completadas</div>
+    </div>
+    <div class="summary-card summary-card-yellow">
+      <div class="summary-value">{{ d.pendientes }}</div>
+      <div class="summary-label">Pendientes</div>
+    </div>
+    <div class="summary-card summary-card-red">
+      <div class="summary-value">{{ d.porcentaje }}%</div>
+      <div class="summary-label">Avance</div>
+    </div>
+  </div>
+
+  <!-- Progress bar -->
+  <div class="progress-bar" style="margin-bottom: 24px;">
+    <div class="progress-fill" [style.width.%]="d.total > 0 ? (d.completadas / d.total * 100) : 0"></div>
+  </div>
+
+  <!-- Tasks table -->
+  <div *ngIf="d.tasks.length > 0">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th style="width: 36px">Ord.</th>
+          <th style="width: 40px">Estado</th>
+          <th>Nombre</th>
+          <th>Responsable</th>
+          <th style="width: 90px">Oblig.</th>
+          <th style="width: 120px">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let task of d.tasks" [class.row-done]="task.completado">
+          <td class="order-col">
+            <div class="order-btns">
+              <button class="btn-order" (click)="moveUp(task)" title="Subir"><lucide-icon name="chevron-up" [size]="12" [strokeWidth]="1.5"></lucide-icon></button>
+              <button class="btn-order" (click)="moveDown(task)" title="Bajar"><lucide-icon name="chevron-down" [size]="12" [strokeWidth]="1.5"></lucide-icon></button>
+            </div>
+          </td>
+          <td>
+            <label class="toggle">
+              <input type="checkbox" [checked]="task.completado" (change)="toggleStatus(task)" />
+              <span class="slider"></span>
+            </label>
+          </td>
+          <td>
+            <div class="task-name" [class.task-done]="task.completado">
+              {{ task.nombre }}
+              <lucide-icon *ngIf="task.esObligatorio" name="star" [size]="13" [strokeWidth]="1.5" class="star-badge" title="Obligatorio"></lucide-icon>
+            </div>
+            <div class="task-desc" *ngIf="task.descripcion">{{ task.descripcion }}</div>
+            <div class="task-meta" *ngIf="task.completadoPor">por {{ task.completadoPor }}</div>
+          </td>
+          <td class="muted-col">{{ task.responsable || '—' }}</td>
+          <td>
+            <span class="oblig-badge" *ngIf="task.esObligatorio">Sí</span>
+            <span class="opt-badge" *ngIf="!task.esObligatorio">No</span>
+          </td>
+          <td class="actions-col">
+            <button class="btn-sm" (click)="openEdit(task)">Editar</button>
+            <button class="btn-sm btn-danger" (click)="deleteTask(task)" title="Eliminar"><lucide-icon name="trash-2" [size]="13" [strokeWidth]="1.5"></lucide-icon></button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="empty-state" *ngIf="d.tasks.length === 0">
+    Agrega la primera tarea para este segmento.
+  </div>
+</div>
+
+<!-- Add/Edit Modal -->
+<div class="modal-backdrop" *ngIf="showForm" (click)="showForm = false">
+  <div class="modal-card" (click)="$event.stopPropagation()">
+    <h3>{{ editTarget ? 'Editar tarea' : 'Nueva tarea' }}</h3>
+    <form [formGroup]="taskForm" (ngSubmit)="saveTask()">
+      <div class="form-row">
+        <label>Nombre *</label>
+        <input formControlName="nombre" placeholder="Nombre de la tarea" />
+      </div>
+      <div class="form-row">
+        <label>Descripción</label>
+        <input formControlName="descripcion" placeholder="Descripción opcional" />
+      </div>
+      <div class="form-row">
+        <label>Responsable</label>
+        <input formControlName="responsable" placeholder="Nombre del responsable" />
+      </div>
+      <div class="form-row form-check">
+        <label>
+          <input type="checkbox" formControlName="esObligatorio" />
+          ¿Es obligatoria?
+        </label>
+      </div>
+      <div class="form-actions">
+        <button type="button" class="btn-secondary" (click)="showForm = false">Cancelar</button>
+        <button type="submit" class="btn-primary" [disabled]="taskForm.invalid || saving">
+          {{ saving ? 'Guardando...' : 'Guardar' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Status Modal -->
+<div class="modal-backdrop" *ngIf="statusTarget" (click)="statusTarget = null">
+  <div class="modal-card" (click)="$event.stopPropagation()">
+    <h3>Completar: {{ statusTarget.nombre }}</h3>
+    <form [formGroup]="statusForm" (ngSubmit)="confirmStatus()">
+      <div class="form-row">
+        <label>Completado por <span class="optional">(opcional)</span></label>
+        <input formControlName="completadoPor" placeholder="Nombre de quien completó la tarea" />
+      </div>
+      <div class="form-row">
+        <label>Notas <span class="optional">(opcional)</span></label>
+        <textarea formControlName="notas" rows="3" placeholder="Observaciones opcionales"></textarea>
+      </div>
+      <div class="form-actions">
+        <button type="button" class="btn-secondary" (click)="statusTarget = null">Cancelar</button>
+        <button type="submit" class="btn-primary" [disabled]="statusSaving">
+          {{ statusSaving ? 'Guardando...' : 'Confirmar' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Bulk Import Modal -->
+<div class="modal-backdrop" *ngIf="showBulk" (click)="showBulk = false">
+  <div class="modal-card modal-wide" (click)="$event.stopPropagation()">
+    <h3>Importar tareas en bloque</h3>
+    <p class="modal-info">
+      Una línea por tarea. Formato:<br>
+      <code>Nombre, Descripcion, Responsable, esObligatorio(Sí/No)</code><br>
+      Ejemplo: <code>Preparar el área, Limpiar y organizar, Juan, Sí</code>
+    </p>
+    <textarea
+      class="bulk-textarea"
+      rows="8"
+      [(ngModel)]="bulkText"
+      placeholder="Preparar el área, Limpiar y organizar, Juan, Sí&#10;Registrar participantes, , María, Sí&#10;Fotografiar el evento, , , No"
+    ></textarea>
+    <div class="form-actions">
+      <button class="btn-secondary" (click)="showBulk = false">Cancelar</button>
+      <button class="btn-primary" (click)="parseBulk()" [disabled]="!bulkText.trim() || bulkSaving">
+        {{ bulkSaving ? 'Importando...' : 'Importar' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" *ngIf="toast" [class.toast-error]="toast.type === 'error'">
+  {{ toast.message }}
+</div>

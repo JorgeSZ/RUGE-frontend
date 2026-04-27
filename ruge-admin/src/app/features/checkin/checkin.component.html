@@ -1,0 +1,112 @@
+<div class="checkin-page">
+
+  <!-- PIN screen -->
+  <div class="pin-screen" *ngIf="!pinVerified">
+    <div class="pin-card">
+      <div class="pin-logo">RUGE</div>
+      <h1>Check-in</h1>
+      <p>Ingresa el PIN para acceder</p>
+      <form [formGroup]="pinForm" (ngSubmit)="verifyPin()">
+        <input type="password" formControlName="pin" placeholder="● ● ● ●" maxlength="8" autocomplete="off" />
+        <div class="pin-error" *ngIf="pinForm.get('pin')?.hasError('wrong')">PIN incorrecto</div>
+        <button type="submit" [disabled]="pinForm.invalid">Ingresar</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Check-in screen -->
+  <div class="scan-screen" *ngIf="pinVerified">
+
+    <!-- Counter bar -->
+    <div class="counter-bar" *ngIf="summary as s">
+      <span class="counter-item">
+        <span class="counter-label">Senderistas</span>
+        <strong>{{ s.senderistasCheckIn }}/{{ s.totalSenderistas }}</strong>
+      </span>
+      <span class="counter-sep">|</span>
+      <span class="counter-item">
+        <span class="counter-label">Servidores</span>
+        <strong>{{ s.servidoresCheckIn }}/{{ s.totalServidores }}</strong>
+      </span>
+      <span class="counter-sep">|</span>
+      <span class="counter-item">
+        <span class="counter-label">General</span>
+        <strong>{{ s.porcentajeGeneral }}%</strong>
+      </span>
+    </div>
+
+    <div class="scan-card" [class.card-flash-success]="cardFlash === 'success'" [class.card-flash-error]="cardFlash === 'error'">
+      <h1>Check-in</h1>
+      <p class="subtitle">Escanea o ingresa el código QR</p>
+
+      <!-- Camera viewfinder -->
+      <div class="camera-wrapper" *ngIf="showCamera">
+        <video #videoRef autoplay playsinline muted class="camera-video"></video>
+        <canvas #canvasRef class="camera-canvas"></canvas>
+        <div class="camera-flash-overlay" *ngIf="cameraFlash" [class.flash-green]="cameraFlash === 'success'" [class.flash-red]="cameraFlash === 'error'"></div>
+        <div class="camera-hint">Apunta la cámara al código QR</div>
+      </div>
+
+      <!-- Camera error -->
+      <div class="camera-error" *ngIf="cameraError">{{ cameraError }}</div>
+
+      <!-- Camera toggle button -->
+      <button class="btn-camera" (click)="toggleCamera()" [disabled]="loading">
+        {{ cameraActive ? '⏹ Detener cámara' : '📷 Usar cámara' }}
+      </button>
+
+      <!-- Manual input -->
+      <div class="divider"><span>o ingresa el código manualmente</span></div>
+
+      <form [formGroup]="scanForm" (ngSubmit)="processCheckIn()" class="scan-form">
+        <input
+          formControlName="token"
+          placeholder="Escanea con lector USB o escribe el código..."
+          [disabled]="loading"
+        />
+        <button type="submit" [disabled]="scanForm.invalid || loading">
+          {{ loading ? '...' : 'Verificar' }}
+        </button>
+      </form>
+
+      <!-- Success -->
+      <div class="result result-ok" *ngIf="resultState === 'success' && result">
+        <lucide-icon name="circle-check" [size]="28" [strokeWidth]="1.5"></lucide-icon>
+        <div class="result-info">
+          <div class="result-name">{{ result.fullName }}</div>
+          <div class="result-meta">
+            <span class="badge" [class.badge-sender]="result.tipo === 'Senderista'" [class.badge-server]="result.tipo === 'Servidor'">{{ result.tipo }}</span>
+            <span *ngIf="result.iglesia" class="result-church">{{ result.iglesia }}</span>
+            <span *ngIf="result.comision" class="result-church">· {{ result.comision }}</span>
+          </div>
+          <div class="result-status">¡Bienvenido/a!</div>
+        </div>
+        <button class="btn-next" (click)="clearResult()">Siguiente</button>
+      </div>
+
+      <!-- Already checked-in -->
+      <div class="result result-warn" *ngIf="resultState === 'already' && result">
+        <div class="result-icon warn">!</div>
+        <div class="result-info">
+          <div class="result-name">{{ result.fullName }}</div>
+          <div class="result-meta">
+            <span class="badge" [class.badge-sender]="result.tipo === 'Senderista'" [class.badge-server]="result.tipo === 'Servidor'">{{ result.tipo }}</span>
+          </div>
+          <div class="result-status warn">Ya hizo check-in a las {{ formatTime(result.fechaCheckIn) }}</div>
+        </div>
+        <button class="btn-next" (click)="clearResult()">Siguiente</button>
+      </div>
+
+      <!-- Error -->
+      <div class="result result-err" *ngIf="resultState === 'error'">
+        <lucide-icon name="x-circle" [size]="28" [strokeWidth]="1.5" class="err"></lucide-icon>
+        <div class="result-info">
+          <div class="result-status err">{{ errorMsg }}</div>
+        </div>
+        <button class="btn-next" (click)="clearResult()">Reintentar</button>
+      </div>
+
+    </div>
+  </div>
+
+</div>

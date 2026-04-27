@@ -1,0 +1,124 @@
+<!-- Toast -->
+<div class="toast" *ngIf="toast">{{ toast }}</div>
+
+<!-- No active event -->
+<div class="empty-state" *ngIf="!hasActiveEvent">
+  <lucide-icon name="layers" [size]="48" [strokeWidth]="1.5" class="empty-icon"></lucide-icon>
+  <h3>Selecciona un evento para ver las comisiones</h3>
+  <p>Elige un evento activo desde la barra superior.</p>
+</div>
+
+<ng-container *ngIf="hasActiveEvent">
+
+  <!-- DETAIL VIEW -->
+  <ng-container *ngIf="selectedCommission">
+    <div class="page-header">
+      <div class="header-back">
+        <button class="btn-back" (click)="backToGrid()">← Volver</button>
+        <div>
+          <h2>
+            <span class="color-dot" [style.background]="getColor(commissions.indexOf(selectedCommission))"></span>
+            {{ selectedCommission.name }}
+          </h2>
+          <span class="sub">{{ eventCtx.activeEvent?.name }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="loadingServers" class="loading">Cargando servidores...</div>
+
+    <table *ngIf="!loadingServers" class="data-table">
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Cédula</th>
+          <th>Teléfono</th>
+          <th>Correo</th>
+          <th>Iglesia</th>
+          <th>País</th>
+          <th>Check-in</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let s of commissionServers">
+          <td>{{ s.firstLastName }} {{ s.firstName }} {{ s.secondLastName || '' }}</td>
+          <td>{{ s.cedula || '—' }}</td>
+          <td>{{ s.phone || '—' }}</td>
+          <td>{{ s.email || '—' }}</td>
+          <td>{{ s.church || '—' }}</td>
+          <td>{{ s.country || '—' }}</td>
+          <td>
+            <span [class]="s.checkInCompleted ? 'badge-ok' : 'badge-pending'">
+              {{ s.checkInCompleted ? 'Realizado' : 'Pendiente' }}
+            </span>
+          </td>
+        </tr>
+        <tr *ngIf="commissionServers.length === 0">
+          <td colspan="7" class="empty">Sin servidores asignados en este evento aún.</td>
+        </tr>
+      </tbody>
+    </table>
+  </ng-container>
+
+  <!-- GRID VIEW -->
+  <ng-container *ngIf="!selectedCommission">
+    <div class="page-header">
+      <div>
+        <h2>Comisiones</h2>
+        <span class="sub">{{ eventCtx.activeEvent?.name }}</span>
+      </div>
+      <button class="btn-primary" (click)="openCreate()">+ Nueva Comisión</button>
+    </div>
+
+    <!-- New / Edit form -->
+    <div class="modal-backdrop" *ngIf="showForm" (click)="cancel()">
+      <div class="modal-card" (click)="$event.stopPropagation()">
+        <h3>{{ editingId ? 'Editar' : 'Nueva' }} Comisión</h3>
+        <form [formGroup]="form" (ngSubmit)="submit()">
+          <div class="field">
+            <label>Nombre *</label>
+            <input formControlName="name" placeholder="Nombre de la comisión" />
+          </div>
+          <div class="field">
+            <label>Descripción</label>
+            <input formControlName="description" placeholder="Opcional" />
+          </div>
+          <div class="modal-actions">
+            <button class="btn-secondary" type="button" (click)="cancel()">Cancelar</button>
+            <button class="btn-primary" type="submit" [disabled]="form.invalid">Guardar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div *ngIf="loading" class="loading">Cargando...</div>
+
+    <div *ngIf="!loading && commissions.length === 0" class="empty-state">
+      <div class="empty-icon">🏷️</div>
+      <h3>Sin comisiones aún</h3>
+      <p>Crea la primera comisión con el botón "+ Nueva Comisión".</p>
+    </div>
+
+    <div class="commissions-grid" *ngIf="!loading && commissions.length > 0">
+      <div class="commission-card"
+           *ngFor="let c of commissions; let i = index"
+           (click)="openDetail(c)"
+           [style.border-top-color]="getColor(i)">
+        <div class="card-color-bar" [style.background]="getColor(i)"></div>
+        <div class="card-body">
+          <div class="card-name">{{ c.name }}</div>
+          <div class="card-desc" *ngIf="c.description">{{ c.description }}</div>
+          <div class="card-count">
+            <span class="count-badge" [style.background]="getColor(i)">{{ c.serverCount ?? 0 }}</span>
+            {{ c.serverCount === 1 ? 'servidor' : 'servidores' }}
+          </div>
+        </div>
+        <div class="card-actions" (click)="$event.stopPropagation()">
+          <button class="btn-sm" (click)="openEdit(c)">Editar</button>
+          <button class="btn-sm danger" (click)="delete(c.id)">Eliminar</button>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+
+</ng-container>

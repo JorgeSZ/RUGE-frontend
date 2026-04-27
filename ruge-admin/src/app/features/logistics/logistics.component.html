@@ -1,0 +1,48 @@
+<div class="page-header">
+  <h2>Logística</h2>
+  <button class="btn-outline" (click)="load()">Actualizar</button>
+</div>
+
+<div *ngIf="!eventCtx.activeEvent" class="empty-state">
+  Selecciona un evento para ver la logística.
+</div>
+
+<div *ngIf="eventCtx.activeEvent">
+  <div *ngIf="loading" class="loading">Cargando...</div>
+  <div *ngIf="error" class="error-msg">{{ error }}</div>
+
+  <div *ngIf="!loading && segments.length === 0 && !error" class="empty-state">
+    Este evento no tiene un track asignado o el track no tiene segmentos.
+  </div>
+
+  <div class="segments-grid" *ngIf="!loading && segments.length > 0">
+    <div
+      class="segment-card"
+      *ngFor="let s of segments"
+      (click)="openSegment(s.segmentId)"
+    >
+      <div class="segment-header">
+        <div class="segment-title">{{ s.segmentName }}</div>
+        <div class="segment-dia" *ngIf="s.dia">{{ s.dia }}</div>
+      </div>
+
+      <div class="segment-counts">
+        <span class="count-done">{{ s.completados }}</span>
+        <span class="count-sep">/</span>
+        <span class="count-total">{{ s.total }}</span>
+        <span class="count-label">ítems</span>
+      </div>
+
+      <div class="progress-bar">
+        <div
+          class="progress-fill"
+          [ngClass]="colorClass(s.porcentaje)"
+          [style.width.%]="s.porcentaje"
+        ></div>
+      </div>
+      <div class="progress-pct">{{ s.porcentaje }}% completo</div>
+
+      <div class="segment-cta">Ver detalle →</div>
+    </div>
+  </div>
+</div>

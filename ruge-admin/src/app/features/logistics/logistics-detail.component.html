@@ -1,0 +1,188 @@
+<div *ngIf="loading" class="loading">Cargando...</div>
+
+<div *ngIf="!loading && detail as d">
+
+  <!-- Breadcrumb -->
+  <div class="breadcrumb">
+    <a routerLink="/logistics">Logística</a>
+    <span class="breadcrumb-sep">›</span>
+    <span>{{ d.segmentName }}</span>
+  </div>
+
+  <!-- Header -->
+  <div class="page-header">
+    <div>
+      <h2>{{ d.segmentName }}</h2>
+      <div class="header-sub">{{ d.completados }}/{{ d.total }} ítems completados</div>
+    </div>
+    <div class="header-actions">
+      <button class="btn-outline" (click)="exportCsv()">Exportar CSV</button>
+      <button class="btn-outline" (click)="showBulk = true">Importar</button>
+      <button class="btn-primary" (click)="openAdd()">+ Agregar</button>
+    </div>
+  </div>
+
+  <!-- Progress -->
+  <div class="progress-bar" style="margin-bottom: 24px;">
+    <div
+      class="progress-fill"
+      [style.width.%]="d.total > 0 ? (d.completados / d.total * 100) : 0"
+    ></div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs-row">
+    <div class="tabs">
+      <button class="tab" [class.active]="activeTab === 'all'" (click)="activeTab = 'all'">Todos</button>
+      <button class="tab" *ngFor="let t of tipos" [class.active]="activeTab === t.toLowerCase()" (click)="activeTab = t.toLowerCase()">{{ t }}</button>
+    </div>
+  </div>
+
+  <!-- Groups -->
+  <div *ngFor="let g of visibleGroups" class="group-section">
+    <div class="group-header">
+      <span class="group-title">{{ g.tipo }}</span>
+      <span class="group-badge">{{ g.completados }}/{{ g.total }}</span>
+    </div>
+
+    <table class="data-table" *ngIf="g.items.length > 0">
+      <thead>
+        <tr>
+          <th style="width: 40px"><lucide-icon name="circle-check" [size]="15" [strokeWidth]="1.5"></lucide-icon></th>
+          <th>Nombre</th>
+          <th>Cant.</th>
+          <th>Responsable</th>
+          <th>Oblig.</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of g.items" [class.row-done]="item.completado">
+          <td>
+            <label class="toggle">
+              <input type="checkbox" [checked]="item.completado" (change)="toggleStatus(item)" />
+              <span class="slider"></span>
+            </label>
+          </td>
+          <td>
+            <div class="item-name" [class.item-done]="item.completado">{{ item.nombre }}</div>
+            <div class="item-desc" *ngIf="item.descripcion">{{ item.descripcion }}</div>
+            <div class="item-meta" *ngIf="item.completadoPor">por {{ item.completadoPor }}</div>
+          </td>
+          <td class="num-col">{{ item.cantidad }}<span *ngIf="item.unidad"> {{ item.unidad }}</span></td>
+          <td class="muted-col">{{ item.responsable || '—' }}</td>
+          <td><span class="oblig-badge" *ngIf="item.esObligatorio">Sí</span></td>
+          <td class="actions-col">
+            <button class="btn-sm" (click)="openEdit(item)">Editar</button>
+            <button class="btn-sm btn-danger" (click)="deleteItem(item)" title="Eliminar"><lucide-icon name="trash-2" [size]="13" [strokeWidth]="1.5"></lucide-icon></button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="empty" *ngIf="g.items.length === 0">Sin ítems en esta categoría.</div>
+  </div>
+
+  <div class="empty-state" *ngIf="visibleGroups.length === 0">
+    No hay ítems logísticos. Haz clic en "+ Agregar" para comenzar.
+  </div>
+</div>
+
+<!-- Add/Edit Modal -->
+<div class="modal-backdrop" *ngIf="showForm" (click)="showForm = false">
+  <div class="modal-card" (click)="$event.stopPropagation()">
+    <h3>{{ editTarget ? 'Editar ítem' : 'Nuevo ítem' }}</h3>
+    <form [formGroup]="itemForm" (ngSubmit)="saveItem()">
+      <div class="form-row">
+        <label>Nombre *</label>
+        <input formControlName="nombre" placeholder="Nombre del ítem" />
+      </div>
+      <div class="form-row">
+        <label>Descripción</label>
+        <input formControlName="descripcion" placeholder="Descripción opcional" />
+      </div>
+      <div class="form-row-2">
+        <div class="form-row">
+          <label>Tipo *</label>
+          <select formControlName="tipo">
+            <option *ngFor="let t of tipos" [value]="t">{{ t }}</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <label>Cantidad *</label>
+          <input type="number" formControlName="cantidad" min="1" />
+        </div>
+      </div>
+      <div class="form-row-2">
+        <div class="form-row">
+          <label>Unidad</label>
+          <input formControlName="unidad" placeholder="kg, unidades, etc." />
+        </div>
+        <div class="form-row">
+          <label>Responsable</label>
+          <input formControlName="responsable" placeholder="Nombre" />
+        </div>
+      </div>
+      <div class="form-row form-check">
+        <label>
+          <input type="checkbox" formControlName="esObligatorio" />
+          Obligatorio
+        </label>
+      </div>
+      <div class="form-actions">
+        <button type="button" class="btn-secondary" (click)="showForm = false">Cancelar</button>
+        <button type="submit" class="btn-primary" [disabled]="itemForm.invalid || saving">
+          {{ saving ? 'Guardando...' : 'Guardar' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Status Modal -->
+<div class="modal-backdrop" *ngIf="statusTarget" (click)="statusTarget = null">
+  <div class="modal-card" (click)="$event.stopPropagation()">
+    <h3>Completar: {{ statusTarget.nombre }}</h3>
+    <form [formGroup]="statusForm" (ngSubmit)="confirmStatus()">
+      <div class="form-row">
+        <label>Completado por</label>
+        <input formControlName="completadoPor" placeholder="Nombre de quien lo completó" />
+      </div>
+      <div class="form-row">
+        <label>Notas</label>
+        <textarea formControlName="notas" rows="3" placeholder="Observaciones opcionales"></textarea>
+      </div>
+      <div class="form-actions">
+        <button type="button" class="btn-secondary" (click)="statusTarget = null">Cancelar</button>
+        <button type="submit" class="btn-primary" [disabled]="statusSaving">
+          {{ statusSaving ? 'Guardando...' : 'Confirmar' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Bulk Import Modal -->
+<div class="modal-backdrop" *ngIf="showBulk" (click)="showBulk = false">
+  <div class="modal-card modal-wide" (click)="$event.stopPropagation()">
+    <h3>Importar ítems en bloque</h3>
+    <p class="modal-info">Una línea por ítem. Formato: <code>Nombre, Tipo, Cantidad, Unidad, Responsable</code></p>
+    <textarea
+      class="bulk-textarea"
+      rows="8"
+      [(ngModel)]="bulkText"
+      placeholder="Cuerdas, Material, 10, unidades, Juan&#10;Botiquín, Implemento, 2, , María"
+    ></textarea>
+    <div class="form-actions">
+      <button class="btn-secondary" (click)="showBulk = false">Cancelar</button>
+      <button class="btn-primary" (click)="parseBulk()" [disabled]="!bulkText.trim() || bulkSaving">
+        {{ bulkSaving ? 'Importando...' : 'Importar' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" *ngIf="toast" [class.toast-error]="toast.type === 'error'">
+  {{ toast.message }}
+</div>

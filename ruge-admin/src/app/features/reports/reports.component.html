@@ -1,0 +1,163 @@
+<div class="page-header">
+  <div>
+    <h2>Reportes</h2>
+    <span class="event-badge-inline" *ngIf="eventCtx.activeEvent">{{ eventCtx.activeEvent.name }}</span>
+  </div>
+</div>
+
+<div *ngIf="!eventCtx.activeEvent" class="empty-state">Selecciona un evento para generar reportes.</div>
+
+<ng-container *ngIf="eventCtx.activeEvent">
+
+  <!-- Report cards grid -->
+  <div class="report-cards">
+
+    <!-- Card 1: Camisas -->
+    <div class="report-card" [class.expanded]="activeCard === 'shirts'">
+      <div class="card-header">
+        <lucide-icon name="shirt" [size]="32" [strokeWidth]="1.5" class="card-icon"></lucide-icon>
+        <div class="card-info">
+          <div class="card-title">Pedido de Camisas</div>
+          <div class="card-desc">Lista de senderistas con su talla de camisa</div>
+        </div>
+        <div class="card-actions">
+          <button class="btn-excel" (click)="exportShirtSummary(); $event.stopPropagation()"><lucide-icon name="file-spreadsheet" [size]="15" [strokeWidth]="1.5"></lucide-icon> Excel</button>
+          <button class="btn-ver" (click)="openShirts()">
+            {{ activeCard === 'shirts' ? 'Cerrar' : 'Ver reporte' }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Expanded shirt content -->
+      <div class="card-body" *ngIf="activeCard === 'shirts'">
+        <div *ngIf="loadingShirts" class="skeleton-table">
+          <div class="skeleton-row" *ngFor="let i of [1,2,3,4]"></div>
+        </div>
+
+        <ng-container *ngIf="!loadingShirts">
+          <!-- Tabs -->
+          <div class="tabs-row">
+            <div class="tabs">
+              <button class="tab" [class.active]="activeShirtTab === 'summary'" (click)="activeShirtTab = 'summary'">Resumen</button>
+              <button class="tab" [class.active]="activeShirtTab === 'list'" (click)="activeShirtTab = 'list'">Lista completa</button>
+            </div>
+            <button class="btn-excel-sm" (click)="exportShirtList()"><lucide-icon name="file-spreadsheet" [size]="14" [strokeWidth]="1.5"></lucide-icon> Lista completa Excel</button>
+          </div>
+
+          <!-- Summary tab -->
+          <div *ngIf="activeShirtTab === 'summary' && shirtSummary">
+            <div class="talla-cards">
+              <div class="talla-card" *ngFor="let s of shirtSummary.sizes"
+                   [style.border-color]="tallaColor(s.shirtSize)">
+                <div class="talla-label" [style.color]="tallaTextColor(s.shirtSize)"
+                     [style.background]="tallaColor(s.shirtSize)">{{ s.shirtSize }}</div>
+                <div class="talla-count">{{ s.count }}</div>
+                <div class="talla-pct">{{ s.percentage | number:'1.0-1' }}%</div>
+                <div class="talla-bar-wrap">
+                  <div class="talla-bar" [style.width.%]="progressWidth(s.count)"
+                       [style.background]="tallaColor(s.shirtSize)"></div>
+                </div>
+              </div>
+            </div>
+            <div class="total-box">Total: <strong>{{ shirtSummary.totalParticipants }}</strong> camisas</div>
+          </div>
+
+          <!-- List tab -->
+          <div *ngIf="activeShirtTab === 'list'">
+            <div class="list-filters">
+              <select [(ngModel)]="shirtFilter">
+                <option value="">Todas las tallas</option>
+                <option *ngFor="let t of ['S','M','L','XL']" [value]="t">{{ t }}</option>
+              </select>
+              <input class="search-input" [(ngModel)]="shirtSearch" placeholder="Buscar por nombre..." />
+              <span class="count">{{ filteredShirtList.length }} resultado(s)</span>
+            </div>
+
+            <div *ngIf="filteredShirtList.length === 0" class="empty-state">No hay senderistas con talla asignada.</div>
+
+            <table class="data-table" *ngIf="filteredShirtList.length > 0">
+              <thead>
+                <tr>
+                  <th>Nombre completo</th>
+                  <th style="width: 80px">Talla</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let p of filteredShirtList">
+                  <td>{{ p.primerApellido }} {{ p.nombre }} {{ p.segundoApellido || '' }}</td>
+                  <td>
+                    <span class="talla-badge"
+                          [style.background]="tallaColor(p.talla)"
+                          [style.color]="tallaTextColor(p.talla)">{{ p.talla }}</span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </ng-container>
+      </div>
+    </div>
+
+    <!-- Card 2: Parches de Discipulado -->
+    <div class="report-card" [class.expanded]="activeCard === 'patches'">
+      <div class="card-header">
+        <lucide-icon name="award" [size]="32" [strokeWidth]="1.5" class="card-icon"></lucide-icon>
+        <div class="card-info">
+          <div class="card-title">Parches de Discipulado</div>
+          <div class="card-desc">Servidores con discipulado que aún no tienen su parche</div>
+        </div>
+        <div class="card-actions">
+          <button class="btn-excel" (click)="exportPatches(); $event.stopPropagation()"><lucide-icon name="file-spreadsheet" [size]="15" [strokeWidth]="1.5"></lucide-icon> Excel</button>
+          <button class="btn-ver" (click)="openPatches()">
+            {{ activeCard === 'patches' ? 'Cerrar' : 'Ver reporte' }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Expanded patches content -->
+      <div class="card-body" *ngIf="activeCard === 'patches'">
+        <div *ngIf="loadingPatches" class="skeleton-table">
+          <div class="skeleton-row" *ngFor="let i of [1,2,3]"></div>
+        </div>
+
+        <ng-container *ngIf="!loadingPatches && patches">
+          <!-- Banner count -->
+          <div class="patches-banner" *ngIf="patches.totalParchesPendientes > 0">
+            <div class="patches-num">{{ patches.totalParchesPendientes }}</div>
+            <div class="patches-label">parches a entregar</div>
+          </div>
+
+          <!-- All done message -->
+          <div class="patches-done" *ngIf="patches.totalParchesPendientes === 0">
+            <lucide-icon name="circle-check" [size]="16" [strokeWidth]="1.5"></lucide-icon> Todos los servidores con discipulado ya tienen su parche
+          </div>
+
+          <ng-container *ngIf="patches.totalParchesPendientes > 0">
+            <div class="list-filters">
+              <input class="search-input" [(ngModel)]="patchSearch" placeholder="Buscar por nombre..." />
+            </div>
+
+            <div *ngFor="let group of patchesByCommission" class="commission-group">
+              <div class="commission-header">
+                <span>{{ group.comision }}</span>
+                <span class="commission-badge">{{ group.items.length }}</span>
+              </div>
+              <table class="data-table">
+                <thead>
+                  <tr><th>Nombre completo</th><th>Iglesia</th></tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let s of group.items">
+                    <td>{{ s.primerApellido }} {{ s.nombre }} {{ s.segundoApellido || '' }}</td>
+                    <td class="muted-col">{{ s.iglesia || '—' }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </ng-container>
+        </ng-container>
+      </div>
+    </div>
+
+  </div>
+</ng-container>

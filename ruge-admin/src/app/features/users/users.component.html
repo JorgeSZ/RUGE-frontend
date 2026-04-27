@@ -1,0 +1,100 @@
+<div class="page-header">
+  <h2>Usuarios</h2>
+  <button class="btn-primary" (click)="openCreate()">
+    <lucide-icon name="user-plus" [size]="15" [strokeWidth]="1.5"></lucide-icon>
+    Nuevo Usuario
+  </button>
+</div>
+
+<div *ngIf="loading" class="loading">Cargando...</div>
+
+<table *ngIf="!loading" class="data-table">
+  <thead>
+    <tr>
+      <th>Nombre</th>
+      <th>Usuario</th>
+      <th>Rol</th>
+      <th>Estado</th>
+      <th>Último acceso</th>
+      <th>Acciones</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let u of users" [class.row-inactive]="!u.activo">
+      <td class="user-name">{{ u.nombre }}</td>
+      <td class="user-username">@{{ u.username }}</td>
+      <td><span class="role-badge" [ngClass]="roleBadgeClass(u.rol)">{{ u.rol }}</span></td>
+      <td>
+        <span class="badge-ok" *ngIf="u.activo">Activo</span>
+        <span class="badge-danger" *ngIf="!u.activo">Inactivo</span>
+      </td>
+      <td class="muted-col">{{ u.ultimoAcceso ? (u.ultimoAcceso | date:'dd/MM/yyyy HH:mm') : '—' }}</td>
+      <td class="actions">
+        <button class="btn-sm" title="Editar"
+          [disabled]="u.id === currentUserId"
+          (click)="openEdit(u)">
+          <lucide-icon name="pencil" [size]="13" [strokeWidth]="1.5"></lucide-icon>
+        </button>
+        <button class="btn-sm" title="Resetear contraseña"
+          [disabled]="u.id === currentUserId"
+          (click)="resetPassword(u)">
+          <lucide-icon name="key-round" [size]="13" [strokeWidth]="1.5"></lucide-icon>
+        </button>
+        <button class="btn-sm danger" title="Desactivar"
+          *ngIf="u.activo"
+          [disabled]="u.id === currentUserId"
+          (click)="deactivate(u)">
+          <lucide-icon name="user-minus" [size]="13" [strokeWidth]="1.5"></lucide-icon>
+        </button>
+      </td>
+    </tr>
+    <tr *ngIf="users.length === 0">
+      <td colspan="6" class="empty">No hay usuarios.</td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- Modal -->
+<div class="modal-backdrop" *ngIf="showForm" (click)="showForm = false">
+  <div class="modal-card" (click)="$event.stopPropagation()">
+    <h3>{{ editTarget ? 'Editar usuario' : 'Nuevo usuario' }}</h3>
+    <form [formGroup]="form" (ngSubmit)="save()">
+      <div class="form-row">
+        <label>Nombre *</label>
+        <input formControlName="nombre" placeholder="Nombre completo" />
+      </div>
+      <ng-container *ngIf="!editTarget">
+        <div class="form-row">
+          <label>Username *</label>
+          <input formControlName="username" placeholder="nombre.usuario" />
+        </div>
+        <div class="form-row">
+          <label>Contraseña inicial *</label>
+          <input type="password" formControlName="password" placeholder="Mínimo 8 caracteres" />
+        </div>
+      </ng-container>
+      <div class="form-row">
+        <label>Rol *</label>
+        <select formControlName="rol">
+          <option *ngFor="let r of roles" [value]="r">{{ r }}</option>
+        </select>
+      </div>
+      <div class="form-row form-check" *ngIf="editTarget">
+        <label>
+          <input type="checkbox" formControlName="activo" />
+          Usuario activo
+        </label>
+      </div>
+      <div class="form-actions">
+        <button type="button" class="btn-secondary" (click)="showForm = false">Cancelar</button>
+        <button type="submit" class="btn-primary" [disabled]="form.invalid || saving">
+          {{ saving ? 'Guardando...' : 'Guardar' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="toast" *ngIf="toast" [class.toast-error]="toast.type === 'error'">
+  {{ toast.message }}
+</div>

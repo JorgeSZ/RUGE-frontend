@@ -1,0 +1,85 @@
+<div class="dev-page">
+  <div class="dev-header">
+    <span class="dev-badge">DEV</span>
+    <h2>Herramientas de Desarrollo</h2>
+  </div>
+
+  <div class="prod-warning" *ngIf="isProd">
+    Esta página no está disponible en producción.
+  </div>
+
+  <ng-container *ngIf="!isProd">
+    <div class="seed-card">
+      <div class="seed-icon">🌱</div>
+      <h3>Cargar datos de prueba</h3>
+      <p class="seed-desc">
+        Genera datos realistas para toda la base de datos:<br>
+        3 eventos · 270 senderistas · 360 servidores · 27 tribus · logística · tareas
+      </p>
+
+      <!-- Idle -->
+      <button class="btn-seed" *ngIf="state === 'idle'" (click)="askConfirm()">
+        🌱 Cargar datos de prueba
+      </button>
+
+      <!-- Confirming -->
+      <div class="confirm-box" *ngIf="state === 'confirming'">
+        <div class="confirm-icon">⚠️</div>
+        <p class="confirm-msg">
+          Esto eliminará <strong>TODOS los datos existentes</strong> y los reemplazará
+          con datos de prueba. ¿Continuar?
+        </p>
+        <div class="confirm-actions">
+          <button class="btn-cancel" (click)="cancel()">Cancelar</button>
+          <button class="btn-confirm" (click)="runSeed()">Sí, cargar datos</button>
+        </div>
+      </div>
+
+      <!-- Loading -->
+      <div class="loading-box" *ngIf="state === 'loading'">
+        <div class="spinner"></div>
+        <p>Generando datos... esto puede tomar 10-15 segundos.</p>
+      </div>
+
+      <!-- Done -->
+      <div class="result-box" *ngIf="state === 'done' && result">
+        <div class="result-header">✅ {{ result.mensaje }}</div>
+        <div class="result-grid">
+          <div class="result-item">
+            <span class="result-val">{{ result.eventos }}</span>
+            <span class="result-lbl">Eventos</span>
+          </div>
+          <div class="result-item">
+            <span class="result-val">{{ result.senderistas }}</span>
+            <span class="result-lbl">Senderistas</span>
+          </div>
+          <div class="result-item">
+            <span class="result-val">{{ result.servidores }}</span>
+            <span class="result-lbl">Servidores</span>
+          </div>
+          <div class="result-item">
+            <span class="result-val">{{ result.tribus }}</span>
+            <span class="result-lbl">Tribus</span>
+          </div>
+          <div class="result-item">
+            <span class="result-val">{{ result.itemsLogistica }}</span>
+            <span class="result-lbl">Ítems logística</span>
+          </div>
+          <div class="result-item">
+            <span class="result-val">{{ result.tareasEvento }}</span>
+            <span class="result-lbl">Tareas</span>
+          </div>
+        </div>
+        <div class="result-time">Completado en {{ result.tiempoMs | number }}ms</div>
+        <button class="btn-reset" (click)="reset()">Volver</button>
+      </div>
+
+      <!-- Error -->
+      <div class="error-box" *ngIf="state === 'error'">
+        <div class="error-icon">❌</div>
+        <p>{{ errorMsg }}</p>
+        <button class="btn-reset" (click)="reset()">Reintentar</button>
+      </div>
+    </div>
+  </ng-container>
+</div>

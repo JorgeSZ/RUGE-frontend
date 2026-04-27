@@ -1,0 +1,80 @@
+<div class="page-header">
+  <h2>Eventos</h2>
+  <button class="btn-outline" (click)="load()" *ngIf="eventCtx.activeEvent">Actualizar</button>
+</div>
+
+<div *ngIf="!eventCtx.activeEvent" class="empty-state">
+  Selecciona un evento para ver las tareas.
+</div>
+
+<ng-container *ngIf="eventCtx.activeEvent">
+  <div *ngIf="loading" class="skeleton-grid">
+    <div class="skeleton-card" *ngFor="let i of [1,2,3,4]"></div>
+  </div>
+
+  <div *ngIf="error" class="error-msg">{{ error }}</div>
+
+  <ng-container *ngIf="!loading && !error">
+    <!-- Global progress bar -->
+    <div class="global-stats" *ngIf="segments.length > 0">
+      <div class="global-bar-row">
+        <span class="global-label">Progreso global</span>
+        <span class="global-pct">{{ globalPorcentaje }}%</span>
+      </div>
+      <div class="progress-bar global-bar">
+        <div class="progress-fill" [ngClass]="fillClass(globalPorcentaje)" [style.width.%]="globalPorcentaje"></div>
+      </div>
+      <div class="mini-stats">
+        <span class="mini-stat"><strong>{{ globalTotal }}</strong> tareas</span>
+        <span class="mini-stat-sep">·</span>
+        <span class="mini-stat"><strong>{{ globalCompletadas }}</strong> completadas</span>
+        <span *ngIf="globalObligatoriasPendientes > 0" class="mini-stat mini-stat-alert">
+          <strong>{{ globalObligatoriasPendientes }}</strong> obligatorias pendientes
+        </span>
+      </div>
+    </div>
+
+    <div *ngIf="segments.length === 0" class="empty-state">
+      Este evento no tiene un track asignado o el track no tiene segmentos.
+    </div>
+
+    <!-- Segments grouped by track -->
+    <div *ngFor="let track of tracks" class="track-section">
+      <div class="track-title">{{ track.nombre }}</div>
+
+      <div class="segments-grid">
+        <div
+          class="segment-card"
+          *ngFor="let s of track.segments"
+          [ngClass]="cardClass(s)"
+          (click)="openSegment(s.segmentId)"
+        >
+          <div class="segment-header">
+            <div class="segment-title">{{ s.segmentName }}</div>
+            <span class="oblig-alert" *ngIf="s.tareasObligatoriasPendientes > 0">
+              {{ s.tareasObligatoriasPendientes }} obligatoria(s) pendiente(s)
+            </span>
+          </div>
+
+          <div class="segment-counts">
+            <span class="count-done">{{ s.completadas }}</span>
+            <span class="count-sep">/</span>
+            <span class="count-total">{{ s.total }}</span>
+            <span class="count-label">tareas</span>
+          </div>
+
+          <div class="progress-bar">
+            <div
+              class="progress-fill"
+              [ngClass]="fillClass(s.porcentaje)"
+              [style.width.%]="s.porcentaje"
+            ></div>
+          </div>
+          <div class="progress-pct">{{ s.porcentaje }}% completado</div>
+
+          <div class="segment-cta">Ver tareas →</div>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+</ng-container>

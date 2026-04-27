@@ -1,0 +1,148 @@
+<!-- No event selected -->
+<div class="empty-state" *ngIf="!eventCtx.activeEvent">
+  <lucide-icon name="users" [size]="48" [strokeWidth]="1.5" class="empty-icon"></lucide-icon>
+  <p>Selecciona un evento para ver las tribus.</p>
+</div>
+
+<ng-container *ngIf="eventCtx.activeEvent">
+
+  <!-- Toast -->
+  <div class="toast" *ngIf="toast" [class.toast-error]="toast.type === 'error'">
+    {{ toast.message }}
+  </div>
+
+  <!-- Header -->
+  <div class="page-header">
+    <div>
+      <h2>Tribus</h2>
+      <span class="sub">{{ eventCtx.activeEvent.name }}</span>
+    </div>
+    <div class="header-actions">
+      <button class="btn-danger-outline" *ngIf="hasTribes" (click)="openDeleteAll()">
+        🗑 Eliminar todas
+      </button>
+      <button class="btn-secondary" (click)="openAutoGen()">⚡ Auto-generar</button>
+      <button class="btn-primary" (click)="openCreate()">+ Nueva Tribu</button>
+    </div>
+  </div>
+
+  <!-- Manual create/edit form -->
+  <div class="modal-backdrop" *ngIf="showForm" (click)="cancelForm()">
+    <div class="modal-card" (click)="$event.stopPropagation()">
+      <h3>{{ editingId ? 'Editar' : 'Nueva' }} Tribu</h3>
+      <form [formGroup]="form" (ngSubmit)="submit()">
+        <div class="form-row">
+          <div class="field">
+            <label>Nombre *</label>
+            <input formControlName="name" placeholder="Nombre de la tribu" />
+          </div>
+          <div class="field">
+            <label>Color (opcional)</label>
+            <input formControlName="color" placeholder="ej. #4f46e5 o azul" />
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="btn-secondary" type="button" (click)="cancelForm()">Cancelar</button>
+          <button class="btn-primary" type="submit" [disabled]="form.invalid">Guardar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Auto-generate modal -->
+  <div class="modal-backdrop" *ngIf="showAutoGenModal" (click)="cancelAutoGen()">
+    <div class="modal-card" (click)="$event.stopPropagation()">
+      <h3>⚡ Auto-generar Tribus</h3>
+      <p class="modal-info">Se crearán tribus automáticamente basándose en el total de senderistas del evento activo.</p>
+
+      <div class="stat-row">
+        <span class="stat-label">Total de senderistas en este evento:</span>
+        <strong>{{ participantCount }}</strong>
+      </div>
+
+      <div class="warning-box" *ngIf="hasTribes">
+        ⚠️ Ya existen tribus en este evento. Debes eliminarlas primero antes de auto-generar.
+      </div>
+
+      <form [formGroup]="autoGenForm">
+        <div class="field">
+          <label>Senderistas por tribu</label>
+          <input type="number" formControlName="senderistasPerTribe" min="2" />
+        </div>
+        <div class="preview-row" *ngIf="participantCount > 0 && !hasTribes">
+          Se crearán aproximadamente <strong>{{ previewTribes }}</strong> tribus.
+        </div>
+      </form>
+
+      <div class="form-actions">
+        <button class="btn-secondary" type="button" (click)="cancelAutoGen()">Cancelar</button>
+        <button class="btn-primary" [disabled]="autoGenForm.invalid || hasTribes || autoGenLoading" (click)="confirmAutoGen()">
+          {{ autoGenLoading ? 'Generando...' : 'Generar' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete all confirmation dialog -->
+  <div class="modal-backdrop" *ngIf="showDeleteAllDialog" (click)="cancelDeleteAll()">
+    <div class="modal-card" (click)="$event.stopPropagation()">
+      <h3>Eliminar todas las tribus</h3>
+      <p class="modal-info danger-text">
+        ¿Estás seguro? Se eliminarán <strong>todas las tribus y asignaciones</strong> del evento activo.
+        Esta acción no se puede deshacer.
+      </p>
+      <div class="form-actions">
+        <button class="btn-secondary" type="button" (click)="cancelDeleteAll()">Cancelar</button>
+        <button class="btn-danger" [disabled]="deleteAllLoading" (click)="confirmDeleteAll()">
+          {{ deleteAllLoading ? 'Eliminando...' : 'Sí, eliminar todas' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="loading">Cargando tribus...</div>
+
+  <!-- Empty state -->
+  <div class="empty-state" *ngIf="!loading && tribes.length === 0">
+    <lucide-icon name="users" [size]="48" [strokeWidth]="1.5" class="empty-icon"></lucide-icon>
+    <p>No hay tribus en este evento.</p>
+    <p class="empty-sub">Crea una manualmente o usa <strong>Auto-generar</strong>.</p>
+  </div>
+
+  <!-- Tribes grid -->
+  <div class="tribes-grid" *ngIf="!loading && tribes.length > 0">
+    <div class="tribe-card" *ngFor="let t of tribes">
+      <div class="tribe-card-header" [style.background]="t.color || '#4f46e5'">
+        <span class="tribe-name">{{ t.name }}</span>
+        <span class="tribe-badge">{{ t.participantCount }}</span>
+      </div>
+      <div class="tribe-card-actions">
+        <button class="btn-sm" (click)="openEdit(t)">Editar</button>
+        <button class="btn-sm danger" (click)="delete(t.id)">Eliminar</button>
+      </div>
+      <div class="tribe-members" *ngIf="t.participants.length > 0">
+        <table class="members-table">
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Cédula</th>
+              <th>Iglesia</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let p of t.participants">
+              <td>{{ p.fullName }}</td>
+              <td>{{ p.cedula || '—' }}</td>
+              <td>{{ p.church || '—' }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="no-members" *ngIf="!t.participants.length">
+        Sin senderistas asignados aún.
+      </div>
+    </div>
+  </div>
+
+</ng-container>

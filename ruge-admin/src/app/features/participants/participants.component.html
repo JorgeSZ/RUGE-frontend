@@ -1,0 +1,165 @@
+<div class="page-header">
+  <div>
+    <h2>Senderistas</h2>
+    <span class="sub">{{ eventCtx.activeEvent?.name }}</span>
+  </div>
+  <button class="btn-primary" (click)="openCreate()">+ Agregar Senderista</button>
+</div>
+
+<!-- URL pública de registro -->
+<div class="url-bar">
+  <label>Enlace de registro público:</label>
+  <div class="url-row">
+    <input type="text" [value]="publicUrl" readonly class="url-input" />
+    <button class="btn-copy" (click)="copyUrl()" [class.copied]="copied">
+      <lucide-icon [name]="copied ? 'copy-check' : 'copy'" [size]="14" [strokeWidth]="1.5"></lucide-icon> {{ copied ? 'Copiado' : 'Copiar' }}
+    </button>
+  </div>
+</div>
+
+<div class="card form-card" *ngIf="showForm">
+  <h3>{{ editingId ? 'Editar' : 'Nuevo' }} Senderista</h3>
+  <form [formGroup]="form" (ngSubmit)="submit()">
+    <div class="form-row">
+      <div class="field">
+        <label>Nombre *</label>
+        <input formControlName="firstName" placeholder="Nombre" />
+      </div>
+      <div class="field">
+        <label>1er Apellido *</label>
+        <input formControlName="firstLastName" placeholder="Primer apellido" />
+      </div>
+      <div class="field">
+        <label>2do Apellido</label>
+        <input formControlName="secondLastName" placeholder="Segundo apellido" />
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="field">
+        <label>Cédula</label>
+        <input formControlName="cedula" placeholder="Número de documento" />
+      </div>
+      <div class="field">
+        <label>Fecha de Nacimiento</label>
+        <input type="date" formControlName="birthDate" />
+      </div>
+      <div class="field">
+        <label>Estado Civil</label>
+        <select formControlName="maritalStatus">
+          <option value="">— ninguno —</option>
+          <option *ngFor="let m of maritalStatuses" [value]="m">{{ m }}</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="field">
+        <label>Correo</label>
+        <input formControlName="email" placeholder="correo@ejemplo.com" />
+      </div>
+      <div class="field">
+        <label>Teléfono</label>
+        <input formControlName="phone" placeholder="+1 555..." />
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="field">
+        <label>Iglesia</label>
+        <input formControlName="church" placeholder="Nombre de la iglesia" />
+      </div>
+      <div class="field">
+        <label>País</label>
+        <input formControlName="country" placeholder="País" />
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="field">
+        <label>Talla de Camisa</label>
+        <select formControlName="shirtSize">
+          <option value="">— ninguna —</option>
+          <option *ngFor="let s of shirtSizes" [value]="s">{{ s }}</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Tribu</label>
+        <select formControlName="tribeId">
+          <option value="">— sin asignar —</option>
+          <option *ngFor="let t of tribes" [value]="t.id">{{ t.name }}</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-actions">
+      <button class="btn-secondary" type="button" (click)="cancel()">Cancelar</button>
+      <button class="btn-primary" type="submit" [disabled]="form.invalid">Guardar</button>
+    </div>
+  </form>
+</div>
+
+<div class="toolbar">
+  <label>Filtrar por tribu:</label>
+  <select [(ngModel)]="filterTribeId" [disabled]="filterSinTribu">
+    <option value="">Todas las tribus</option>
+    <option *ngFor="let t of tribes" [value]="t.id">{{ t.name }}</option>
+  </select>
+
+  <button
+    class="btn-filter-sin-tribu"
+    [class.active]="filterSinTribu"
+    (click)="toggleSinTribu()"
+    title="Mostrar solo senderistas sin tribu asignada">
+    Sin Tribu
+    <span class="sin-tribu-badge">{{ sinTribuCount }}</span>
+  </button>
+
+  <span class="count">{{ filtered.length }} senderistas</span>
+</div>
+
+<div *ngIf="loading" class="loading">Cargando...</div>
+
+<table *ngIf="!loading" class="data-table">
+  <thead>
+    <tr>
+      <th>Nombre</th>
+      <th>Cédula</th>
+      <th>Edad</th>
+      <th>Correo</th>
+      <th>Teléfono</th>
+      <th>Iglesia</th>
+      <th>Talla</th>
+      <th>Tribu</th>
+      <th>Check-in</th>
+      <th>QR</th>
+      <th>Acciones</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let p of filtered">
+      <td>{{ p.firstLastName }} {{ p.firstName }} {{ p.secondLastName || '' }}</td>
+      <td>{{ p.cedula || '—' }}</td>
+      <td>{{ p.age ?? '—' }}</td>
+      <td>{{ p.email || '—' }}</td>
+      <td>{{ p.phone || '—' }}</td>
+      <td>{{ p.church || '—' }}</td>
+      <td>{{ p.shirtSize || '—' }}</td>
+      <td>
+        <span *ngIf="p.tribeName">{{ p.tribeName }}</span>
+        <span *ngIf="!p.tribeName" class="badge-sin-tribu">Sin tribu</span>
+      </td>
+      <td>
+        <span [class]="p.checkInCompleted ? 'badge-ok' : 'badge-pending'">
+          {{ p.checkInCompleted ? 'Realizado' : 'Pendiente' }}
+        </span>
+      </td>
+      <td>
+        <a *ngIf="p.qrCode" [href]="getQrUrl(p)" target="_blank" class="btn-sm">Ver QR</a>
+        <span *ngIf="!p.qrCode">—</span>
+      </td>
+      <td class="actions">
+        <button class="btn-sm" (click)="openEdit(p)">Editar</button>
+        <button class="btn-sm danger" (click)="delete(p.id)">Eliminar</button>
+      </td>
+    </tr>
+    <tr *ngIf="filtered.length === 0">
+      <td colspan="11" class="empty">No hay senderistas.</td>
+    </tr>
+  </tbody>
+</table>

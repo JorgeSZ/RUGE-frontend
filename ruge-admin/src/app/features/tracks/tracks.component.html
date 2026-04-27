@@ -1,0 +1,228 @@
+<div class="page-header">
+  <h2>Tracks</h2>
+  <button class="btn-primary" (click)="openCreateTrack()">+ Nuevo Track</button>
+</div>
+
+<!-- Track form -->
+<div class="card form-card" *ngIf="showTrackForm">
+  <h3>{{ editingTrackId ? 'Editar Track' : 'Nuevo Track' }}</h3>
+  <form [formGroup]="trackForm" (ngSubmit)="submitTrack()">
+    <div class="form-row">
+      <div class="field">
+        <label>Nombre *</label>
+        <input formControlName="name" placeholder="Nombre del Track" />
+      </div>
+      <div class="field">
+        <label>Descripción</label>
+        <input formControlName="description" placeholder="Opcional" />
+      </div>
+    </div>
+    <div class="form-actions">
+      <button class="btn-secondary" type="button" (click)="cancelTrack()">Cancelar</button>
+      <button class="btn-primary" type="submit" [disabled]="trackForm.invalid">Guardar Track</button>
+    </div>
+  </form>
+</div>
+
+<div class="layout">
+  <!-- Left: track list -->
+  <div class="track-list">
+    <div *ngIf="loading" class="loading">Cargando...</div>
+
+    <div
+      *ngFor="let t of tracks"
+      class="track-item"
+      [class.selected]="t.id === selectedTrack?.id"
+      (click)="selectTrack(t)"
+    >
+      <div class="track-item-body">
+        <div class="track-item-name">{{ t.name }}</div>
+        <div class="track-item-meta">
+          <span *ngIf="t.segments.length > 0">{{ segmentsKm(t.segments) }} km</span>
+          <span>{{ t.segments.length }} seg{{ t.segments.length !== 1 ? 's' : '' }}</span>
+        </div>
+      </div>
+      <div class="track-item-actions">
+        <button class="btn-sm" (click)="openEditTrack(t, $event)">Editar</button>
+        <button class="btn-sm danger" (click)="deleteTrack(t, $event)">Eliminar</button>
+      </div>
+    </div>
+
+    <div class="empty" *ngIf="!loading && tracks.length === 0">
+      Sin Tracks aún. Crea uno arriba.
+    </div>
+  </div>
+
+  <!-- Right: segment detail -->
+  <div class="segment-panel" *ngIf="selectedTrack">
+    <div class="segment-header">
+      <div>
+        <div class="segment-title">{{ selectedTrack.name }}</div>
+        <div class="segment-subtitle">
+          <span *ngIf="totalDistanceKm > 0">{{ totalDistanceKm | number:'1.1-2' }} km total</span>
+          <span>{{ selectedTrack.segments.length }} segmento{{ selectedTrack.segments.length !== 1 ? 's' : '' }}</span>
+        </div>
+      </div>
+      <button class="btn-primary" (click)="openAddSegment()">+ Agregar Segmento</button>
+    </div>
+
+    <!-- Segment form -->
+    <div class="card form-card" *ngIf="showSegmentForm">
+      <h3>{{ editingSegmentId ? 'Editar Segmento' : 'Nuevo Segmento' }}</h3>
+      <form [formGroup]="segmentForm" (ngSubmit)="submitSegment()">
+
+        <div class="form-row">
+          <div class="field">
+            <label>Nombre *</label>
+            <input formControlName="name" placeholder="Nombre del segmento" />
+          </div>
+          <div class="field">
+            <label>Día</label>
+            <select formControlName="dia">
+              <option value="">— ninguno —</option>
+              <option *ngFor="let d of dias" [value]="d">{{ d }}</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Scheduled time with cascade indicators -->
+        <div class="form-row">
+          <div class="field time-field" style="flex: 0 0 220px">
+            <label class="label-with-badge">
+              Hora de inicio
+              <span class="badge-auto"
+                    *ngIf="isAutoTime"
+                    title="Calculado automáticamente desde el segmento anterior">
+                ⟳ auto
+              </span>
+              <span class="badge-manual"
+                    *ngIf="timeManuallyChanged"
+                    title="Este valor fue editado manualmente. Los cambios en segmentos anteriores no lo actualizarán.">
+                ⚠ manual
+              </span>
+            </label>
+            <input type="time"
+                   formControlName="scheduledTime"
+                   (change)="onScheduledTimeChange()" />
+            <button class="btn-reset-auto"
+                    type="button"
+                    *ngIf="timeManuallyChanged"
+                    (click)="resetToAutoTime()"
+                    title="Volver al cálculo automático">
+              ↺ Restablecer automático
+            </button>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="field">
+            <label>Distancia (km)</label>
+            <input type="number" formControlName="distanceKm" placeholder="ej. 5.2" step="0.1" min="0" />
+          </div>
+          <div class="field">
+            <label>Tiempo Estimado (min) *</label>
+            <input type="number" formControlName="estimatedTimeMinutes" placeholder="ej. 60" min="1" />
+            <div class="hora-fin-info" *ngIf="formEndTime">
+              → Fin: <strong>{{ formEndTime.time }}</strong>
+              <span class="next-day-badge" *ngIf="formEndTime.nextDay"> +día siguiente</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="field">
+            <label>Predica</label>
+            <input formControlName="predica" placeholder="Tema de la predica" />
+          </div>
+          <div class="field">
+            <label>Predicador</label>
+            <input formControlName="predicador" placeholder="Nombre del predicador" />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="field">
+            <label>Lugar</label>
+            <input formControlName="lugar" placeholder="Lugar" />
+          </div>
+          <div class="field">
+            <label>Descripción</label>
+            <input formControlName="description" placeholder="Notas opcionales" />
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button class="btn-secondary" type="button" (click)="cancelSegment()">Cancelar</button>
+          <button class="btn-primary" type="submit" [disabled]="segmentForm.invalid">Guardar Segmento</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Segments table -->
+    <table class="data-table" *ngIf="selectedTrack.segments.length > 0">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Día</th>
+          <th>Inicio / Fin</th>
+          <th>Segmento</th>
+          <th>Predica</th>
+          <th>Predicador</th>
+          <th>Lugar</th>
+          <th>Dist.</th>
+          <th>Tiempo</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let s of selectedTrack.segments; let i = index" [class.has-predica]="s.predica">
+          <td class="order-cell">{{ s.order }}</td>
+          <td>{{ s.dia || '—' }}</td>
+          <td class="time-cell">
+            <div class="time-start">
+              <span *ngIf="s.scheduledTime">{{ s.scheduledTime }}</span>
+              <span *ngIf="!s.scheduledTime" class="muted">—</span>
+              <span *ngIf="isAutoCalculated(s, i)"
+                    class="auto-dot"
+                    title="Calculado automáticamente desde el segmento anterior">⟳</span>
+              <span *ngIf="manualOverrides.has(s.id)"
+                    class="manual-dot"
+                    title="Editado manualmente — no se actualizará con cambios anteriores">⚠</span>
+            </div>
+            <div class="time-end" *ngIf="segEndTime(s) as et">
+              → {{ et.time }}<span *ngIf="et.nextDay" class="next-day-small"> +día</span>
+            </div>
+          </td>
+          <td>
+            <div class="seg-name">{{ s.name }}</div>
+            <div class="seg-desc" *ngIf="s.description">{{ s.description }}</div>
+          </td>
+          <td>{{ s.predica || '—' }}</td>
+          <td>{{ s.predicador || '—' }}</td>
+          <td>{{ s.lugar || '—' }}</td>
+          <td>{{ s.distanceKm ? s.distanceKm + ' km' : '—' }}</td>
+          <td>{{ formatTime(s.estimatedTimeMinutes) }}</td>
+          <td class="actions">
+            <button class="btn-sm" (click)="openEditSegment(s)">Editar</button>
+            <button class="btn-sm danger" (click)="deleteSegment(s)">Eliminar</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Track totals -->
+    <div class="track-totals" *ngIf="selectedTrack.segments.length > 0 && totalEstimatedMinutes > 0">
+      <span class="totals-label">Duración total estimada:</span>
+      <span class="totals-value">{{ formatTime(totalEstimatedMinutes) }}</span>
+      <span class="totals-range" *ngIf="trackTimeRange">· {{ trackTimeRange }}</span>
+    </div>
+
+    <div class="empty" *ngIf="selectedTrack.segments.length === 0 && !showSegmentForm">
+      Sin segmentos aún. Agrega el primero.
+    </div>
+  </div>
+
+  <div class="no-selection" *ngIf="!selectedTrack && !loading">
+    ← Selecciona un track para gestionar sus segmentos
+  </div>
+</div>

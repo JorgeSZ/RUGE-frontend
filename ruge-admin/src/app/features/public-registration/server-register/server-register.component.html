@@ -1,0 +1,131 @@
+<div class="public-page">
+  <div class="public-card">
+    <div class="public-header">
+      <h1>Registro de Servidor</h1>
+      <p>Completa el formulario para registrarte como servidor del evento</p>
+    </div>
+
+    <div class="error-msg" *ngIf="error">{{ error }}</div>
+
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      <div class="section-title">Datos Personales</div>
+
+      <div class="pub-row">
+        <div class="pub-field">
+          <label>Nombre *</label>
+          <input formControlName="firstName" placeholder="Tu nombre" />
+        </div>
+        <div class="pub-field">
+          <label>1er Apellido *</label>
+          <input formControlName="firstLastName" placeholder="Primer apellido" />
+        </div>
+        <div class="pub-field">
+          <label>2do Apellido</label>
+          <input formControlName="secondLastName" placeholder="Segundo apellido" />
+        </div>
+      </div>
+
+      <div class="pub-row">
+        <div class="pub-field">
+          <label>Cédula / Documento</label>
+          <input formControlName="cedula" placeholder="Número de documento" />
+        </div>
+        <div class="pub-field">
+          <label>Fecha de Nacimiento</label>
+          <input type="date" formControlName="birthDate" />
+        </div>
+        <div class="pub-field">
+          <label>Edad</label>
+          <input type="text" [value]="age ?? ''" readonly placeholder="Se calcula automáticamente" class="readonly" />
+        </div>
+      </div>
+
+      <div class="pub-row">
+        <div class="pub-field">
+          <label>Estado Civil</label>
+          <select formControlName="maritalStatus">
+            <option value="">— Selecciona —</option>
+            <option *ngFor="let m of maritalStatuses" [value]="m">{{ m }}</option>
+          </select>
+        </div>
+        <div class="pub-field">
+          <label>País</label>
+          <input formControlName="country" placeholder="Tu país" />
+        </div>
+      </div>
+
+      <div class="section-title">Contacto</div>
+
+      <div class="pub-row">
+        <div class="pub-field">
+          <label>Correo Electrónico</label>
+          <input type="email" formControlName="email" placeholder="correo@ejemplo.com" />
+        </div>
+        <div class="pub-field">
+          <label>Teléfono</label>
+          <input formControlName="phone" placeholder="+1 555..." />
+        </div>
+      </div>
+
+      <div class="section-title">Iglesia</div>
+
+      <div class="pub-row">
+        <div class="pub-field full">
+          <label>Nombre de tu iglesia</label>
+          <input formControlName="church" placeholder="Iglesia a la que perteneces" />
+        </div>
+      </div>
+
+      <div class="section-title">Participación</div>
+
+      <div class="pub-row">
+        <div class="pub-field full">
+          <label>¿En qué comisión vas a servir?</label>
+          <select formControlName="commissionId">
+            <option value="">— Selecciona una comisión —</option>
+            <option *ngFor="let c of commissions" [value]="c.id">{{ c.name }}</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="pub-row">
+        <div class="pub-field">
+          <label class="checkbox-label">
+            <input type="checkbox" formControlName="hasDiscipleship" />
+            Tiene Discipulado
+          </label>
+        </div>
+        <div class="pub-field" *ngIf="form.get('hasDiscipleship')?.value">
+          <label class="checkbox-label">
+            <input type="checkbox" formControlName="hasDiscipleshipPatch" />
+            ¿Ya tienes tu parche de discípulo?
+          </label>
+        </div>
+        <div class="pub-field">
+          <label class="checkbox-label">
+            <input type="checkbox" formControlName="hasGroup" />
+            Tiene Grupo
+          </label>
+        </div>
+      </div>
+
+      <div class="section-title">Comprobante de Pago</div>
+
+      <div class="pub-row">
+        <div class="pub-field full">
+          <label>Imagen de comprobante</label>
+          <input type="file" accept="image/*" (change)="onFileChange($event)" />
+          <div class="preview" *ngIf="previewUrl">
+            <img [src]="previewUrl" alt="Comprobante" />
+          </div>
+        </div>
+      </div>
+
+      <div class="pub-actions">
+        <button type="submit" class="btn-register" [disabled]="form.invalid || loading">
+          {{ loading ? 'Registrando...' : 'Completar Registro' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

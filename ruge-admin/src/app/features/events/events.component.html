@@ -1,0 +1,73 @@
+<div class="page-header">
+  <h2>Retos</h2>
+  <button class="btn-primary" (click)="openCreate()">+ Nuevo Reto</button>
+</div>
+
+<div class="card form-card" *ngIf="showForm">
+  <h3>{{ editingId ? 'Editar Reto' : 'Nuevo Reto' }}</h3>
+  <form [formGroup]="form" (ngSubmit)="submit()">
+    <div class="form-row">
+      <div class="field">
+        <label>Nombre *</label>
+        <input formControlName="name" placeholder="Nombre del reto" />
+      </div>
+      <div class="field">
+        <label>Lugar</label>
+        <input formControlName="location" placeholder="Ciudad / Sede" />
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="field">
+        <label>Fecha de Inicio *</label>
+        <input type="date" formControlName="startDate" />
+      </div>
+      <div class="field">
+        <label>Fecha de Fin *</label>
+        <input type="date" formControlName="endDate" />
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="field">
+        <label>Track</label>
+        <select formControlName="trackId">
+          <option [ngValue]="null">— ninguna —</option>
+          <option *ngFor="let t of tracks" [value]="t.id">{{ t.name }}</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-actions">
+      <button class="btn-secondary" type="button" (click)="cancel()">Cancelar</button>
+      <button class="btn-primary" type="submit" [disabled]="form.invalid">{{ editingId ? 'Guardar' : 'Crear' }}</button>
+    </div>
+  </form>
+</div>
+
+<div *ngIf="loading" class="loading">Cargando...</div>
+
+<div class="event-list" *ngIf="!loading">
+  <div
+    class="event-card"
+    *ngFor="let event of events"
+    [class.active]="event.id === activeEventId"
+  >
+    <div class="event-info">
+      <div class="event-name">{{ event.name }}</div>
+      <div class="event-meta">
+        <span *ngIf="event.location">📍 {{ event.location }}</span>
+        <span>{{ event.startDate | date:'mediumDate' }} → {{ event.endDate | date:'mediumDate' }}</span>
+        <span *ngIf="event.trackName" class="track-badge">🗺 {{ event.trackName }}</span>
+      </div>
+    </div>
+    <div class="event-actions">
+      <button class="btn-select" [class.selected]="event.id === activeEventId" (click)="select(event)">
+        {{ event.id === activeEventId ? 'Activo' : 'Seleccionar' }}
+      </button>
+      <button class="btn-sm" (click)="openEdit(event, $event)">Editar</button>
+      <button class="btn-sm danger" (click)="delete(event, $event)">Eliminar</button>
+    </div>
+  </div>
+
+  <div class="empty" *ngIf="events.length === 0">
+    No hay retos. Crea uno arriba.
+  </div>
+</div>

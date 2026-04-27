@@ -1,0 +1,21 @@
+.public-page { min-height: 100vh; background: var(--ruge-dark); display: flex; justify-content: center; align-items: flex-start; padding: 32px 16px; }
+.public-card { background: var(--ruge-dark-card); border: 1px solid var(--ruge-border); border-radius: 8px; box-shadow: 0 8px 32px rgba(0,0,0,0.5); max-width: 800px; width: 100%; padding: 40px; }
+.public-header { text-align: center; margin-bottom: 32px; }
+.public-header h1 { font-family: 'Barlow Condensed', sans-serif; font-size: 2rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ruge-yellow); margin: 0 0 8px; }
+.public-header p { color: var(--ruge-text-muted); margin: 0; font-size: 0.9rem; }
+.section-title { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; color: var(--ruge-text-secondary); border-bottom: 2px solid var(--ruge-olive); padding-bottom: 8px; margin: 24px 0 16px; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.07em; }
+.pub-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 16px; }
+.pub-field { display: flex; flex-direction: column; gap: 6px; }
+.pub-field.full { grid-column: 1 / -1; }
+.pub-field label { font-size: 0.75rem; font-weight: 600; color: var(--ruge-text-secondary); text-transform: uppercase; letter-spacing: 0.05em; }
+.pub-field input, .pub-field select { background: var(--ruge-black); border: 1px solid var(--ruge-border); border-radius: 6px; padding: 10px 12px; font-size: 0.9rem; color: var(--ruge-text-primary); transition: border-color 0.2s; outline: none; font-family: 'Inter', sans-serif; }
+.pub-field input::placeholder { color: var(--ruge-text-muted); }
+.pub-field input:focus, .pub-field select:focus { border-color: var(--ruge-yellow); box-shadow: 0 0 0 2px rgba(240,180,41,0.12); }
+.pub-field .readonly { background: var(--ruge-border); color: var(--ruge-text-muted); }
+.preview { margin-top: 12px; }
+.preview img { max-width: 300px; max-height: 200px; border-radius: 6px; border: 1px solid var(--ruge-border); }
+.pub-actions { margin-top: 32px; text-align: center; }
+.btn-register { background: var(--ruge-yellow); color: var(--ruge-black); border: none; border-radius: 8px; padding: 14px 48px; font-family: 'Barlow Condensed', sans-serif; font-size: 1.05rem; font-weight: 800; cursor: pointer; text-transform: uppercase; letter-spacing: 0.06em; transition: background 0.2s; }
+.btn-register:hover:not(:disabled) { background: var(--ruge-yellow-dark); }
+.btn-register:disabled { opacity: 0.45; cursor: not-allowed; }
+.error-msg { background: rgba(224,82,82,0.1); border: 1px solid rgba(224,82,82,0.3); color: var(--ruge-danger); border-radius: 6px; padding: 12px 16px; margin-bottom: 16px; font-size: 0.88rem; }

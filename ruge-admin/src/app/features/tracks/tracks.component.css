@@ -1,0 +1,78 @@
+.layout { display: flex; gap: 20px; align-items: flex-start; }
+
+.track-list { width: 280px; flex-shrink: 0; display: flex; flex-direction: column; gap: 8px; }
+
+.track-item {
+  background: var(--ruge-dark-card); border: 1px solid var(--ruge-border); border-radius: 8px;
+  padding: 12px 14px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 8px;
+  transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+}
+.track-item:hover { border-color: var(--ruge-border-light); background: var(--ruge-dark-hover); }
+.track-item.selected { border-color: var(--ruge-yellow); background: rgba(240,180,41,0.05); box-shadow: 0 0 0 1px rgba(240,180,41,0.2); }
+
+.track-item-name { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.95rem; color: var(--ruge-text-primary); margin-bottom: 3px; }
+.track-item-meta { display: flex; flex-wrap: wrap; gap: 8px; font-size: 0.75rem; color: var(--ruge-text-muted); }
+.track-item-actions { display: flex; gap: 4px; flex-shrink: 0; }
+
+.segment-panel { flex: 1; min-width: 0; }
+.segment-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; }
+.segment-title { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 1.15rem; color: var(--ruge-text-primary); }
+.segment-subtitle { display: flex; gap: 12px; font-size: 0.78rem; color: var(--ruge-text-muted); margin-top: 3px; }
+.order-cell { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; color: var(--ruge-text-muted); width: 36px; text-align: center; }
+.seg-name { font-weight: 500; color: var(--ruge-text-primary); }
+.seg-desc { font-size: 0.78rem; color: var(--ruge-text-muted); margin-top: 2px; }
+.no-selection { flex: 1; display: flex; align-items: center; justify-content: center; color: var(--ruge-text-muted); font-size: 0.9rem; padding: 60px; }
+.muted { color: var(--ruge-text-muted); }
+
+/* ── Time cell ──────────────────────────────────────────────────────────────── */
+.time-cell { min-width: 90px; }
+.time-start { display: flex; align-items: center; gap: 5px; font-family: monospace; font-size: 0.82rem; color: var(--ruge-text-secondary); white-space: nowrap; }
+.time-end   { font-size: 0.75rem; color: var(--ruge-text-muted); margin-top: 2px; white-space: nowrap; }
+
+.auto-dot   { font-size: 0.7rem; color: var(--ruge-success); cursor: help; }
+.manual-dot { font-size: 0.7rem; color: var(--ruge-warning); cursor: help; }
+.next-day-small { font-size: 0.7rem; color: var(--ruge-text-muted); }
+
+tr.has-predica td { background: rgba(76,175,110,0.06) !important; }
+
+/* ── Track totals ────────────────────────────────────────────────────────────── */
+.track-totals {
+  margin-top: 12px; padding: 10px 14px;
+  background: var(--ruge-dark-card); border: 1px solid var(--ruge-border);
+  border-radius: 8px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  font-size: 0.83rem;
+}
+.totals-label { color: var(--ruge-text-muted); }
+.totals-value { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 1rem; color: var(--ruge-yellow); }
+.totals-range { color: var(--ruge-text-secondary); font-family: monospace; font-size: 0.8rem; }
+
+/* ── Form: cascade indicators ───────────────────────────────────────────────── */
+.label-with-badge { display: flex; align-items: center; gap: 6px; }
+
+.badge-auto {
+  font-size: 0.68rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em;
+  padding: 1px 6px; border-radius: 10px; cursor: help;
+  background: rgba(76,175,110,0.15); color: var(--ruge-success); border: 1px solid rgba(76,175,110,0.3);
+}
+.badge-manual {
+  font-size: 0.68rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em;
+  padding: 1px 6px; border-radius: 10px; cursor: help;
+  background: rgba(240,180,41,0.15); color: var(--ruge-warning); border: 1px solid rgba(240,180,41,0.35);
+}
+
+.btn-reset-auto {
+  margin-top: 5px; padding: 3px 8px; font-size: 0.75rem; cursor: pointer;
+  background: transparent; border: 1px solid var(--ruge-border); border-radius: 4px;
+  color: var(--ruge-text-secondary); transition: color 0.15s, border-color 0.15s;
+}
+.btn-reset-auto:hover { color: var(--ruge-success); border-color: var(--ruge-success); }
+
+.hora-fin-info {
+  margin-top: 5px; font-size: 0.78rem; color: var(--ruge-text-secondary);
+}
+.hora-fin-info strong { color: var(--ruge-text-primary); font-family: monospace; }
+.next-day-badge {
+  font-size: 0.7rem; color: var(--ruge-warning);
+  padding: 1px 5px; border-radius: 8px; background: rgba(240,180,41,0.12);
+  margin-left: 4px;
+}

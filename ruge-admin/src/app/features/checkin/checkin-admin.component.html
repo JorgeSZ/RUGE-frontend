@@ -1,0 +1,169 @@
+<!-- No event -->
+<div class="empty-state" *ngIf="!eventCtx.activeEvent">
+  <p>Selecciona un evento para ver el check-in.</p>
+</div>
+
+<ng-container *ngIf="eventCtx.activeEvent as ev">
+
+  <!-- Toast -->
+  <div class="toast" *ngIf="toast" [class.toast-error]="toast.type === 'error'">
+    {{ toast.message }}
+  </div>
+
+  <!-- Manual check-in dialog -->
+  <div class="modal-backdrop" *ngIf="manualTarget as t" (click)="cancelManual()">
+    <div class="modal-card" (click)="$event.stopPropagation()">
+      <h3>¿Marcar check-in manual?</h3>
+      <p class="modal-info">
+        Se registrará la asistencia de <strong>{{ t.fullName }}</strong> con la hora actual.
+      </p>
+      <div class="form-actions">
+        <button class="btn-secondary" (click)="cancelManual()">Cancelar</button>
+        <button class="btn-primary" [disabled]="manualLoading" (click)="confirmManual()">
+          {{ manualLoading ? 'Registrando...' : 'Confirmar' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <div class="page-header">
+    <div>
+      <h2>Check-in</h2>
+      <span class="sub">{{ ev.name }}</span>
+    </div>
+    <div class="header-actions">
+      <button class="btn-secondary" (click)="loadAll()"><lucide-icon name="refresh-cw" [size]="15" [strokeWidth]="1.5"></lucide-icon> Actualizar</button>
+      <button class="btn-outline" (click)="exportCsv()"><lucide-icon name="download" [size]="15" [strokeWidth]="1.5"></lucide-icon> Exportar CSV</button>
+    </div>
+  </div>
+
+  <!-- Check-in URL bar -->
+  <div class="url-bar">
+    <label>URL de Check-in (staff)</label>
+    <div class="url-row">
+      <input class="url-input" [value]="checkinUrl" readonly />
+      <button class="btn-copy" [class.copied]="copied" (click)="copyUrl()">
+        {{ copied ? '¡Copiado!' : 'Copiar' }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Summary cards -->
+  <div class="summary-grid" *ngIf="summary as s">
+    <div class="summary-card">
+      <div class="summary-label">Senderistas</div>
+      <div class="summary-nums">
+        <span class="summary-checked">{{ s.senderistasCheckIn }}</span>
+        <span class="summary-total">/ {{ s.totalSenderistas }}</span>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill fill-blue" [style.width.%]="progressSenderistas()"></div>
+      </div>
+      <div class="progress-pct">{{ progressSenderistas() }}% con check-in</div>
+    </div>
+
+    <div class="summary-card">
+      <div class="summary-label">Servidores</div>
+      <div class="summary-nums">
+        <span class="summary-checked">{{ s.servidoresCheckIn }}</span>
+        <span class="summary-total">/ {{ s.totalServidores }}</span>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill fill-green" [style.width.%]="progressServidores()"></div>
+      </div>
+      <div class="progress-pct">{{ progressServidores() }}% con check-in</div>
+    </div>
+
+    <div class="summary-card summary-card-highlight">
+      <div class="summary-label">Asistencia General</div>
+      <div class="summary-big">{{ s.porcentajeGeneral }}%</div>
+      <div class="summary-sub">
+        {{ s.senderistasCheckIn + s.servidoresCheckIn }} de
+        {{ s.totalSenderistas + s.totalServidores }} personas
+      </div>
+    </div>
+
+    <div class="summary-card recientes-card" *ngIf="s.ultimosCheckIns.length > 0">
+      <div class="summary-label">Últimos Check-ins</div>
+      <div class="recientes-list">
+        <div class="reciente-item" *ngFor="let r of s.ultimosCheckIns">
+          <span class="reciente-name">{{ r.fullName }}</span>
+          <span class="reciente-badge" [class.badge-sender]="r.tipo === 'Senderista'" [class.badge-server]="r.tipo === 'Servidor'">{{ r.tipo }}</span>
+          <span class="reciente-hora">{{ formatTime(r.fechaCheckIn) }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Skeleton for summary -->
+  <div class="summary-grid" *ngIf="!summary && summaryLoading">
+    <div class="summary-card skeleton" *ngFor="let _ of [1,2,3]"></div>
+  </div>
+
+  <!-- Tabs + filters -->
+  <div class="tabs-row">
+    <div class="tabs">
+      <button class="tab" [class.active]="activeTab === 'Senderista'" (click)="setTab('Senderista')">
+        Senderistas
+        <span class="tab-count">{{ senderistas.length }}</span>
+      </button>
+      <button class="tab" [class.active]="activeTab === 'Servidor'" (click)="setTab('Servidor')">
+        Servidores
+        <span class="tab-count">{{ servidores.length }}</span>
+      </button>
+    </div>
+    <div class="filters">
+      <select [value]="estadoFilter" (change)="estadoFilter = $any($event.target).value">
+        <option value="">Todos</option>
+        <option value="Realizado">Con check-in</option>
+        <option value="Pendiente">Pendientes</option>
+      </select>
+      <input class="search-input"
+             [value]="searchQuery"
+             (input)="searchQuery = $any($event.target).value"
+             placeholder="Buscar nombre o cédula..." />
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="loading" *ngIf="loading">Cargando...</div>
+
+  <table class="data-table" *ngIf="!loading">
+    <thead>
+      <tr>
+        <th>Nombre completo</th>
+        <th>Cédula</th>
+        <th>Iglesia</th>
+        <th>{{ activeTab === 'Senderista' ? 'Tribu' : 'Comisión' }}</th>
+        <th>Estado</th>
+        <th>Hora</th>
+        <th>Acción</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let item of filteredItems" [class.row-done]="item.checkInRealizado">
+        <td><strong>{{ item.fullName }}</strong></td>
+        <td>{{ item.cedula || '—' }}</td>
+        <td>{{ item.iglesia || '—' }}</td>
+        <td>{{ item.grupoAsignado || '—' }}</td>
+        <td>
+          <span class="status-badge" [class.done]="item.checkInRealizado" [class.pending]="!item.checkInRealizado">
+            {{ item.checkInRealizado ? 'Realizado' : 'Pendiente' }}
+          </span>
+        </td>
+        <td class="hora-col">{{ item.checkInRealizado ? formatTime(item.fechaCheckIn) : '—' }}</td>
+        <td>
+          <button class="btn-sm" *ngIf="!item.checkInRealizado" (click)="openManual(item)">
+            Marcar
+          </button>
+          <lucide-icon *ngIf="item.checkInRealizado" name="badge-check" [size]="16" [strokeWidth]="1.5" class="done-mark"></lucide-icon>
+        </td>
+      </tr>
+      <tr *ngIf="filteredItems.length === 0">
+        <td colspan="7" class="empty">Sin resultados.</td>
+      </tr>
+    </tbody>
+  </table>
+
+</ng-container>

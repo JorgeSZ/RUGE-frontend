@@ -1,0 +1,57 @@
+/* Toast */
+.toast {
+  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+  background: var(--ruge-dark-card); color: var(--ruge-text-primary);
+  padding: 10px 24px; border-radius: 8px; border-left: 4px solid var(--ruge-success);
+  font-size: 0.88rem; z-index: 9999; box-shadow: 0 4px 16px rgba(0,0,0,0.5);
+  animation: fadeIn 0.2s ease;
+}
+@keyframes fadeIn { from { opacity: 0; transform: translateX(-50%) translateY(8px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+
+/* Empty state */
+.empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 80px 24px; text-align: center; color: var(--ruge-text-muted); }
+.empty-state .empty-icon { font-size: 48px; margin-bottom: 16px; }
+.empty-state h3 { font-family: 'Barlow Condensed', sans-serif; font-size: 1.1rem; font-weight: 700; text-transform: uppercase; margin: 0 0 8px; color: var(--ruge-text-secondary); }
+.empty-state p { font-size: 0.88rem; margin: 0; }
+
+/* Back button */
+.header-back { display: flex; align-items: center; gap: 16px; }
+.btn-back { background: none; border: 1px solid var(--ruge-border); border-radius: 6px; padding: 6px 14px; cursor: pointer; font-size: 0.85rem; color: var(--ruge-text-secondary); transition: background 0.15s; }
+.btn-back:hover { background: var(--ruge-dark-hover); color: var(--ruge-text-primary); }
+
+/* Color dot */
+.color-dot { display: inline-block; width: 12px; height: 12px; border-radius: 50%; margin-right: 8px; vertical-align: middle; }
+
+/* Cards grid */
+.commissions-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 24px; }
+@media (max-width: 1024px) { .commissions-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 640px) { .commissions-grid { grid-template-columns: 1fr; } }
+
+.commission-card {
+  background: var(--ruge-dark-card); border: 1px solid var(--ruge-border); border-radius: 8px;
+  overflow: hidden; cursor: pointer; display: flex; flex-direction: column;
+  transition: box-shadow 0.2s, transform 0.15s, border-color 0.2s;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+}
+.commission-card:hover { box-shadow: 0 6px 20px rgba(0,0,0,0.6); transform: translateY(-2px); border-color: var(--ruge-border-light); }
+
+.card-color-bar { height: 4px; }
+.card-body { padding: 20px 20px 12px; flex: 1; }
+.card-name { font-family: 'Barlow Condensed', sans-serif; font-size: 1.05rem; font-weight: 800; color: var(--ruge-text-primary); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.04em; }
+.card-desc { font-size: 0.82rem; color: var(--ruge-text-muted); margin-bottom: 10px; }
+.card-count { display: flex; align-items: center; gap: 8px; font-size: 0.88rem; color: var(--ruge-text-secondary); margin-top: 8px; }
+.count-badge { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; color: var(--ruge-black); font-size: 0.88rem; font-weight: 700; background: var(--ruge-yellow); }
+.card-actions { padding: 12px 20px 16px; display: flex; gap: 8px; border-top: 1px solid var(--ruge-border); }
+
+/* Modal */
+.modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 100; display: flex; align-items: center; justify-content: center; }
+.modal-card { background: var(--ruge-dark-card); border: 1px solid var(--ruge-border); border-radius: 8px; padding: 28px; width: 100%; max-width: 440px; box-shadow: 0 12px 40px rgba(0,0,0,0.7); }
+.modal-card h3 { margin: 0 0 20px; font-size: 1.2rem; color: var(--ruge-text-primary); border-bottom: 1px solid var(--ruge-border); padding-bottom: 12px; }
+.modal-card .field { margin-bottom: 16px; }
+.modal-card .field label { display: block; font-size: 0.75rem; font-weight: 600; color: var(--ruge-text-secondary); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 6px; }
+.modal-card .field input { width: 100%; padding: 9px 12px; background: var(--ruge-black); border: 1px solid var(--ruge-border); border-radius: 6px; font-size: 0.88rem; color: var(--ruge-text-primary); box-sizing: border-box; outline: none; font-family: 'Inter', sans-serif; transition: border-color 0.15s; }
+.modal-card .field input:focus { border-color: var(--ruge-yellow); box-shadow: 0 0 0 2px rgba(240,180,41,0.12); }
+.modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 8px; }
+
+.badge-ok { background: rgba(76,175,110,0.15); color: var(--ruge-success); border: 1px solid rgba(76,175,110,0.3); padding: 2px 10px; border-radius: 12px; font-size: 0.72rem; font-weight: 600; }
+.badge-pending { background: rgba(240,180,41,0.12); color: var(--ruge-yellow); border: 1px solid rgba(240,180,41,0.25); padding: 2px 10px; border-radius: 12px; font-size: 0.72rem; font-weight: 600; }

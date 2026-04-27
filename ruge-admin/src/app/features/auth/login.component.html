@@ -1,0 +1,53 @@
+<div class="login-page">
+  <div class="login-card">
+    <div class="login-brand">
+      <img src="assets/ruge-logo.png" alt="RUGE" class="login-logo" />
+      <div class="brand-sub">Panel de Administración</div>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="submit()" class="login-form">
+      <div class="login-field">
+        <label>Usuario</label>
+        <div class="input-wrap">
+          <lucide-icon name="user" [size]="16" [strokeWidth]="1.5" class="input-icon"></lucide-icon>
+          <input
+            formControlName="username"
+            placeholder="nombre de usuario"
+            autocomplete="username"
+            (keydown.enter)="submit()"
+          />
+        </div>
+      </div>
+
+      <div class="login-field">
+        <label>Contraseña</label>
+        <div class="input-wrap">
+          <lucide-icon name="lock" [size]="16" [strokeWidth]="1.5" class="input-icon"></lucide-icon>
+          <input
+            [type]="showPassword ? 'text' : 'password'"
+            formControlName="password"
+            placeholder="••••••••"
+            autocomplete="current-password"
+            (keydown.enter)="submit()"
+          />
+          <button type="button" class="toggle-pw" (click)="showPassword = !showPassword" [title]="showPassword ? 'Ocultar' : 'Ver contraseña'">
+            <lucide-icon [name]="showPassword ? 'eye-off' : 'eye'" [size]="16" [strokeWidth]="1.5"></lucide-icon>
+          </button>
+        </div>
+      </div>
+
+      <div class="login-error" *ngIf="error">
+        <lucide-icon name="alert-circle" [size]="15" [strokeWidth]="1.5"></lucide-icon>
+        {{ error }}
+      </div>
+
+      <button type="submit" class="btn-login" [disabled]="form.invalid || loading">
+        <span *ngIf="!loading">Ingresar</span>
+        <span *ngIf="loading" class="spinner-row">
+          <lucide-icon name="loader-2" [size]="16" [strokeWidth]="1.5" class="spinning"></lucide-icon>
+          Ingresando...
+        </span>
+      </button>
+    </form>
+  </div>
+</div>
