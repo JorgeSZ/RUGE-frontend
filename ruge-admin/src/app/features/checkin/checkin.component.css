@@ -119,10 +119,22 @@ p.subtitle { color: var(--ruge-text-muted); margin: 0 0 28px; font-size: 0.9rem;
 
 /* Result cards */
 .result {
+  position: relative;
   display: flex; align-items: flex-start; gap: 16px;
   border-radius: 8px; padding: 20px; text-align: left;
   animation: fadeIn 0.2s ease;
 }
+
+.btn-close-result {
+  position: absolute; top: 8px; right: 8px;
+  width: 32px; height: 32px;
+  background: transparent; border: none; cursor: pointer;
+  color: rgba(255,255,255,0.8); border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  transition: color 0.15s, background 0.15s;
+  padding: 0; flex-shrink: 0;
+}
+.btn-close-result:hover { color: rgba(255,255,255,1); background: rgba(255,255,255,0.12); }
 
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(8px); }

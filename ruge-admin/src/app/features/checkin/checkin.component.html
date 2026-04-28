@@ -71,6 +71,9 @@
 
       <!-- Success -->
       <div class="result result-ok" *ngIf="resultState === 'success' && result">
+        <button class="btn-close-result" (click)="clearResult()" aria-label="Cerrar">
+          <lucide-icon name="x" [size]="18" [strokeWidth]="2.5"></lucide-icon>
+        </button>
         <lucide-icon name="circle-check" [size]="28" [strokeWidth]="1.5"></lucide-icon>
         <div class="result-info">
           <div class="result-name">{{ result.fullName }}</div>
@@ -81,11 +84,13 @@
           </div>
           <div class="result-status">¡Bienvenido/a!</div>
         </div>
-        <button class="btn-next" (click)="clearResult()">Siguiente</button>
       </div>
 
       <!-- Already checked-in -->
       <div class="result result-warn" *ngIf="resultState === 'already' && result">
+        <button class="btn-close-result" (click)="clearResult()" aria-label="Cerrar">
+          <lucide-icon name="x" [size]="18" [strokeWidth]="2.5"></lucide-icon>
+        </button>
         <div class="result-icon warn">!</div>
         <div class="result-info">
           <div class="result-name">{{ result.fullName }}</div>
@@ -94,16 +99,17 @@
           </div>
           <div class="result-status warn">Ya hizo check-in a las {{ formatTime(result.fechaCheckIn) }}</div>
         </div>
-        <button class="btn-next" (click)="clearResult()">Siguiente</button>
       </div>
 
       <!-- Error -->
       <div class="result result-err" *ngIf="resultState === 'error'">
+        <button class="btn-close-result" (click)="clearResult()" aria-label="Cerrar">
+          <lucide-icon name="x" [size]="18" [strokeWidth]="2.5"></lucide-icon>
+        </button>
         <lucide-icon name="x-circle" [size]="28" [strokeWidth]="1.5" class="err"></lucide-icon>
         <div class="result-info">
           <div class="result-status err">{{ errorMsg }}</div>
         </div>
-        <button class="btn-next" (click)="clearResult()">Reintentar</button>
       </div>
 
     </div>

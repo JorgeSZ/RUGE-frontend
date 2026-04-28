@@ -17,10 +17,14 @@
       </div>
     </div>
 
-    <div class="actions">
-      <button class="btn-download" (click)="downloadQr()" *ngIf="result.qrImageUrl">
-        Descargar QR como imagen
+    <div class="actions" *ngIf="result.qrImageUrl">
+      <button class="btn-download" (click)="downloadQr()" [disabled]="downloading">
+        <lucide-icon name="download" [size]="18" [strokeWidth]="2"></lucide-icon>
+        {{ downloading ? 'Descargando...' : 'Descargar QR' }}
       </button>
+      <p class="download-hint">
+        Guarda este QR — lo necesitarás el día del evento
+      </p>
     </div>
 
     <p class="note">

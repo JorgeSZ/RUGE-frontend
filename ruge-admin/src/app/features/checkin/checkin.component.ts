@@ -44,7 +44,6 @@ export class CheckinComponent implements OnInit, OnDestroy {
     this.canvasEl = el?.nativeElement ?? null;
   }
 
-  private clearTimer: any;
   private summaryInterval: any;
 
   constructor(
@@ -73,7 +72,6 @@ export class CheckinComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.stopCamera();
     clearInterval(this.summaryInterval);
-    clearTimeout(this.clearTimer);
   }
 
   verifyPin(): void {
@@ -190,7 +188,6 @@ export class CheckinComponent implements OnInit, OnDestroy {
         } else {
           this.playSound('warning');
         }
-        this.scheduleAutoClear(3000);
         this.cdr.detectChanges();
       },
       error: err => {
@@ -199,25 +196,16 @@ export class CheckinComponent implements OnInit, OnDestroy {
         this.resultState = 'error';
         this.triggerCardFlash('error');
         this.playSound('error');
-        this.scheduleAutoClear(2000);
         this.cdr.detectChanges();
       }
     });
   }
 
   clearResult(): void {
-    clearTimeout(this.clearTimer);
-    this.result = null;
+    this.result      = null;
     this.resultState = null;
-    this.errorMsg = '';
-  }
-
-  private scheduleAutoClear(ms: number): void {
-    clearTimeout(this.clearTimer);
-    this.clearTimer = setTimeout(() => {
-      this.clearResult();
-      this.cdr.detectChanges();
-    }, ms);
+    this.errorMsg    = '';
+    this.cdr.detectChanges();
   }
 
   private loadSummary(): void {
