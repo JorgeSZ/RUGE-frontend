@@ -11,7 +11,8 @@ export interface QrCheckInResponse {
   secondLastName?: string;
   tipo: string;
   iglesia?: string;
-  comision?: string;
+  tribu?: string;     // Senderistas
+  comision?: string;  // Servidores
   fotoComprobante?: string;
   alreadyCheckedIn: boolean;
   fechaCheckIn?: string;

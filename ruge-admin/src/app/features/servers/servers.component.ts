@@ -9,7 +9,7 @@ import { Commission } from '../../core/models/commission.model';
 import { Tribe } from '../../core/models/tribe.model';
 import { environment } from '../../../environments/environment';
 
-const MARITAL_STATUSES = ['Soltero/a', 'Casado/a', 'Divorciado/a', 'Viudo/a', 'Unión libre'];
+const MARITAL_STATUSES = ['Soltero', 'Casado', 'Divorciado', 'Viudo', 'Unión libre'];
 
 @Component({
   selector: 'app-servers',

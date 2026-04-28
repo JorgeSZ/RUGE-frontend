@@ -8,7 +8,7 @@ import { Tribe } from '../../core/models/tribe.model';
 import { environment } from '../../../environments/environment';
 
 const SHIRT_SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
-const MARITAL_STATUSES = ['Soltero/a', 'Casado/a', 'Divorciado/a', 'Viudo/a', 'Unión libre'];
+const MARITAL_STATUSES = ['Soltero', 'Casado', 'Divorciado', 'Viudo', 'Unión libre'];
 
 @Component({
   selector: 'app-participants',

@@ -4,7 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ParticipantService } from '../../../core/services/participant.service';
 
 const SHIRT_SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
-const MARITAL_STATUSES = ['Soltero/a', 'Casado/a', 'Divorciado/a', 'Viudo/a', 'Unión libre'];
+const MARITAL_STATUSES = ['Soltero', 'Casado', 'Divorciado', 'Viudo', 'Unión libre'];
 
 @Component({
   selector: 'app-participant-register',
@@ -32,7 +32,7 @@ export class ParticipantRegisterComponent implements OnInit {
       firstName: ['', [Validators.required]],
       firstLastName: ['', [Validators.required]],
       secondLastName: [''],
-      cedula: [''],
+      cedula: ['', [Validators.required, Validators.maxLength(20)]],
       birthDate: [''],
       email: ['', [Validators.email]],
       phone: [''],

@@ -27,8 +27,11 @@
 
       <div class="pub-row">
         <div class="pub-field">
-          <label>Cédula / Documento</label>
-          <input formControlName="cedula" placeholder="Número de documento" />
+          <label>Cédula / Documento *</label>
+          <input formControlName="cedula" placeholder="Número de documento" required />
+          <span class="field-error" *ngIf="form.get('cedula')?.invalid && form.get('cedula')?.touched">
+            La cédula es requerida
+          </span>
         </div>
         <div class="pub-field">
           <label>Fecha de Nacimiento</label>

@@ -168,7 +168,9 @@ export class CheckinComponent implements OnInit, OnDestroy {
 
   processCheckIn(): void {
     if (this.scanForm.invalid || !this.eventId) return;
-    this.submitToken(this.scanForm.value.token.trim());
+    const raw = this.scanForm.value.token.trim();
+    // Parse RUGE:{eventId}:{token} format (USB scanners send the raw QR string)
+    this.submitToken(this.extractToken(raw));
   }
 
   private submitToken(token: string): void {

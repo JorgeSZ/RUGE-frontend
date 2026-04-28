@@ -164,6 +164,8 @@ p.subtitle { color: var(--ruge-text-muted); margin: 0 0 28px; font-size: 0.9rem;
 .badge-sender { background: var(--ruge-olive); color: var(--ruge-yellow); }
 .badge-server { background: rgba(76,175,110,0.15); color: var(--ruge-success); border: 1px solid rgba(76,175,110,0.3); }
 .result-church { font-size: 0.85rem; color: var(--ruge-text-muted); }
+.result-group  { font-size: 0.85rem; color: var(--ruge-text-secondary); }
+.result-group strong { color: var(--ruge-text-primary); }
 .result-status { font-size: 1rem; font-weight: 700; color: var(--ruge-success); margin-top: 4px; }
 .result-status.warn { color: var(--ruge-yellow); }
 .result-status.err  { color: var(--ruge-danger); }

@@ -5,7 +5,7 @@ import { ServerService } from '../../../core/services/server.service';
 import { CommissionService } from '../../../core/services/commission.service';
 import { Commission } from '../../../core/models/commission.model';
 
-const MARITAL_STATUSES = ['Soltero/a', 'Casado/a', 'Divorciado/a', 'Viudo/a', 'Unión libre'];
+const MARITAL_STATUSES = ['Soltero', 'Casado', 'Divorciado', 'Viudo', 'Unión libre'];
 
 @Component({
   selector: 'app-server-register',
@@ -34,7 +34,7 @@ export class ServerRegisterComponent implements OnInit {
       firstName: ['', [Validators.required]],
       firstLastName: ['', [Validators.required]],
       secondLastName: [''],
-      cedula: [''],
+      cedula: ['', [Validators.required, Validators.maxLength(20)]],
       birthDate: [''],
       email: ['', [Validators.email]],
       phone: [''],
