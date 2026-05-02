@@ -21,6 +21,10 @@
       <button class="btn-danger-outline" *ngIf="hasTribes" (click)="openDeleteAll()">
         🗑 Eliminar todas
       </button>
+      <button class="btn-secondary" *ngIf="hasTribes" (click)="exportExcel()" [disabled]="exportingExcel">
+        <lucide-icon name="file-spreadsheet" [size]="14" [strokeWidth]="1.5"></lucide-icon>
+        {{ exportingExcel ? 'Generando...' : 'Exportar Excel' }}
+      </button>
       <button class="btn-secondary" (click)="openAutoGen()">⚡ Auto-generar</button>
       <button class="btn-primary" (click)="openCreate()">+ Nueva Tribu</button>
     </div>

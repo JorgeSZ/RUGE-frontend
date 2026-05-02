@@ -1,6 +1,6 @@
 export {
   LayoutDashboard, Users, UserCheck, Triangle, Layers, Map,
-  PackageCheck, ClipboardList, ScanLine, BarChart2, ShieldCheck,
+  Package, PackageCheck, ClipboardList, ScanLine, BarChart2, ShieldCheck,
   LogOut, User, Lock, Eye, EyeOff, AlertCircle, UserPlus,
   Pencil, Trash2, QrCode, Copy, CopyCheck, BadgeCheck, Clock,
   UserX, SlidersHorizontal, Search, Download, Plus, Shuffle,

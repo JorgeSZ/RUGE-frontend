@@ -67,7 +67,13 @@
         <h2>Comisiones</h2>
         <span class="sub">{{ eventCtx.activeEvent?.name }}</span>
       </div>
-      <button class="btn-primary" (click)="openCreate()">+ Nueva Comisión</button>
+      <div class="header-actions">
+        <button class="btn-secondary" *ngIf="commissions.length > 0" (click)="exportExcel()" [disabled]="exportingExcel">
+          <lucide-icon name="file-spreadsheet" [size]="14" [strokeWidth]="1.5"></lucide-icon>
+          {{ exportingExcel ? 'Generando...' : 'Exportar Excel' }}
+        </button>
+        <button class="btn-primary" (click)="openCreate()">+ Nueva Comisión</button>
+      </div>
     </div>
 
     <!-- New / Edit form -->

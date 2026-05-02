@@ -68,13 +68,21 @@ export class ServerRegisterComponent implements OnInit {
       hasDiscipleship: [false],
       hasDiscipleshipPatch: [false],
       hasGroup: [false],
+      estaEnNewLife: [false],
+      modulo: [null],
+      nombreLider: ['', [Validators.required]],
+      telefonoLider: ['', [Validators.required]],
     });
   }
+
+  readonly moduloOpciones = [1, 2, 3, 4, 5];
 
   ngOnInit(): void {
     this.eventId = this.route.snapshot.paramMap.get('eventId') ?? '';
     this.commissionService.getAll().subscribe(c => this.commissions = c);
   }
+
+  get estaEnNewLife(): boolean { return !!this.form.get('estaEnNewLife')?.value; }
 
   get age(): number | null {
     const bd = this.form.get('birthDate')?.value;

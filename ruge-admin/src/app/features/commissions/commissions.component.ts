@@ -25,6 +25,7 @@ export class CommissionsComponent implements OnInit {
   showForm = false;
   editingId: string | null = null;
   toast = '';
+  exportingExcel = false;
   form: FormGroup;
 
   constructor(
@@ -110,6 +111,12 @@ export class CommissionsComponent implements OnInit {
   }
 
   cancel(): void { this.showForm = false; this.editingId = null; this.form.reset(); }
+
+  exportExcel(): void {
+    this.exportingExcel = true;
+    this.commissionService.exportExcel(this.eventId, this.eventCtx.activeEvent!.name);
+    setTimeout(() => { this.exportingExcel = false; this.cdr.detectChanges(); }, 2000);
+  }
 
   private showToast(msg: string, isError = false): void {
     this.toast = msg;

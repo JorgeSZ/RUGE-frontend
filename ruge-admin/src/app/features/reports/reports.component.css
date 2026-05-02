@@ -154,7 +154,83 @@
 .muted-col { color: var(--ruge-text-muted); font-size: 0.85rem; }
 .empty-state { text-align: center; padding: 48px; color: var(--ruge-text-muted); }
 
+/* ── Gorras card ─────────────────────────────────────────────────────────── */
+.caps-banner {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  background: rgba(240,180,41,0.1);
+  border: 1px solid rgba(240,180,41,0.3);
+  border-radius: 8px;
+  padding: 16px 24px;
+  margin-bottom: 16px;
+}
+
+.caps-total {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 3rem;
+  font-weight: 800;
+  color: var(--ruge-yellow);
+  line-height: 1;
+}
+
+.caps-label {
+  font-size: 1rem;
+  color: var(--ruge-text-secondary);
+  font-weight: 600;
+}
+
+.caps-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 4px 12px;
+  margin-top: 12px;
+}
+
+.caps-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 8px;
+  border-radius: 4px;
+  font-size: 0.88rem;
+}
+
+.caps-item:nth-child(even) { background: rgba(0,0,0,0.08); }
+
+.caps-num {
+  width: 28px;
+  text-align: right;
+  color: var(--ruge-text-muted);
+  font-size: 0.78rem;
+  flex-shrink: 0;
+}
+
+.caps-name { color: var(--ruge-text-primary); }
+
+.list-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.search-input {
+  flex: 1;
+  max-width: 280px;
+  padding: 7px 12px;
+  background: var(--ruge-black);
+  border: 1px solid var(--ruge-border);
+  border-radius: 6px;
+  color: var(--ruge-text-primary);
+  font-size: 0.85rem;
+  outline: none;
+}
+
+.search-input:focus { border-color: var(--ruge-yellow); }
+
 @media (max-width: 700px) {
   .card-header { flex-wrap: wrap; }
   .talla-cards { grid-template-columns: repeat(2, 1fr); }
+  .caps-grid { grid-template-columns: 1fr; }
 }

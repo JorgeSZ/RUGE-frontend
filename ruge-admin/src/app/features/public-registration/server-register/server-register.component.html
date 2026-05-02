@@ -125,6 +125,49 @@
         </div>
       </div>
 
+      <div class="section-title">New Life y Liderazgo</div>
+
+      <div class="pub-row">
+        <div class="pub-field full">
+          <label>¿Estás en New Life?</label>
+          <div class="radio-group">
+            <label class="radio-option">
+              <input type="radio" formControlName="estaEnNewLife" [value]="true" /> Sí
+            </label>
+            <label class="radio-option">
+              <input type="radio" formControlName="estaEnNewLife" [value]="false" /> No
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div class="pub-row" *ngIf="estaEnNewLife">
+        <div class="pub-field">
+          <label>¿En qué módulo estás? *</label>
+          <select formControlName="modulo">
+            <option [ngValue]="null">— Selecciona —</option>
+            <option *ngFor="let m of moduloOpciones" [value]="m">Módulo {{ m }}</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="pub-row">
+        <div class="pub-field">
+          <label>Nombre de tu líder directo *</label>
+          <input formControlName="nombreLider" placeholder="Nombre completo del líder" />
+          <span class="field-error" *ngIf="form.get('nombreLider')?.invalid && form.get('nombreLider')?.touched">
+            Este campo es requerido
+          </span>
+        </div>
+        <div class="pub-field">
+          <label>Teléfono de tu líder directo *</label>
+          <input formControlName="telefonoLider" placeholder="+506 8888-8888" />
+          <span class="field-error" *ngIf="form.get('telefonoLider')?.invalid && form.get('telefonoLider')?.touched">
+            Este campo es requerido
+          </span>
+        </div>
+      </div>
+
       <div class="section-title">Comprobante de Pago</div>
 
       <div class="pub-row">

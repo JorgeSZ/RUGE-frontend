@@ -10,3 +10,4 @@
 .btn-copy.copied { background: rgba(76,175,110,0.12); border-color: rgba(76,175,110,0.4); color: var(--ruge-success); }
 .birth-selects { display: flex; gap: 6px; }
 .birth-selects select { flex: 1; min-width: 0; }
+.checkbox-row { display: flex; gap: 20px; padding: 6px 0; } .checkbox-row label { display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 0.88rem; }

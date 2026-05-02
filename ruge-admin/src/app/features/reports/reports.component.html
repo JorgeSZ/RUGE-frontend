@@ -159,5 +159,51 @@
       </div>
     </div>
 
+    <!-- Card 3: Pedido de Gorras -->
+    <div class="report-card" [class.expanded]="activeCard === 'caps'">
+      <div class="card-header">
+        <lucide-icon name="package" [size]="32" [strokeWidth]="1.5" class="card-icon"></lucide-icon>
+        <div class="card-info">
+          <div class="card-title">Pedido de Gorras</div>
+          <div class="card-desc">Lista de senderistas para pedido de gorras</div>
+        </div>
+        <div class="card-actions">
+          <button class="btn-excel" (click)="exportCaps(); $event.stopPropagation()">
+            <lucide-icon name="file-spreadsheet" [size]="15" [strokeWidth]="1.5"></lucide-icon> Excel
+          </button>
+          <button class="btn-ver" (click)="openCaps()">
+            {{ activeCard === 'caps' ? 'Cerrar' : 'Ver reporte' }}
+          </button>
+        </div>
+      </div>
+
+      <div class="card-body" *ngIf="activeCard === 'caps'">
+        <div *ngIf="loadingCaps" class="loading">Cargando...</div>
+        <ng-container *ngIf="!loadingCaps && caps">
+
+          <!-- Total banner -->
+          <div class="caps-banner">
+            <span class="caps-total">{{ caps.totalGorras }}</span>
+            <span class="caps-label">gorras en total</span>
+          </div>
+
+          <!-- Search + count -->
+          <div class="list-toolbar">
+            <input class="search-input" [(ngModel)]="capsSearch" placeholder="Buscar por nombre..." />
+            <span class="count">{{ filteredCaps.length }} senderistas</span>
+          </div>
+
+          <!-- Two-column list -->
+          <div class="caps-grid">
+            <div class="caps-item" *ngFor="let s of filteredCaps; let i = index">
+              <span class="caps-num">{{ i + 1 }}</span>
+              <span class="caps-name">{{ s.firstName }}</span>
+            </div>
+          </div>
+
+        </ng-container>
+      </div>
+    </div>
+
   </div>
 </ng-container>

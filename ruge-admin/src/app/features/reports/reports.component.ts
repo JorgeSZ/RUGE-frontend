@@ -2,7 +2,8 @@ import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { ReportService } from '../../core/services/report.service';
 import { EventContextService } from '../../core/services/event-context.service';
 import {
-  ShirtListResponse, ShirtSummaryResponse, DiscipleshipPatchResponse, DiscipleshipPatchEntry
+  ShirtListResponse, ShirtSummaryResponse, DiscipleshipPatchResponse, DiscipleshipPatchEntry,
+  CapsReportResponse
 } from '../../core/models/report.model';
 
 @Component({
@@ -12,19 +13,22 @@ import {
   standalone: false
 })
 export class ReportsComponent implements OnInit {
-  activeCard: 'shirts' | 'patches' | null = null;
+  activeCard: 'shirts' | 'patches' | 'caps' | null = null;
   activeShirtTab: 'summary' | 'list' = 'summary';
 
   shirtList: ShirtListResponse | null = null;
   shirtSummary: ShirtSummaryResponse | null = null;
   patches: DiscipleshipPatchResponse | null = null;
+  caps: CapsReportResponse | null = null;
 
   loadingShirts = false;
   loadingPatches = false;
+  loadingCaps = false;
 
   shirtFilter = '';
   shirtSearch = '';
   patchSearch = '';
+  capsSearch = '';
 
   get eventId(): string { return this.eventCtx.activeEvent!.id; }
   get eventName(): string { return this.eventCtx.activeEvent!.name; }
@@ -109,7 +113,28 @@ export class ReportsComponent implements OnInit {
     return total > 0 ? Math.round(count / total * 100) : 0;
   }
 
+  openCaps(): void {
+    if (this.activeCard === 'caps') { this.activeCard = null; return; }
+    this.activeCard = 'caps';
+    if (!this.caps) this.loadCaps();
+  }
+
+  loadCaps(): void {
+    this.loadingCaps = true;
+    this.reportService.getCaps(this.eventId).subscribe({
+      next: c => { this.caps = c; this.loadingCaps = false; this.cdr.detectChanges(); },
+      error: () => { this.loadingCaps = false; this.cdr.detectChanges(); }
+    });
+  }
+
+  get filteredCaps() {
+    if (!this.caps) return [];
+    const q = this.capsSearch.toLowerCase();
+    return this.caps.senderistas.filter(s => !q || s.firstName.toLowerCase().includes(q));
+  }
+
   exportShirtList(): void    { this.reportService.exportShirtList(this.eventId, this.eventName); }
   exportShirtSummary(): void { this.reportService.exportShirtSummary(this.eventId, this.eventName); }
   exportPatches(): void      { this.reportService.exportDiscipleshipPatches(this.eventId, this.eventName); }
+  exportCaps(): void         { this.reportService.exportCaps(this.eventId, this.eventName); }
 }

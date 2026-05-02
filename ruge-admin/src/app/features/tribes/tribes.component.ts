@@ -157,6 +157,20 @@ export class TribesComponent implements OnInit {
     });
   }
 
+  // Excel export
+  exportingExcel = false;
+
+  exportExcel(): void {
+    this.exportingExcel = true;
+    try {
+      this.tribeService.exportExcel(this.eventId, this.eventCtx.activeEvent!.name);
+    } catch {
+      this.showToast('Error al generar el Excel.', 'error');
+    } finally {
+      setTimeout(() => { this.exportingExcel = false; this.cdr.detectChanges(); }, 2000);
+    }
+  }
+
   // Toast
   showToast(message: string, type: 'success' | 'error'): void {
     clearTimeout(this.toastTimer);

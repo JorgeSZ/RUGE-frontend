@@ -4,7 +4,8 @@ import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import {
   ShirtSizeReport, ParticipantsByTribeReport, ServersByCommissionReport,
-  ShirtListResponse, ShirtSummaryResponse, DiscipleshipPatchResponse
+  ShirtListResponse, ShirtSummaryResponse, DiscipleshipPatchResponse,
+  CapsReportResponse
 } from '../models/report.model';
 
 @Injectable({ providedIn: 'root' })
@@ -59,5 +60,14 @@ export class ReportService {
   exportDiscipleshipPatches(eventId: string, eventName: string): void {
     const date = new Date().toISOString().substring(0, 10);
     this.downloadExcel(`${this.base(eventId)}/discipleship-patches/export`, `parches-${eventName}-${date}.xlsx`);
+  }
+
+  getCaps(eventId: string): Observable<CapsReportResponse> {
+    return this.http.get<CapsReportResponse>(`${this.base(eventId)}/caps`);
+  }
+
+  exportCaps(eventId: string, eventName: string): void {
+    const date = new Date().toISOString().substring(0, 10);
+    this.downloadExcel(`${this.base(eventId)}/caps/export`, `gorras-${eventName}-${date}.xlsx`);
   }
 }

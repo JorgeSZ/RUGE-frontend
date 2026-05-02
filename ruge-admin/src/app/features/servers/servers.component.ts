@@ -32,6 +32,9 @@ export class ServersComponent implements OnInit {
   apiUrl = environment.apiUrl;
   copied = false;
 
+  readonly moduloOpciones = [1, 2, 3, 4, 5];
+  get estaEnNewLife(): boolean { return !!this.form.get('estaEnNewLife')?.value; }
+
   readonly years = Array.from({length: new Date().getFullYear() - 1929}, (_, i) => String(new Date().getFullYear() - i));
   readonly months = [
     {v:'01',l:'Enero'},{v:'02',l:'Febrero'},{v:'03',l:'Marzo'},{v:'04',l:'Abril'},
@@ -79,6 +82,10 @@ export class ServersComponent implements OnInit {
       hasDiscipleship: [false],
       hasDiscipleshipPatch: [false],
       hasGroup: [false],
+      estaEnNewLife: [false],
+      modulo: [null],
+      nombreLider: [''],
+      telefonoLider: [''],
     });
     this.reassignForm = this.fb.group({
       commissionId: ['', Validators.required],
@@ -139,6 +146,10 @@ export class ServersComponent implements OnInit {
       hasDiscipleship: s.hasDiscipleship,
       hasDiscipleshipPatch: s.hasDiscipleshipPatch,
       hasGroup: s.hasGroup,
+      estaEnNewLife: s.estaEnNewLife,
+      modulo: s.modulo ?? null,
+      nombreLider: s.nombreLider ?? '',
+      telefonoLider: s.telefonoLider ?? '',
     });
     this.showForm = true;
   }

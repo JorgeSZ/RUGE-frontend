@@ -19,6 +19,10 @@ export interface Server {
   hasDiscipleship: boolean;
   hasDiscipleshipPatch: boolean;
   hasGroup: boolean;
+  estaEnNewLife: boolean;
+  modulo?: number;
+  nombreLider?: string;
+  telefonoLider?: string;
   comprobantePagoPath?: string;
   qrCode?: string;
   checkInCompleted: boolean;

@@ -29,3 +29,7 @@ export interface DiscipleshipPatchResponse {
   totalParchesPendientes: number;
   servidores: DiscipleshipPatchEntry[];
 }
+
+// ── Gorras (caps) report model ─────────────────────────────────────────────
+export interface CapsEntry { firstName: string; }
+export interface CapsReportResponse { totalGorras: number; senderistas: CapsEntry[]; }
