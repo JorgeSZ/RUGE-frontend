@@ -41,7 +41,20 @@
       </div>
       <div class="field">
         <label>Fecha de Nacimiento</label>
-        <input type="date" formControlName="birthDate" />
+        <div class="birth-selects">
+          <select (change)="bdYear = $any($event.target).value; onBdChange()">
+            <option value="">Año</option>
+            <option *ngFor="let y of years" [value]="y" [selected]="bdYear == y">{{ y }}</option>
+          </select>
+          <select (change)="bdMonth = $any($event.target).value; onBdChange()">
+            <option value="">Mes</option>
+            <option *ngFor="let m of months" [value]="m.v" [selected]="bdMonth == m.v">{{ m.l }}</option>
+          </select>
+          <select (change)="bdDay = $any($event.target).value; onBdChange()">
+            <option value="">Día</option>
+            <option *ngFor="let d of bdDays" [value]="d" [selected]="bdDay == d">{{ d }}</option>
+          </select>
+        </div>
       </div>
       <div class="field">
         <label>Estado Civil</label>
@@ -145,6 +158,7 @@
       <th>Comisión</th>
       <th>Check-in</th>
       <th>QR</th>
+      <th>Comprobante</th>
       <th>Acciones</th>
     </tr>
   </thead>
@@ -166,6 +180,10 @@
         <a *ngIf="s.qrCode" [href]="getQrUrl(s)" target="_blank" class="btn-sm">Ver QR</a>
         <span *ngIf="!s.qrCode">—</span>
       </td>
+      <td>
+        <a *ngIf="s.comprobantePagoPath" [href]="getComprobanteUrl(s)" target="_blank" class="btn-sm">Ver</a>
+        <span *ngIf="!s.comprobantePagoPath">—</span>
+      </td>
       <td class="actions">
         <button class="btn-sm" (click)="openEdit(s)">Editar</button>
         <button class="btn-sm" (click)="openReassign(s)">Reasignar</button>
@@ -173,7 +191,7 @@
       </td>
     </tr>
     <tr *ngIf="filtered.length === 0">
-      <td colspan="10" class="empty">No hay servidores.</td>
+      <td colspan="11" class="empty">No hay servidores.</td>
     </tr>
   </tbody>
 </table>

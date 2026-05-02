@@ -8,3 +8,5 @@
 .btn-copy { padding: 7px 14px; border: 1px solid var(--ruge-border); border-radius: 6px; background: transparent; color: var(--ruge-text-secondary); cursor: pointer; font-size: 0.82rem; white-space: nowrap; transition: background 0.15s; }
 .btn-copy:hover { background: var(--ruge-dark-hover); color: var(--ruge-text-primary); }
 .btn-copy.copied { background: rgba(76,175,110,0.12); border-color: rgba(76,175,110,0.4); color: var(--ruge-success); }
+.birth-selects { display: flex; gap: 6px; }
+.birth-selects select { flex: 1; min-width: 0; }

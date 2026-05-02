@@ -22,6 +22,29 @@ export class ParticipantRegisterComponent implements OnInit {
   shirtSizes = SHIRT_SIZES;
   maritalStatuses = MARITAL_STATUSES;
 
+  readonly years = Array.from({length: new Date().getFullYear() - 1929}, (_, i) => new Date().getFullYear() - i);
+  readonly months = [
+    {v:'01',l:'Enero'},{v:'02',l:'Febrero'},{v:'03',l:'Marzo'},{v:'04',l:'Abril'},
+    {v:'05',l:'Mayo'},{v:'06',l:'Junio'},{v:'07',l:'Julio'},{v:'08',l:'Agosto'},
+    {v:'09',l:'Septiembre'},{v:'10',l:'Octubre'},{v:'11',l:'Noviembre'},{v:'12',l:'Diciembre'},
+  ];
+  bdYear = ''; bdMonth = ''; bdDay = '';
+
+  get bdDays(): number[] {
+    if (!this.bdYear || !this.bdMonth) return Array.from({length: 31}, (_, i) => i + 1);
+    return Array.from({length: new Date(+this.bdYear, +this.bdMonth, 0).getDate()}, (_, i) => i + 1);
+  }
+
+  onBdChange(): void {
+    if (this.bdYear && this.bdMonth && this.bdDay) {
+      if (+this.bdDay > this.bdDays.length) this.bdDay = '';
+    }
+    const v = (this.bdYear && this.bdMonth && this.bdDay)
+      ? `${this.bdYear}-${this.bdMonth}-${String(+this.bdDay).padStart(2,'0')}`
+      : '';
+    this.form.patchValue({birthDate: v});
+  }
+
   constructor(
     private fb: FormBuilder,
     private route: ActivatedRoute,

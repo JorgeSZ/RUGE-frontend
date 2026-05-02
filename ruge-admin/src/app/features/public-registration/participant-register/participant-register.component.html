@@ -35,7 +35,20 @@
         </div>
         <div class="pub-field">
           <label>Fecha de Nacimiento</label>
-          <input type="date" formControlName="birthDate" />
+          <div class="birth-selects">
+            <select (change)="bdYear = $any($event.target).value; onBdChange()">
+              <option value="">Año</option>
+              <option *ngFor="let y of years" [value]="y" [selected]="bdYear == y">{{ y }}</option>
+            </select>
+            <select (change)="bdMonth = $any($event.target).value; onBdChange()">
+              <option value="">Mes</option>
+              <option *ngFor="let m of months" [value]="m.v" [selected]="bdMonth == m.v">{{ m.l }}</option>
+            </select>
+            <select (change)="bdDay = $any($event.target).value; onBdChange()">
+              <option value="">Día</option>
+              <option *ngFor="let d of bdDays" [value]="d" [selected]="bdDay == d">{{ d }}</option>
+            </select>
+          </div>
         </div>
         <div class="pub-field">
           <label>Edad</label>
