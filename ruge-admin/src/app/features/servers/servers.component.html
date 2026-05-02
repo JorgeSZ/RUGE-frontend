@@ -92,13 +92,6 @@
           <option *ngFor="let c of commissions" [value]="c.id">{{ c.name }}</option>
         </select>
       </div>
-      <div class="field">
-        <label>Tribu</label>
-        <select formControlName="tribeId">
-          <option value="">— sin asignar —</option>
-          <option *ngFor="let t of tribes" [value]="t.id">{{ t.name }}</option>
-        </select>
-      </div>
     </div>
     <div class="form-row">
       <div class="field checkboxes">
@@ -182,6 +175,8 @@
       <th>Teléfono</th>
       <th>Iglesia</th>
       <th>Comisión</th>
+      <th>Discipulado</th>
+      <th>Grupo</th>
       <th>Check-in</th>
       <th>New Life</th>
       <th>Módulo</th>
@@ -201,6 +196,16 @@
       <td>{{ s.phone || '—' }}</td>
       <td>{{ s.church || '—' }}</td>
       <td>{{ s.commissionName || '—' }}</td>
+      <td>
+        <span [class]="s.hasDiscipleship ? 'badge-ok' : 'badge-pending'">
+          {{ s.hasDiscipleship ? 'Sí' : 'No' }}
+        </span>
+      </td>
+      <td>
+        <span [class]="s.hasGroup ? 'badge-ok' : 'badge-pending'">
+          {{ s.hasGroup ? 'Sí' : 'No' }}
+        </span>
+      </td>
       <td>
         <span [class]="s.checkInCompleted ? 'badge-ok' : 'badge-pending'">
           {{ s.checkInCompleted ? 'Realizado' : 'Pendiente' }}
@@ -229,7 +234,7 @@
       </td>
     </tr>
     <tr *ngIf="filtered.length === 0">
-      <td colspan="15" class="empty">No hay servidores.</td>
+      <td colspan="17" class="empty">No hay servidores.</td>
     </tr>
   </tbody>
 </table>
