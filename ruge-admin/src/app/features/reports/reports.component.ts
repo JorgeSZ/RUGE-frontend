@@ -5,6 +5,10 @@ import {
   ShirtListResponse, ShirtSummaryResponse, DiscipleshipPatchResponse, DiscipleshipPatchEntry,
   CapsReportResponse
 } from '../../core/models/report.model';
+import { ProvisionReport } from '../../core/models/provision.model';
+import { CenaDelReyReport, IngredienteConsolidado } from '../../core/models/menu.model';
+import { ProvisionService } from '../../core/services/provision.service';
+import { MenuService } from '../../core/services/menu.service';
 
 @Component({
   selector: 'app-reports',
@@ -13,22 +17,29 @@ import {
   standalone: false
 })
 export class ReportsComponent implements OnInit {
-  activeCard: 'shirts' | 'patches' | 'caps' | null = null;
+  activeCard: 'shirts' | 'patches' | 'caps' | 'provision' | 'cena' | null = null;
   activeShirtTab: 'summary' | 'list' = 'summary';
 
   shirtList: ShirtListResponse | null = null;
   shirtSummary: ShirtSummaryResponse | null = null;
   patches: DiscipleshipPatchResponse | null = null;
   caps: CapsReportResponse | null = null;
+  provision: ProvisionReport | null = null;
+  cena: CenaDelReyReport | null = null;
 
   loadingShirts = false;
   loadingPatches = false;
   loadingCaps = false;
+  loadingProvision = false;
+  loadingCena = false;
 
   shirtFilter = '';
   shirtSearch = '';
   patchSearch = '';
   capsSearch = '';
+  provisionSearch = '';
+  cenaSearch = '';
+  cenaTab: 'consolidada' | 'por-menu' = 'consolidada';
 
   get eventId(): string { return this.eventCtx.activeEvent!.id; }
   get eventName(): string { return this.eventCtx.activeEvent!.name; }
@@ -36,6 +47,8 @@ export class ReportsComponent implements OnInit {
   constructor(
     public eventCtx: EventContextService,
     private reportService: ReportService,
+    private provisionService: ProvisionService,
+    private menuService: MenuService,
     private cdr: ChangeDetectorRef
   ) {}
 
@@ -133,8 +146,50 @@ export class ReportsComponent implements OnInit {
     return this.caps.senderistas.filter(s => !q || s.firstName.toLowerCase().includes(q));
   }
 
+  openProvision(): void {
+    if (this.activeCard === 'provision') { this.activeCard = null; return; }
+    this.activeCard = 'provision';
+    if (!this.provision) {
+      this.loadingProvision = true;
+      this.provisionService.getReport(this.eventId).subscribe({
+        next: p => { this.provision = p; this.loadingProvision = false; this.cdr.detectChanges(); },
+        error: () => { this.loadingProvision = false; this.cdr.detectChanges(); }
+      });
+    }
+  }
+
+  openCena(): void {
+    if (this.activeCard === 'cena') { this.activeCard = null; return; }
+    this.activeCard = 'cena';
+    if (!this.cena) {
+      this.loadingCena = true;
+      this.menuService.getReport(this.eventId).subscribe({
+        next: c => { this.cena = c; this.loadingCena = false; this.cdr.detectChanges(); },
+        error: () => { this.loadingCena = false; this.cdr.detectChanges(); }
+      });
+    }
+  }
+
+  get filteredProvision() {
+    if (!this.provision) return [];
+    const q = this.provisionSearch.toLowerCase();
+    return this.provision.items.filter(i => !q || i.nombre.toLowerCase().includes(q));
+  }
+
+  get filteredConsolidada() {
+    if (!this.cena) return [];
+    const q = this.cenaSearch.toLowerCase();
+    return this.cena.listaConsolidada.filter(i => !q || i.nombre.toLowerCase().includes(q));
+  }
+
+  detalleStr(ing: IngredienteConsolidado): string {
+    return ing.detallePorMenu.map(d => `${d.menu}: ${d.subtotal.toFixed(2)} ${ing.unidad}`).join(' + ');
+  }
+
   exportShirtList(): void    { this.reportService.exportShirtList(this.eventId, this.eventName); }
   exportShirtSummary(): void { this.reportService.exportShirtSummary(this.eventId, this.eventName); }
   exportPatches(): void      { this.reportService.exportDiscipleshipPatches(this.eventId, this.eventName); }
   exportCaps(): void         { this.reportService.exportCaps(this.eventId, this.eventName); }
+  exportProvision(): void    { this.provisionService.exportExcel(this.eventId, this.eventName); }
+  exportCena(): void         { this.menuService.exportExcel(this.eventId, this.eventName); }
 }

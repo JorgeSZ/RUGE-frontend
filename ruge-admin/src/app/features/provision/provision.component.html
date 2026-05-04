@@ -1,0 +1,85 @@
+<div class="toast" *ngIf="toast" [class.toast-error]="toast.type === 'error'">{{ toast.message }}</div>
+
+<div class="page-header">
+  <div>
+    <h2>Provisión</h2>
+    <span class="sub">Configuración global — aplica a todos los retos</span>
+  </div>
+  <button class="btn-primary" (click)="openCreate()">+ Agregar ítem</button>
+</div>
+
+<!-- Modal -->
+<div class="modal-backdrop" *ngIf="showForm" (click)="cancel()"></div>
+<div class="modal-box" *ngIf="showForm">
+  <h3>{{ editingId ? 'Editar ítem' : 'Nuevo ítem de provisión' }}</h3>
+  <form [formGroup]="form" (ngSubmit)="submit()">
+    <div class="form-row">
+      <div class="field full">
+        <label>Nombre del ítem *</label>
+        <input formControlName="nombre" placeholder="Ej: Atún, Confites, Agua..." />
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="field">
+        <label>Cantidad por persona *</label>
+        <input type="number" formControlName="cantidadPorPersona" step="0.01" min="0.01"
+               placeholder="Ej: 3 para 3 confites, 0.25 para 250g" />
+        <span class="field-hint">Ingresa la cantidad que recibe CADA persona</span>
+      </div>
+      <div class="field">
+        <label>Unidad</label>
+        <select formControlName="unidad">
+          <option *ngFor="let u of unidades" [value]="u">{{ u }}</option>
+        </select>
+      </div>
+    </div>
+    <div class="preview-row" *ngIf="form.get('cantidadPorPersona')?.value">
+      <lucide-icon name="info" [size]="14" [strokeWidth]="1.5"></lucide-icon>
+      <span>{{ form.get('cantidadPorPersona')?.value }} {{ form.get('unidad')?.value }} × N personas = total a comprar</span>
+    </div>
+    <div class="modal-actions">
+      <button type="button" class="btn-secondary" (click)="cancel()">Cancelar</button>
+      <button type="submit" class="btn-primary" [disabled]="form.invalid">
+        {{ editingId ? 'Guardar cambios' : 'Agregar ítem' }}
+      </button>
+    </div>
+  </form>
+</div>
+
+<!-- Loading -->
+<div *ngIf="loading" class="loading">Cargando...</div>
+
+<!-- Empty state -->
+<div class="empty-state" *ngIf="!loading && items.length === 0">
+  <lucide-icon name="package" [size]="48" [strokeWidth]="1.5" class="empty-icon"></lucide-icon>
+  <p>No hay ítems configurados en la provisión.</p>
+  <p class="empty-sub">Agrega el primer ítem con el botón "+ Agregar ítem".</p>
+</div>
+
+<!-- Items table -->
+<table class="data-table" *ngIf="!loading && items.length > 0">
+  <thead>
+    <tr>
+      <th style="width:60px">Orden</th>
+      <th>Nombre</th>
+      <th>Cant. por persona</th>
+      <th>Unidad</th>
+      <th>Acciones</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let item of items; let i = index">
+      <td class="order-col">
+        <button class="btn-order" (click)="moveUp(item, i)" [disabled]="i === 0" title="Subir">↑</button>
+        <button class="btn-order" (click)="moveDown(item, i)" [disabled]="i === items.length - 1" title="Bajar">↓</button>
+      </td>
+      <td><strong>{{ item.nombre }}</strong></td>
+      <td>{{ item.cantidadPorPersona }}</td>
+      <td>{{ item.unidad }}</td>
+      <td class="actions">
+        <button class="btn-sm" (click)="openEdit(item)">Editar</button>
+        <button class="btn-sm danger" (click)="delete(item)">Eliminar</button>
+      </td>
+    </tr>
+  </tbody>
+</table>

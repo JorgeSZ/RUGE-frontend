@@ -8,5 +8,5 @@ export {
   CircleCheck, CircleX, Star, Upload, GripVertical, TrendingUp,
   Shirt, Award, FileSpreadsheet, Loader2, Hash, FileX, X, Check,
   RefreshCw, PackageOpen, CalendarX, TriangleAlert, Info, Menu,
-  KeyRound, UserMinus, XCircle,
+  KeyRound, UserMinus, XCircle, Utensils,
 } from 'lucide-angular';

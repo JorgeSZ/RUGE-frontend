@@ -20,7 +20,7 @@ export class UsersComponent implements OnInit {
   toast: { message: string; type: 'success' | 'error' } | null = null;
   private toastTimer: any;
 
-  readonly roles = ['Admin', 'Logistica', 'Eventos', 'Tiempos'];
+  readonly roles = ['Admin', 'Logistica', 'Eventos', 'Tiempos', 'Cocina'];
 
   get currentUserId(): string { return this.auth.currentUser?.id ?? ''; }
 
@@ -102,6 +102,7 @@ export class UsersComponent implements OnInit {
     if (rol === 'Admin')     return 'badge-admin';
     if (rol === 'Logistica') return 'badge-logistica';
     if (rol === 'Tiempos')   return 'badge-tiempos';
+    if (rol === 'Cocina')    return 'badge-cocina';
     return 'badge-eventos';
   }
 

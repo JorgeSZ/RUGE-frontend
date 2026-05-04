@@ -159,7 +159,126 @@
       </div>
     </div>
 
-    <!-- Card 3: Pedido de Gorras -->
+    <!-- Card 3: Provisión -->
+    <div class="report-card" [class.expanded]="activeCard === 'provision'">
+      <div class="card-header">
+        <lucide-icon name="package" [size]="32" [strokeWidth]="1.5" class="card-icon"></lucide-icon>
+        <div class="card-info">
+          <div class="card-title">Provisión</div>
+          <div class="card-desc">Cantidad de ítems a preparar por persona</div>
+        </div>
+        <div class="card-actions">
+          <button class="btn-excel" (click)="exportProvision(); $event.stopPropagation()">
+            <lucide-icon name="file-spreadsheet" [size]="15" [strokeWidth]="1.5"></lucide-icon> Excel
+          </button>
+          <button class="btn-ver" (click)="openProvision()">
+            {{ activeCard === 'provision' ? 'Cerrar' : 'Ver reporte' }}
+          </button>
+        </div>
+      </div>
+      <div class="card-body" *ngIf="activeCard === 'provision'">
+        <div *ngIf="loadingProvision" class="loading">Cargando...</div>
+        <ng-container *ngIf="!loadingProvision && provision">
+          <div class="caps-banner">
+            <span class="caps-total">{{ provision.totalPersonas }}</span>
+            <span class="caps-label">personas ({{ provision.totalSenderistas }} senderistas + {{ provision.totalServidores }} servidores)</span>
+          </div>
+          <div class="list-toolbar">
+            <input class="search-input" [(ngModel)]="provisionSearch" placeholder="Buscar ítem..." />
+            <span class="count">{{ filteredProvision.length }} ítems</span>
+          </div>
+          <table class="data-table">
+            <thead><tr><th>Ítem</th><th>Cant./persona</th><th>Unidad</th><th>Total a comprar</th></tr></thead>
+            <tbody>
+              <tr *ngFor="let item of filteredProvision">
+                <td><strong>{{ item.nombre }}</strong></td>
+                <td>{{ item.cantidadPorPersona }}</td>
+                <td>{{ item.unidad }}</td>
+                <td><strong>{{ item.totalNecesario }}</strong> {{ item.unidad }}</td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="provision-total">Total: {{ provision.items.length }} ítems distintos</div>
+        </ng-container>
+      </div>
+    </div>
+
+    <!-- Card 4: Cena del Rey -->
+    <div class="report-card" [class.expanded]="activeCard === 'cena'">
+      <div class="card-header">
+        <lucide-icon name="utensils" [size]="32" [strokeWidth]="1.5" class="card-icon"></lucide-icon>
+        <div class="card-info">
+          <div class="card-title">Cena del Rey</div>
+          <div class="card-desc">Lista consolidada de compras por ingrediente</div>
+        </div>
+        <div class="card-actions">
+          <button class="btn-excel" (click)="exportCena(); $event.stopPropagation()">
+            <lucide-icon name="file-spreadsheet" [size]="15" [strokeWidth]="1.5"></lucide-icon> Excel
+          </button>
+          <button class="btn-ver" (click)="openCena()">
+            {{ activeCard === 'cena' ? 'Cerrar' : 'Ver reporte' }}
+          </button>
+        </div>
+      </div>
+      <div class="card-body" *ngIf="activeCard === 'cena'">
+        <div *ngIf="loadingCena" class="loading">Cargando...</div>
+        <ng-container *ngIf="!loadingCena && cena">
+          <div class="caps-banner">
+            <span class="caps-total">{{ cena.totalPersonasEvento }}</span>
+            <span class="caps-label">personas del evento</span>
+          </div>
+
+          <!-- Tabs -->
+          <div class="cena-tabs">
+            <button [class.active]="cenaTab === 'consolidada'" (click)="cenaTab = 'consolidada'">Lista de Compras</button>
+            <button [class.active]="cenaTab === 'por-menu'" (click)="cenaTab = 'por-menu'">Por Menú</button>
+          </div>
+
+          <!-- Tab: consolidada -->
+          <ng-container *ngIf="cenaTab === 'consolidada'">
+            <div class="list-toolbar">
+              <input class="search-input" [(ngModel)]="cenaSearch" placeholder="Buscar ingrediente..." />
+              <span class="count">{{ filteredConsolidada.length }} ingredientes</span>
+            </div>
+            <table class="data-table">
+              <thead><tr><th>Ingrediente</th><th>Unidad</th><th>Total a comprar</th><th>Detalle por menú</th></tr></thead>
+              <tbody>
+                <tr *ngFor="let ing of filteredConsolidada">
+                  <td><strong>{{ ing.nombre }}</strong></td>
+                  <td>{{ ing.unidad }}</td>
+                  <td><strong>{{ ing.totalNecesario.toFixed(2) }}</strong></td>
+                  <td class="muted-col">{{ detalleStr(ing) }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </ng-container>
+
+          <!-- Tab: por menú -->
+          <ng-container *ngIf="cenaTab === 'por-menu'">
+            <div *ngFor="let menu of cena.menus" class="commission-group">
+              <div class="commission-header">
+                <span>{{ menu.nombre }}</span>
+                <span class="commission-badge" *ngIf="menu.descripcion">{{ menu.descripcion }}</span>
+              </div>
+              <table class="data-table">
+                <thead><tr><th>Ingrediente</th><th>Cant./persona</th><th>Unidad</th><th>Personas</th><th>Total</th></tr></thead>
+                <tbody>
+                  <tr *ngFor="let ing of menu.ingredientes">
+                    <td>{{ ing.nombre }}</td>
+                    <td>{{ ing.cantidadPorPersona }}</td>
+                    <td>{{ ing.unidad }}</td>
+                    <td>{{ ing.personas }}</td>
+                    <td><strong>{{ ing.total.toFixed(2) }}</strong> {{ ing.unidad }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </ng-container>
+        </ng-container>
+      </div>
+    </div>
+
+    <!-- Card 5: Pedido de Gorras -->
     <div class="report-card" [class.expanded]="activeCard === 'caps'">
       <div class="card-header">
         <lucide-icon name="package" [size]="32" [strokeWidth]="1.5" class="card-icon"></lucide-icon>

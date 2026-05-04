@@ -21,6 +21,9 @@ import { DevSeedComponent } from './features/dev/dev-seed.component';
 import { LoginComponent } from './features/auth/login.component';
 import { UnauthorizedComponent } from './features/auth/unauthorized.component';
 import { UsersComponent } from './features/users/users.component';
+import { ProvisionComponent } from './features/provision/provision.component';
+import { MenusComponent } from './features/menus/menus.component';
+import { MenuDetailComponent } from './features/menus/menu-detail.component';
 import { AuthGuard } from './core/guards/auth.guard';
 import { RoleGuard } from './core/guards/role.guard';
 import { EventGuard } from './core/guards/event.guard';
@@ -29,6 +32,7 @@ const ADMIN              = { roles: ['Admin'] };
 const ADMIN_LOGISTICA    = { roles: ['Admin', 'Logistica'] };
 const ADMIN_EVENTOS      = { roles: ['Admin', 'Eventos'] };
 const ADMIN_TIEMPOS      = { roles: ['Admin', 'Tiempos'] };
+const ADMIN_COCINA       = { roles: ['Admin', 'Cocina'] };
 
 const routes: Routes = [
   // ── Public (no auth, no shell) ──────────────────────────────────────────
@@ -56,7 +60,7 @@ const routes: Routes = [
       { path: 'servers',      component: ServersComponent,     canActivate: [RoleGuard, EventGuard], data: ADMIN },
       { path: 'commissions',  component: CommissionsComponent, canActivate: [RoleGuard, EventGuard], data: ADMIN },
       { path: 'checkin-admin',component: CheckinAdminComponent,canActivate: [RoleGuard, EventGuard], data: ADMIN },
-      { path: 'reports',      component: ReportsComponent,     canActivate: [RoleGuard, EventGuard], data: ADMIN },
+      { path: 'reports',      component: ReportsComponent,     canActivate: [RoleGuard, EventGuard], data: ADMIN_COCINA },
 
       // Admin + Logistica
       { path: 'logistics',                       component: LogisticsComponent,      canActivate: [RoleGuard, EventGuard], data: ADMIN_LOGISTICA },
@@ -65,6 +69,11 @@ const routes: Routes = [
       // Admin + Eventos
       { path: 'ev-tasks',                        component: EvTasksComponent,        canActivate: [RoleGuard, EventGuard], data: ADMIN_EVENTOS },
       { path: 'ev-tasks/segment/:segmentId',     component: EvTasksDetailComponent,  canActivate: [RoleGuard, EventGuard], data: ADMIN_EVENTOS },
+
+      // Global modules (Admin + Cocina)
+      { path: 'provision',     component: ProvisionComponent,  canActivate: [RoleGuard], data: ADMIN_COCINA },
+      { path: 'menus',         component: MenusComponent,      canActivate: [RoleGuard], data: ADMIN_COCINA },
+      { path: 'menus/:menuId', component: MenuDetailComponent, canActivate: [RoleGuard], data: ADMIN_COCINA },
 
       // Dev (no role restriction, dev environment only)
       { path: 'dev', component: DevSeedComponent },

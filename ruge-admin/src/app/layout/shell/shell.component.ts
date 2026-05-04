@@ -21,6 +21,7 @@ export class ShellComponent implements OnInit {
   get isLogistica(): boolean { return this.auth.hasRole('Logistica'); }
   get isEventos(): boolean   { return this.auth.hasRole('Eventos'); }
   get isTiempos(): boolean   { return this.auth.hasRole('Tiempos'); }
+  get isCocina(): boolean    { return this.auth.hasRole('Cocina'); }
 
   get initials(): string {
     const name = this.currentUser?.nombre ?? '';

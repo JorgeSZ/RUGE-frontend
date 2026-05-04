@@ -1,0 +1,73 @@
+<div class="toast" *ngIf="toast" [class.toast-error]="toast.type === 'error'">{{ toast.message }}</div>
+
+<div class="page-header">
+  <div>
+    <h2>Cena del Rey</h2>
+    <span class="sub">Configuración global de menús e ingredientes</span>
+  </div>
+  <button class="btn-primary" (click)="openCreate()">+ Nuevo Menú</button>
+</div>
+
+<!-- Modal -->
+<div class="modal-backdrop" *ngIf="showForm" (click)="cancel()"></div>
+<div class="modal-box" *ngIf="showForm">
+  <h3>{{ editingId ? 'Editar menú' : 'Nuevo menú' }}</h3>
+  <form [formGroup]="form" (ngSubmit)="submit()">
+    <div class="form-row">
+      <div class="field full">
+        <label>Nombre del menú *</label>
+        <input formControlName="nombre" placeholder="Ej: Cena del Rey, Desayuno día 1..." />
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="field full">
+        <label>Descripción</label>
+        <input formControlName="descripcion" placeholder="Ej: Gallo pinto con huevo y natilla" />
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button type="button" class="btn-secondary" (click)="cancel()">Cancelar</button>
+      <button type="submit" class="btn-primary" [disabled]="form.invalid">
+        {{ editingId ? 'Guardar' : 'Crear menú' }}
+      </button>
+    </div>
+  </form>
+</div>
+
+<!-- Loading -->
+<div *ngIf="loading" class="loading">Cargando...</div>
+
+<!-- Empty state -->
+<div class="empty-state" *ngIf="!loading && menus.length === 0">
+  <lucide-icon name="utensils" [size]="48" [strokeWidth]="1.5" class="empty-icon"></lucide-icon>
+  <p>No hay menús configurados.</p>
+  <p class="empty-sub">Crea el primero con el botón "+ Nuevo Menú".</p>
+</div>
+
+<!-- Cards grid -->
+<div class="menus-grid" *ngIf="!loading && menus.length > 0">
+  <div class="menu-card" *ngFor="let menu of menus; let i = index" (click)="goToDetail(menu)">
+    <div class="menu-card-top">
+      <div class="menu-order-btns">
+        <button class="btn-order" (click)="moveUp(menu, i); $event.stopPropagation()" [disabled]="i === 0" title="Subir">↑</button>
+        <button class="btn-order" (click)="moveDown(menu, i); $event.stopPropagation()" [disabled]="i === menus.length - 1" title="Bajar">↓</button>
+      </div>
+      <div class="menu-card-actions">
+        <button class="btn-sm" (click)="openEdit(menu, $event)">Editar</button>
+        <button class="btn-sm danger" (click)="delete(menu, $event)">Eliminar</button>
+      </div>
+    </div>
+    <div class="menu-card-body">
+      <lucide-icon name="utensils" [size]="28" [strokeWidth]="1.5" class="menu-icon"></lucide-icon>
+      <div class="menu-name">{{ menu.nombre }}</div>
+      <div class="menu-desc" *ngIf="menu.descripcion">{{ menu.descripcion }}</div>
+      <div class="menu-count">
+        <lucide-icon name="layers" [size]="13" [strokeWidth]="1.5"></lucide-icon>
+        {{ menu.ingredientes.length }} ingrediente{{ menu.ingredientes.length !== 1 ? 's' : '' }}
+      </div>
+    </div>
+    <div class="menu-card-footer">
+      Ver / Editar ingredientes →
+    </div>
+  </div>
+</div>

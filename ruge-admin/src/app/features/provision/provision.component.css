@@ -1,0 +1,12 @@
+.order-col { display: flex; gap: 4px; align-items: center; }
+.btn-order { background: transparent; border: 1px solid var(--ruge-border); border-radius: 4px; color: var(--ruge-text-secondary); cursor: pointer; padding: 2px 6px; font-size: 0.8rem; transition: background 0.15s; }
+.btn-order:hover:not(:disabled) { background: var(--ruge-dark-hover); color: var(--ruge-text-primary); }
+.btn-order:disabled { opacity: 0.3; cursor: not-allowed; }
+.preview-row { display: flex; align-items: center; gap: 8px; background: rgba(240,180,41,0.08); border: 1px solid rgba(240,180,41,0.2); border-radius: 6px; padding: 10px 14px; font-size: 0.85rem; color: var(--ruge-yellow); margin-bottom: 4px; }
+.field-hint { font-size: 0.75rem; color: var(--ruge-text-muted); margin-top: 2px; }
+.empty-sub { color: var(--ruge-text-muted); font-size: 0.88rem; margin-top: 4px; }
+.modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 100; }
+.modal-box { position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%); background: var(--ruge-dark-card); border: 1px solid var(--ruge-border); border-radius: 10px; padding: 24px; width: min(520px,90vw); z-index: 101; box-shadow: 0 8px 32px rgba(0,0,0,0.6); }
+.modal-box h3 { margin: 0 0 18px; font-size: 1.1rem; }
+.modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 8px; }
+.field.full { flex: 1 1 100%; }

@@ -35,3 +35,4 @@
 .toast { position: fixed; bottom: 24px; right: 24px; background: var(--ruge-dark-card); color: var(--ruge-text-primary); padding: 12px 20px; border-radius: 8px; border-left: 4px solid var(--ruge-success); font-size: 0.88rem; z-index: 9999; box-shadow: 0 4px 16px rgba(0,0,0,0.5); animation: slideIn 0.2s ease; }
 .toast.toast-error { border-left-color: var(--ruge-danger); }
 @keyframes slideIn { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+.badge-cocina    { background: rgba(76,175,110,0.15); color: var(--ruge-success);  border: 1px solid rgba(76,175,110,0.3); }

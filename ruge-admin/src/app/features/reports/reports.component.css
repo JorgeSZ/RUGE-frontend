@@ -229,6 +229,13 @@
 
 .search-input:focus { border-color: var(--ruge-yellow); }
 
+.provision-total { margin-top: 8px; font-weight: 600; color: var(--ruge-text-secondary); font-size: 0.85rem; }
+.cena-tabs { display: flex; gap: 4px; margin-bottom: 14px; border-bottom: 1px solid var(--ruge-border); padding-bottom: 2px; }
+.cena-tabs button { background: transparent; border: none; color: var(--ruge-text-muted); padding: 8px 16px; cursor: pointer; border-radius: 6px 6px 0 0; font-size: 0.88rem; transition: color 0.15s, background 0.15s; }
+.cena-tabs button:hover { color: var(--ruge-text-primary); background: var(--ruge-dark-hover); }
+.cena-tabs button.active { color: var(--ruge-yellow); border-bottom: 2px solid var(--ruge-yellow); font-weight: 600; }
+.muted-col { color: var(--ruge-text-muted); font-size: 0.82rem; max-width: 280px; }
+
 @media (max-width: 700px) {
   .card-header { flex-wrap: wrap; }
   .talla-cards { grid-template-columns: repeat(2, 1fr); }

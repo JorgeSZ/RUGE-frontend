@@ -30,6 +30,9 @@ import { DevSeedComponent } from './features/dev/dev-seed.component';
 import { LoginComponent } from './features/auth/login.component';
 import { UnauthorizedComponent } from './features/auth/unauthorized.component';
 import { UsersComponent } from './features/users/users.component';
+import { ProvisionComponent } from './features/provision/provision.component';
+import { MenusComponent } from './features/menus/menus.component';
+import { MenuDetailComponent } from './features/menus/menu-detail.component';
 
 import { EventContextService } from './core/services/event-context.service';
 import { AuthInterceptor } from './core/interceptors/auth.interceptor';
@@ -58,6 +61,9 @@ import { AuthInterceptor } from './core/interceptors/auth.interceptor';
     LoginComponent,
     UnauthorizedComponent,
     UsersComponent,
+    ProvisionComponent,
+    MenusComponent,
+    MenuDetailComponent,
   ],
   imports: [
     BrowserModule,

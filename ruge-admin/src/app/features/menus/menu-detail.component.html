@@ -1,0 +1,138 @@
+<div class="toast" *ngIf="toast" [class.toast-error]="toast.type === 'error'">{{ toast.message }}</div>
+
+<div *ngIf="loading" class="loading">Cargando...</div>
+
+<ng-container *ngIf="!loading && menu">
+
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-back">
+      <button class="btn-back" (click)="back()">← Volver</button>
+      <div>
+        <h2>{{ menu.nombre }}</h2>
+        <span class="sub">{{ menu.descripcion || 'Sin descripción' }}</span>
+      </div>
+    </div>
+    <button class="btn-primary" (click)="openCreate()">+ Agregar ingrediente</button>
+  </div>
+
+  <!-- Modal ingrediente -->
+  <div class="modal-backdrop" *ngIf="showForm" (click)="cancel()"></div>
+  <div class="modal-box" *ngIf="showForm">
+    <h3>{{ editingIngId ? 'Editar ingrediente' : 'Nuevo ingrediente' }}</h3>
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      <div class="form-row">
+        <div class="field full">
+          <label>Nombre del ingrediente *</label>
+          <input formControlName="nombre" placeholder="Ej: Arroz, Cebolla, Aceite..." />
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="field">
+          <label>Cantidad por persona *</label>
+          <input type="number" formControlName="cantidadPorPersona" step="0.001" min="0.001"
+                 placeholder="Ej: 0.25 para 250g por persona" />
+          <span class="field-hint">Cantidad que necesita CADA persona</span>
+        </div>
+        <div class="field">
+          <label>Unidad</label>
+          <select formControlName="unidad">
+            <option *ngFor="let u of unidades" [value]="u">{{ u }}</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="field full">
+          <label>¿Cómo calcular la cantidad total?</label>
+          <div class="radio-group">
+            <label class="radio-option">
+              <input type="radio" formControlName="modoPersonas" value="Auto" />
+              Usar total de senderistas + servidores
+            </label>
+            <label class="radio-option">
+              <input type="radio" formControlName="modoPersonas" value="Manual" />
+              Cantidad específica de personas
+            </label>
+            <label class="radio-option">
+              <input type="radio" formControlName="modoPersonas" value="Fixed" />
+              Cantidad específica
+            </label>
+          </div>
+
+          <div class="auto-hint" *ngIf="modo === 'Auto'">
+            Se usarán {{ totalPersonasEvento > 0 ? totalPersonasEvento : '?' }} personas del evento activo
+          </div>
+          <div class="field" *ngIf="isManual" style="margin-top:8px">
+            <label>Número de personas *</label>
+            <input type="number" formControlName="cantidadPersonasManual" min="1" placeholder="Ej: 50" />
+          </div>
+          <div class="field" *ngIf="isFixed" style="margin-top:8px">
+            <label>Cantidad total a comprar *</label>
+            <input type="number" formControlName="cantidadPersonasManual" min="0.0001" step="0.001"
+                   placeholder="Ej: 50 (valor directo, sin multiplicar)" />
+            <span class="field-hint">Este valor es el total directo — no se multiplica por personas.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Preview en tiempo real -->
+      <div class="preview-box" *ngIf="form.get('cantidadPorPersona')?.value || isFixed">
+        <div class="preview-total">{{ previewLabel }}</div>
+        <div class="preview-label">Vista previa del total a comprar</div>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="btn-secondary" (click)="cancel()">Cancelar</button>
+        <button type="submit" class="btn-primary" [disabled]="form.invalid">
+          {{ editingIngId ? 'Guardar' : 'Agregar' }}
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Empty state -->
+  <div class="empty-state" *ngIf="menu.ingredientes.length === 0">
+    <p>Este menú no tiene ingredientes.</p>
+    <p class="empty-sub">Agrega el primero con el botón "+ Agregar ingrediente".</p>
+  </div>
+
+  <!-- Ingredients table -->
+  <table class="data-table" *ngIf="menu.ingredientes.length > 0">
+    <thead>
+      <tr>
+        <th style="width:60px">Orden</th>
+        <th>Nombre</th>
+        <th>Cant./persona</th>
+        <th>Unidad</th>
+        <th>Modo</th>
+        <th>Personas</th>
+        <th>Total calculado</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let ing of menu.ingredientes; let i = index">
+        <td class="order-col">
+          <button class="btn-order" (click)="moveUp(ing, i)" [disabled]="i === 0">↑</button>
+          <button class="btn-order" (click)="moveDown(ing, i)" [disabled]="i === menu.ingredientes.length - 1">↓</button>
+        </td>
+        <td><strong>{{ ing.nombre }}</strong></td>
+        <td>{{ ing.cantidadPorPersona }}</td>
+        <td>{{ ing.unidad }}</td>
+        <td>
+          <span [class]="ing.modoPersonas === 'Auto' ? 'badge-ok' : ing.modoPersonas === 'Manual' ? 'badge-pending' : 'badge-danger'">
+            {{ ing.modoPersonas === 'Auto' ? 'Automático' : ing.modoPersonas === 'Manual' ? 'Manual' : 'Fijo' }}
+          </span>
+        </td>
+        <td>{{ personasLabel(ing) }}</td>
+        <td>{{ calcTotal(ing) }}</td>
+        <td class="actions">
+          <button class="btn-sm" (click)="openEdit(ing)">Editar</button>
+          <button class="btn-sm danger" (click)="delete(ing)">Eliminar</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+</ng-container>

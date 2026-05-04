@@ -1,0 +1,20 @@
+.menus-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+.menu-card { background: var(--ruge-dark-card); border: 1px solid var(--ruge-border); border-radius: 10px; cursor: pointer; transition: border-color 0.2s, box-shadow 0.2s; overflow: hidden; }
+.menu-card:hover { border-color: var(--ruge-yellow); box-shadow: 0 4px 16px rgba(0,0,0,0.5); }
+.menu-card-top { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px 0; }
+.menu-card-body { padding: 16px 20px; text-align: center; }
+.menu-icon { color: var(--ruge-yellow); margin-bottom: 10px; }
+.menu-name { font-family: 'Barlow Condensed', sans-serif; font-size: 1.2rem; font-weight: 700; color: var(--ruge-text-primary); margin-bottom: 6px; }
+.menu-desc { font-size: 0.82rem; color: var(--ruge-text-secondary); margin-bottom: 10px; font-style: italic; }
+.menu-count { display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 0.8rem; color: var(--ruge-text-muted); }
+.menu-card-actions { display: flex; gap: 6px; }
+.menu-card-footer { border-top: 1px solid var(--ruge-border); padding: 10px 20px; font-size: 0.8rem; color: var(--ruge-yellow); text-align: center; }
+.btn-order { background: transparent; border: 1px solid var(--ruge-border); border-radius: 4px; color: var(--ruge-text-secondary); cursor: pointer; padding: 2px 6px; font-size: 0.8rem; transition: background 0.15s; }
+.btn-order:hover:not(:disabled) { background: var(--ruge-dark-hover); color: var(--ruge-text-primary); }
+.btn-order:disabled { opacity: 0.3; cursor: not-allowed; }
+.modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 100; }
+.modal-box { position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%); background: var(--ruge-dark-card); border: 1px solid var(--ruge-border); border-radius: 10px; padding: 24px; width: min(480px,90vw); z-index: 101; box-shadow: 0 8px 32px rgba(0,0,0,0.6); }
+.modal-box h3 { margin: 0 0 18px; font-size: 1.1rem; }
+.modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 8px; }
+.field.full { flex: 1 1 100%; }
+.empty-sub { color: var(--ruge-text-muted); font-size: 0.88rem; }

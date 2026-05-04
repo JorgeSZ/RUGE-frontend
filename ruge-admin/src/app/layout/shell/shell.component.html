@@ -26,6 +26,14 @@
           <lucide-icon name="shield-check" [size]="18" [strokeWidth]="1.5"></lucide-icon>
           <span>Usuarios</span>
         </a>
+        <a routerLink="/provision" routerLinkActive="active">
+          <lucide-icon name="package" [size]="18" [strokeWidth]="1.5"></lucide-icon>
+          <span>Provisión</span>
+        </a>
+        <a routerLink="/menus" routerLinkActive="active">
+          <lucide-icon name="utensils" [size]="18" [strokeWidth]="1.5"></lucide-icon>
+          <span>Cena del Rey</span>
+        </a>
 
         <ng-container *ngIf="activeEvent">
           <div class="nav-section-label">Reto Activo</div>
@@ -80,6 +88,25 @@
           <lucide-icon name="clipboard-list" [size]="18" [strokeWidth]="1.5"></lucide-icon>
           <span>Eventos</span>
         </a>
+      </ng-container>
+
+      <!-- Cocina: Provisión + Cena del Rey + Reportes -->
+      <ng-container *ngIf="isCocina">
+        <div class="nav-section-label">Módulo</div>
+        <a routerLink="/provision" routerLinkActive="active">
+          <lucide-icon name="package" [size]="18" [strokeWidth]="1.5"></lucide-icon>
+          <span>Provisión</span>
+        </a>
+        <a routerLink="/menus" routerLinkActive="active">
+          <lucide-icon name="utensils" [size]="18" [strokeWidth]="1.5"></lucide-icon>
+          <span>Cena del Rey</span>
+        </a>
+        <ng-container *ngIf="activeEvent">
+          <a routerLink="/reports" routerLinkActive="active">
+            <lucide-icon name="bar-chart-2" [size]="18" [strokeWidth]="1.5"></lucide-icon>
+            <span>Reportes</span>
+          </a>
+        </ng-container>
       </ng-container>
 
       <!-- Tiempos: only tracks module -->
