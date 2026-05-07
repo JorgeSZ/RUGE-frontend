@@ -163,11 +163,13 @@ export class ParticipantsComponent implements OnInit {
   cancel(): void { this.showForm = false; this.editingId = null; this.form.reset(); }
 
   getQrUrl(p: Participant): string {
-    return p.qrCode ? `${this.apiUrl.replace('/api', '')}/uploads/qrcodes/${p.eventId}/${p.qrCode}.png` : '';
+    return p.qrCode ? `${environment.r2PublicUrl}/qrcodes/${p.eventId}/${p.qrCode}.png` : '';
   }
 
   getComprobanteUrl(p: Participant): string {
-    return p.comprobantePagoPath ? `${this.apiUrl.replace('/api', '')}/${p.comprobantePagoPath}` : '';
+    if (!p.comprobantePagoPath) return '';
+    if (p.comprobantePagoPath.startsWith('http')) return p.comprobantePagoPath;
+    return `${this.apiUrl.replace('/api', '')}/${p.comprobantePagoPath}`;
   }
 
   copyUrl(): void {

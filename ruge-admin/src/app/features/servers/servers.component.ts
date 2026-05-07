@@ -189,11 +189,13 @@ export class ServersComponent implements OnInit {
   cancel(): void { this.showForm = false; this.editingId = null; this.form.reset(); }
 
   getQrUrl(s: Server): string {
-    return s.qrCode ? `${this.apiUrl.replace('/api', '')}/uploads/qrcodes/${s.eventId}/${s.qrCode}.png` : '';
+    return s.qrCode ? `${environment.r2PublicUrl}/qrcodes/${s.eventId}/${s.qrCode}.png` : '';
   }
 
   getComprobanteUrl(s: Server): string {
-    return s.comprobantePagoPath ? `${this.apiUrl.replace('/api', '')}/${s.comprobantePagoPath}` : '';
+    if (!s.comprobantePagoPath) return '';
+    if (s.comprobantePagoPath.startsWith('http')) return s.comprobantePagoPath;
+    return `${this.apiUrl.replace('/api', '')}/${s.comprobantePagoPath}`;
   }
 
   copyUrl(): void {
