@@ -86,6 +86,7 @@ export class ServersComponent implements OnInit {
       modulo: [null],
       nombreLider: [''],
       telefonoLider: [''],
+      emailLider: [''],
     });
     this.reassignForm = this.fb.group({
       commissionId: ['', Validators.required],
@@ -150,6 +151,7 @@ export class ServersComponent implements OnInit {
       modulo: s.modulo ?? null,
       nombreLider: s.nombreLider ?? '',
       telefonoLider: s.telefonoLider ?? '',
+      emailLider: s.emailLider ?? '',
     });
     this.showForm = true;
   }

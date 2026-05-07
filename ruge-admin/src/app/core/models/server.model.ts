@@ -23,6 +23,7 @@ export interface Server {
   modulo?: number;
   nombreLider?: string;
   telefonoLider?: string;
+  emailLider?: string;
   comprobantePagoPath?: string;
   qrCode?: string;
   checkInCompleted: boolean;

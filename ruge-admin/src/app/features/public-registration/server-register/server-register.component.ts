@@ -72,6 +72,7 @@ export class ServerRegisterComponent implements OnInit {
       modulo: [null],
       nombreLider: ['', [Validators.required]],
       telefonoLider: ['', [Validators.required]],
+      emailLider: ['', [Validators.email]],
     });
   }
 
