@@ -32,7 +32,7 @@
         </a>
         <a routerLink="/menus" routerLinkActive="active">
           <lucide-icon name="utensils" [size]="18" [strokeWidth]="1.5"></lucide-icon>
-          <span>Cena del Rey</span>
+          <span>Cena de restitución</span>
         </a>
 
         <ng-container *ngIf="activeEvent">
@@ -51,7 +51,7 @@
           </a>
           <a routerLink="/commissions" routerLinkActive="active">
             <lucide-icon name="layers" [size]="18" [strokeWidth]="1.5"></lucide-icon>
-            <span>Comisiones</span>
+            <span>Equipos</span>
           </a>
           <a routerLink="/checkin-admin" routerLinkActive="active">
             <lucide-icon name="scan-line" [size]="18" [strokeWidth]="1.5"></lucide-icon>
@@ -90,7 +90,7 @@
         </a>
       </ng-container>
 
-      <!-- Cocina: Provisión + Cena del Rey + Reportes -->
+      <!-- Cocina: Provisión + Cena de restitución + Reportes -->
       <ng-container *ngIf="isCocina">
         <div class="nav-section-label">Módulo</div>
         <a routerLink="/provision" routerLinkActive="active">
@@ -99,7 +99,7 @@
         </a>
         <a routerLink="/menus" routerLinkActive="active">
           <lucide-icon name="utensils" [size]="18" [strokeWidth]="1.5"></lucide-icon>
-          <span>Cena del Rey</span>
+          <span>Cena de restitución</span>
         </a>
         <ng-container *ngIf="activeEvent">
           <a routerLink="/reports" routerLinkActive="active">

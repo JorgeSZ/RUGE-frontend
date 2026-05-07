@@ -81,7 +81,7 @@
             <span class="badge" [class.badge-sender]="result.tipo === 'Senderista'" [class.badge-server]="result.tipo === 'Servidor'">{{ result.tipo }}</span>
             <span *ngIf="result.iglesia" class="result-church">{{ result.iglesia }}</span>
             <span *ngIf="result.tribu"   class="result-group">· Tribu: <strong>{{ result.tribu }}</strong></span>
-            <span *ngIf="result.comision" class="result-group">· Comisión: <strong>{{ result.comision }}</strong></span>
+            <span *ngIf="result.comision" class="result-group">· Equipo: <strong>{{ result.comision }}</strong></span>
           </div>
           <div class="result-status">¡Bienvenido!</div>
         </div>
@@ -98,7 +98,7 @@
           <div class="result-meta">
             <span class="badge" [class.badge-sender]="result.tipo === 'Senderista'" [class.badge-server]="result.tipo === 'Servidor'">{{ result.tipo }}</span>
             <span *ngIf="result.tribu"   class="result-group">· Tribu: <strong>{{ result.tribu }}</strong></span>
-            <span *ngIf="result.comision" class="result-group">· Comisión: <strong>{{ result.comision }}</strong></span>
+            <span *ngIf="result.comision" class="result-group">· Equipo: <strong>{{ result.comision }}</strong></span>
           </div>
           <div class="result-status warn">Ya hizo check-in a las {{ formatTime(result.fechaCheckIn) }}</div>
         </div>

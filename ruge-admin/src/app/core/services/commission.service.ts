@@ -37,7 +37,7 @@ export class CommissionService {
     this.http.get(url, { responseType: 'blob' }).subscribe(blob => {
       const link = document.createElement('a');
       link.href = URL.createObjectURL(blob);
-      link.download = `comisiones-${eventName}-${date}.xlsx`;
+      link.download = `Equipos-${eventName}-${date}.xlsx`;
       link.click();
       setTimeout(() => URL.revokeObjectURL(link.href), 5000);
     });

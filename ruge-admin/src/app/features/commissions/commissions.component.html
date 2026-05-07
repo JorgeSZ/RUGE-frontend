@@ -4,7 +4,7 @@
 <!-- No active event -->
 <div class="empty-state" *ngIf="!hasActiveEvent">
   <lucide-icon name="layers" [size]="48" [strokeWidth]="1.5" class="empty-icon"></lucide-icon>
-  <h3>Selecciona un evento para ver las comisiones</h3>
+  <h3>Selecciona un evento para ver las Equipos</h3>
   <p>Elige un evento activo desde la barra superior.</p>
 </div>
 
@@ -64,7 +64,7 @@
   <ng-container *ngIf="!selectedCommission">
     <div class="page-header">
       <div>
-        <h2>Comisiones</h2>
+        <h2>Equipos</h2>
         <span class="sub">{{ eventCtx.activeEvent?.name }}</span>
       </div>
       <div class="header-actions">
@@ -72,18 +72,18 @@
           <lucide-icon name="file-spreadsheet" [size]="14" [strokeWidth]="1.5"></lucide-icon>
           {{ exportingExcel ? 'Generando...' : 'Exportar Excel' }}
         </button>
-        <button class="btn-primary" (click)="openCreate()">+ Nueva Comisión</button>
+        <button class="btn-primary" (click)="openCreate()">+ Nuevo Equipo</button>
       </div>
     </div>
 
     <!-- New / Edit form -->
     <div class="modal-backdrop" *ngIf="showForm" (click)="cancel()">
       <div class="modal-card" (click)="$event.stopPropagation()">
-        <h3>{{ editingId ? 'Editar' : 'Nueva' }} Comisión</h3>
+        <h3>{{ editingId ? 'Editar' : 'Nuevo' }} Equipo</h3>
         <form [formGroup]="form" (ngSubmit)="submit()">
           <div class="field">
             <label>Nombre *</label>
-            <input formControlName="name" placeholder="Nombre de la comisión" />
+            <input formControlName="name" placeholder="Nombre del equipo" />
           </div>
           <div class="field">
             <label>Descripción</label>
@@ -101,8 +101,8 @@
 
     <div *ngIf="!loading && commissions.length === 0" class="empty-state">
       <div class="empty-icon">🏷️</div>
-      <h3>Sin comisiones aún</h3>
-      <p>Crea la primera comisión con el botón "+ Nueva Comisión".</p>
+      <h3>Sin Equipos aún</h3>
+      <p>Crea el primer equipo con el botón "+ Nuevo Equipo".</p>
     </div>
 
     <div class="commissions-grid" *ngIf="!loading && commissions.length > 0">

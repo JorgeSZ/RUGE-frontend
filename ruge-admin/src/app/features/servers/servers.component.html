@@ -86,7 +86,7 @@
     </div>
     <div class="form-row">
       <div class="field">
-        <label>Comisión</label>
+        <label>Equipo</label>
         <select formControlName="commissionId">
           <option value="">— sin asignar —</option>
           <option *ngFor="let c of commissions" [value]="c.id">{{ c.name }}</option>
@@ -139,13 +139,13 @@
   </form>
 </div>
 
-<!-- Reasignar comisión -->
+<!-- Reasignar equipo -->
 <div class="card form-card" *ngIf="reassigningId">
-  <h3>Reasignar Comisión</h3>
+  <h3>Reasignar Equipo</h3>
   <form [formGroup]="reassignForm" (ngSubmit)="confirmReassign()">
     <div class="form-row">
       <div class="field">
-        <label>Nueva Comisión *</label>
+        <label>Nuevo Equipo *</label>
         <select formControlName="commissionId">
           <option *ngFor="let c of commissions" [value]="c.id">{{ c.name }}</option>
         </select>
@@ -161,7 +161,7 @@
 <div class="toolbar">
   <label>Filtrar por comisión:</label>
   <select [(ngModel)]="filterCommissionId">
-    <option value="">Todas las comisiones</option>
+    <option value="">Todas las Equipos</option>
     <option *ngFor="let c of commissions" [value]="c.id">{{ c.name }}</option>
   </select>
   <span class="count">{{ filtered.length }} servidores</span>
@@ -178,7 +178,7 @@
       <th>Correo</th>
       <th>Teléfono</th>
       <th>Iglesia</th>
-      <th>Comisión</th>
+      <th>Equipo</th>
       <th>Discipulado</th>
       <th>Grupo</th>
       <th>Check-in</th>

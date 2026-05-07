@@ -91,21 +91,21 @@ export class CommissionsComponent implements OnInit {
     const val = this.form.value;
     if (this.editingId) {
       this.commissionService.update(this.editingId, val).subscribe({
-        next: () => { this.showForm = false; this.editingId = null; this.load(); this.showToast('Comisión actualizada'); },
+        next: () => { this.showForm = false; this.editingId = null; this.load(); this.showToast('Equipo actualizado'); },
         error: err => this.showToast(err.error?.error ?? 'Error al actualizar', true)
       });
     } else {
       this.commissionService.create(val).subscribe({
-        next: () => { this.showForm = false; this.load(); this.showToast('Comisión creada'); },
+        next: () => { this.showForm = false; this.load(); this.showToast('Equipo creado'); },
         error: err => this.showToast(err.error?.error ?? 'Error al crear', true)
       });
     }
   }
 
   delete(id: string): void {
-    if (!confirm('¿Eliminar esta comisión? Solo es posible si no tiene servidores asignados.')) return;
+    if (!confirm('¿Eliminar este equipo? Solo es posible si no tiene servidores asignados.')) return;
     this.commissionService.delete(id).subscribe({
-      next: () => { this.load(); this.showToast('Comisión eliminada'); },
+      next: () => { this.load(); this.showToast('Equipo eliminado'); },
       error: err => this.showToast(err.error?.error ?? 'Error al eliminar', true)
     });
   }
