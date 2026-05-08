@@ -74,8 +74,11 @@
 
       <div class="pub-row">
         <div class="pub-field">
-          <label>Correo Electrónico</label>
+          <label>Correo Electrónico *</label>
           <input type="email" formControlName="email" placeholder="correo@ejemplo.com" />
+          <span class="field-error" *ngIf="form.get('email')?.invalid && form.get('email')?.touched">
+            El correo electrónico es obligatorio
+          </span>
         </div>
         <div class="pub-field">
           <label>Teléfono</label>

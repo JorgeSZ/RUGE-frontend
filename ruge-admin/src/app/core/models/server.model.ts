@@ -28,6 +28,9 @@ export interface Server {
   qrCode?: string;
   checkInCompleted: boolean;
   checkInDate?: string;
+  approvalStatus: 'Pendiente' | 'Aprobado' | 'Denegado';
+  approvalToken?: string;
+  approvalDate?: string;
   createdAt: string;
   updatedAt?: string;
 }

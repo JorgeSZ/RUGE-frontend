@@ -59,7 +59,7 @@ export class ServerRegisterComponent implements OnInit {
       secondLastName: [''],
       cedula: ['', [Validators.required, Validators.maxLength(20)]],
       birthDate: [''],
-      email: ['', [Validators.email]],
+      email: ['', [Validators.required, Validators.email]],
       phone: [''],
       church: [''],
       maritalStatus: [''],

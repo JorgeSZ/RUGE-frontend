@@ -159,10 +159,17 @@
 </div>
 
 <div class="toolbar">
-  <label>Filtrar por comisión:</label>
+  <label>Filtrar por equipo:</label>
   <select [(ngModel)]="filterCommissionId">
-    <option value="">Todas las Equipos</option>
+    <option value="">Todos los Equipos</option>
     <option *ngFor="let c of commissions" [value]="c.id">{{ c.name }}</option>
+  </select>
+  <label>Aprobación:</label>
+  <select [(ngModel)]="filterApprovalStatus">
+    <option value="">Todos</option>
+    <option value="Pendiente">Pendientes</option>
+    <option value="Aprobado">Aprobados</option>
+    <option value="Denegado">Denegados</option>
   </select>
   <span class="count">{{ filtered.length }} servidores</span>
 </div>
@@ -186,6 +193,7 @@
       <th>Módulo</th>
       <th>Líder</th>
       <th>Tel. Líder</th>
+      <th>Aprobación</th>
       <th>QR</th>
       <th>Comprobante</th>
       <th>Acciones</th>
@@ -224,6 +232,14 @@
       <td>{{ s.nombreLider || '—' }}</td>
       <td>{{ s.telefonoLider || '—' }}</td>
       <td>
+        <span class="badge-approval"
+          [class.badge-pending]="s.approvalStatus === 'Pendiente'"
+          [class.badge-ok]="s.approvalStatus === 'Aprobado'"
+          [class.badge-denied]="s.approvalStatus === 'Denegado'">
+          {{ s.approvalStatus === 'Pendiente' ? '⏳ Pendiente' : s.approvalStatus === 'Aprobado' ? '✅ Aprobado' : '❌ Denegado' }}
+        </span>
+      </td>
+      <td>
         <a *ngIf="s.qrCode" [href]="getQrUrl(s)" target="_blank" class="btn-sm">Ver QR</a>
         <span *ngIf="!s.qrCode">—</span>
       </td>
@@ -234,11 +250,15 @@
       <td class="actions">
         <button class="btn-sm" (click)="openEdit(s)">Editar</button>
         <button class="btn-sm" (click)="openReassign(s)">Reasignar</button>
+        <ng-container *ngIf="s.approvalStatus === 'Pendiente'">
+          <button class="btn-sm btn-approve" (click)="approveServer(s)">Aprobar</button>
+          <button class="btn-sm danger" (click)="denyServer(s)">Denegar</button>
+        </ng-container>
         <button class="btn-sm danger" (click)="delete(s.id)">Eliminar</button>
       </td>
     </tr>
     <tr *ngIf="filtered.length === 0">
-      <td colspan="17" class="empty">No hay servidores.</td>
+      <td colspan="18" class="empty">No hay servidores.</td>
     </tr>
   </tbody>
 </table>
