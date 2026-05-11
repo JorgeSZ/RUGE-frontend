@@ -1,0 +1,111 @@
+<div class="drawer-backdrop" *ngIf="isOpen" (click)="close()"></div>
+
+<div class="drawer" [class.open]="isOpen">
+  <ng-container *ngIf="server">
+
+    <div class="drawer-header">
+      <div class="drawer-title">
+        <span class="drawer-name">{{ server.firstLastName }} {{ server.firstName }} {{ server.secondLastName || '' }}</span>
+        <span class="drawer-badge badge-servidor">Servidor</span>
+      </div>
+      <button class="drawer-close" (click)="close()">
+        <lucide-icon name="x" [size]="20" [strokeWidth]="2"></lucide-icon>
+      </button>
+    </div>
+
+    <div class="drawer-body">
+
+      <div class="drawer-section">
+        <div class="drawer-section-title">Información Personal</div>
+        <div class="drawer-row"><span class="drawer-label">Cédula</span><span>{{ server.cedula || '—' }}</span></div>
+        <div class="drawer-row"><span class="drawer-label">Teléfono</span><span>{{ server.phone || '—' }}</span></div>
+        <div class="drawer-row"><span class="drawer-label">Correo</span><span>{{ server.email || '—' }}</span></div>
+        <div class="drawer-row">
+          <span class="drawer-label">Nacimiento</span>
+          <span>{{ formatDate(server.birthDate) }}{{ server.age ? ' (' + server.age + ' años)' : '' }}</span>
+        </div>
+        <div class="drawer-row"><span class="drawer-label">Estado civil</span><span>{{ server.maritalStatus || '—' }}</span></div>
+      </div>
+
+      <div class="drawer-section">
+        <div class="drawer-section-title">Evento</div>
+        <div class="drawer-row"><span class="drawer-label">Iglesia</span><span>{{ server.church || '—' }}</span></div>
+        <div class="drawer-row"><span class="drawer-label">País</span><span>{{ server.country || '—' }}</span></div>
+        <div class="drawer-row">
+          <span class="drawer-label">Equipo</span>
+          <span *ngIf="server.commissionName">{{ server.commissionName }}</span>
+          <span *ngIf="!server.commissionName" class="badge-sin-asignar">Sin asignar</span>
+        </div>
+        <div class="drawer-row">
+          <span class="drawer-label">Discipulado</span>
+          <span>{{ server.hasDiscipleship ? 'Sí' + (server.hasDiscipleshipPatch ? ' (con parche)' : '') : 'No' }}</span>
+        </div>
+        <div class="drawer-row"><span class="drawer-label">Grupo</span><span>{{ server.hasGroup ? 'Sí' : 'No' }}</span></div>
+      </div>
+
+      <div class="drawer-section">
+        <div class="drawer-section-title">New Life</div>
+        <div class="drawer-row">
+          <span class="drawer-label">Está en New Life</span>
+          <span>{{ server.estaEnNewLife ? 'Sí' : 'No' }}</span>
+        </div>
+        <div class="drawer-row" *ngIf="server.estaEnNewLife">
+          <span class="drawer-label">Módulo</span>
+          <span>{{ server.modulo ?? '—' }}</span>
+        </div>
+      </div>
+
+      <div class="drawer-section">
+        <div class="drawer-section-title">Líder Directo</div>
+        <div class="drawer-row"><span class="drawer-label">Nombre</span><span>{{ server.nombreLider || '—' }}</span></div>
+        <div class="drawer-row"><span class="drawer-label">Teléfono</span><span>{{ server.telefonoLider || '—' }}</span></div>
+        <div class="drawer-row"><span class="drawer-label">Correo</span><span>{{ server.emailLider || '—' }}</span></div>
+        <div class="drawer-row">
+          <span class="drawer-label">Aprobación</span>
+          <span [class]="approvalClass">{{ approvalLabel }}</span>
+        </div>
+      </div>
+
+      <div class="drawer-section">
+        <div class="drawer-section-title">Check-in</div>
+        <div class="drawer-row">
+          <span class="drawer-label">Estado</span>
+          <span [class]="server.checkInCompleted ? 'badge-ok' : 'badge-pending'">
+            {{ server.checkInCompleted ? '✅ Realizado' : '⏳ Pendiente' }}
+          </span>
+        </div>
+        <div class="drawer-row" *ngIf="server.checkInCompleted">
+          <span class="drawer-label">Fecha / hora</span>
+          <span>{{ formatDateTime(server.checkInDate) }}</span>
+        </div>
+      </div>
+
+      <div class="drawer-section">
+        <div class="drawer-section-title">Documentos</div>
+        <div class="drawer-row">
+          <span class="drawer-label">Comprobante</span>
+          <a *ngIf="getComprobanteUrl()" [href]="getComprobanteUrl()" target="_blank" class="drawer-link">Ver imagen</a>
+          <span *ngIf="!getComprobanteUrl()">—</span>
+        </div>
+        <div class="drawer-row">
+          <span class="drawer-label">Código QR</span>
+          <a *ngIf="getQrUrl()" [href]="getQrUrl()" target="_blank" class="drawer-link">Ver QR</a>
+          <span *ngIf="!getQrUrl()">—</span>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="drawer-footer">
+      <div class="footer-left">
+        <button *ngIf="server.approvalStatus === 'Pendiente'" class="btn-approve-sm" (click)="onApprove()">Aprobar</button>
+        <button *ngIf="server.approvalStatus === 'Pendiente'" class="btn-deny-sm" (click)="onDeny()">Denegar</button>
+      </div>
+      <div class="footer-right">
+        <button class="btn-secondary" (click)="onDelete()">Eliminar</button>
+        <button class="btn-primary" (click)="onEdit()">Editar</button>
+      </div>
+    </div>
+
+  </ng-container>
+</div>

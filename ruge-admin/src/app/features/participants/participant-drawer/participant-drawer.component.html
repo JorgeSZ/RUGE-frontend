@@ -1,0 +1,78 @@
+<div class="drawer-backdrop" *ngIf="isOpen" (click)="close()"></div>
+
+<div class="drawer" [class.open]="isOpen">
+  <ng-container *ngIf="participant">
+
+    <div class="drawer-header">
+      <div class="drawer-title">
+        <span class="drawer-name">{{ participant.firstLastName }} {{ participant.firstName }} {{ participant.secondLastName || '' }}</span>
+        <span class="drawer-badge badge-senderista">Senderista</span>
+      </div>
+      <button class="drawer-close" (click)="close()">
+        <lucide-icon name="x" [size]="20" [strokeWidth]="2"></lucide-icon>
+      </button>
+    </div>
+
+    <div class="drawer-body">
+
+      <div class="drawer-section">
+        <div class="drawer-section-title">Información Personal</div>
+        <div class="drawer-row"><span class="drawer-label">Cédula</span><span>{{ participant.cedula || '—' }}</span></div>
+        <div class="drawer-row"><span class="drawer-label">Teléfono</span><span>{{ participant.phone || '—' }}</span></div>
+        <div class="drawer-row"><span class="drawer-label">Correo</span><span>{{ participant.email || '—' }}</span></div>
+        <div class="drawer-row">
+          <span class="drawer-label">Nacimiento</span>
+          <span>{{ formatDate(participant.birthDate) }}{{ participant.age ? ' (' + participant.age + ' años)' : '' }}</span>
+        </div>
+        <div class="drawer-row"><span class="drawer-label">Estado civil</span><span>{{ participant.maritalStatus || '—' }}</span></div>
+      </div>
+
+      <div class="drawer-section">
+        <div class="drawer-section-title">Evento</div>
+        <div class="drawer-row"><span class="drawer-label">Iglesia</span><span>{{ participant.church || '—' }}</span></div>
+        <div class="drawer-row"><span class="drawer-label">País</span><span>{{ participant.country || '—' }}</span></div>
+        <div class="drawer-row"><span class="drawer-label">Talla camisa</span><span>{{ participant.shirtSize || '—' }}</span></div>
+        <div class="drawer-row">
+          <span class="drawer-label">Tribu</span>
+          <span *ngIf="participant.tribeName">{{ participant.tribeName }}</span>
+          <span *ngIf="!participant.tribeName" class="badge-sin-asignar">Sin asignar</span>
+        </div>
+      </div>
+
+      <div class="drawer-section">
+        <div class="drawer-section-title">Check-in</div>
+        <div class="drawer-row">
+          <span class="drawer-label">Estado</span>
+          <span [class]="participant.checkInCompleted ? 'badge-ok' : 'badge-pending'">
+            {{ participant.checkInCompleted ? '✅ Realizado' : '⏳ Pendiente' }}
+          </span>
+        </div>
+        <div class="drawer-row" *ngIf="participant.checkInCompleted">
+          <span class="drawer-label">Fecha / hora</span>
+          <span>{{ formatDateTime(participant.checkInDate) }}</span>
+        </div>
+      </div>
+
+      <div class="drawer-section">
+        <div class="drawer-section-title">Documentos</div>
+        <div class="drawer-row">
+          <span class="drawer-label">Comprobante</span>
+          <a *ngIf="getComprobanteUrl()" [href]="getComprobanteUrl()" target="_blank" class="drawer-link">Ver imagen</a>
+          <span *ngIf="!getComprobanteUrl()">—</span>
+        </div>
+        <div class="drawer-row">
+          <span class="drawer-label">Código QR</span>
+          <a *ngIf="getQrUrl()" [href]="getQrUrl()" target="_blank" class="drawer-link">Ver QR</a>
+          <span *ngIf="!getQrUrl()">—</span>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="drawer-footer">
+      <button class="btn-secondary" (click)="onDelete()">Eliminar</button>
+      <button class="btn-primary" (click)="onEdit()">Editar</button>
+    </div>
+
+  </ng-container>
+</div>

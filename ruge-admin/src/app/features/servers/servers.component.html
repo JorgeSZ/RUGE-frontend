@@ -3,17 +3,14 @@
     <h2>Servidores</h2>
     <span class="sub">{{ eventCtx.activeEvent?.name }}</span>
   </div>
-  <button class="btn-primary" (click)="openCreate()">+ Agregar Servidor</button>
-</div>
-
-<!-- URL pública de registro -->
-<div class="url-bar">
-  <label>Enlace de registro público:</label>
-  <div class="url-row">
-    <input type="text" [value]="publicUrl" readonly class="url-input" />
-    <button class="btn-copy" (click)="copyUrl()" [class.copied]="copied">
-      <lucide-icon [name]="copied ? 'copy-check' : 'copy'" [size]="14" [strokeWidth]="1.5"></lucide-icon> {{ copied ? 'Copiado' : 'Copiar' }}
-    </button>
+  <div class="header-actions">
+    <div class="url-row-compact">
+      <input type="text" [value]="publicUrl" readonly class="url-input" />
+      <button class="btn-copy" (click)="copyUrl()" [class.copied]="copied">
+        <lucide-icon [name]="copied ? 'copy-check' : 'copy'" [size]="14" [strokeWidth]="1.5"></lucide-icon>
+      </button>
+    </div>
+    <button class="btn-primary" (click)="openCreate()">+ Agregar</button>
   </div>
 </div>
 
@@ -21,84 +18,37 @@
   <h3>{{ editingId ? 'Editar' : 'Nuevo' }} Servidor</h3>
   <form [formGroup]="form" (ngSubmit)="submit()">
     <div class="form-row">
-      <div class="field">
-        <label>Nombre *</label>
-        <input formControlName="firstName" placeholder="Nombre" />
-      </div>
-      <div class="field">
-        <label>1er Apellido *</label>
-        <input formControlName="firstLastName" placeholder="Primer apellido" />
-      </div>
-      <div class="field">
-        <label>2do Apellido</label>
-        <input formControlName="secondLastName" placeholder="Segundo apellido" />
-      </div>
+      <div class="field"><label>Nombre *</label><input formControlName="firstName" placeholder="Nombre" /></div>
+      <div class="field"><label>1er Apellido *</label><input formControlName="firstLastName" placeholder="Primer apellido" /></div>
+      <div class="field"><label>2do Apellido</label><input formControlName="secondLastName" placeholder="Segundo apellido" /></div>
     </div>
     <div class="form-row">
-      <div class="field">
-        <label>Cédula</label>
-        <input formControlName="cedula" placeholder="Número de documento" />
-      </div>
+      <div class="field"><label>Cédula</label><input formControlName="cedula" placeholder="Número de documento" /></div>
       <div class="field">
         <label>Fecha de Nacimiento</label>
         <div class="birth-selects">
-          <select (change)="bdYear = $any($event.target).value; onBdChange()">
-            <option value="">Año</option>
-            <option *ngFor="let y of years" [value]="y" [selected]="bdYear == y">{{ y }}</option>
-          </select>
-          <select (change)="bdMonth = $any($event.target).value; onBdChange()">
-            <option value="">Mes</option>
-            <option *ngFor="let m of months" [value]="m.v" [selected]="bdMonth == m.v">{{ m.l }}</option>
-          </select>
-          <select (change)="bdDay = $any($event.target).value; onBdChange()">
-            <option value="">Día</option>
-            <option *ngFor="let d of bdDays" [value]="d" [selected]="bdDay == d">{{ d }}</option>
-          </select>
+          <select (change)="bdYear = $any($event.target).value; onBdChange()"><option value="">Año</option><option *ngFor="let y of years" [value]="y" [selected]="bdYear == y">{{ y }}</option></select>
+          <select (change)="bdMonth = $any($event.target).value; onBdChange()"><option value="">Mes</option><option *ngFor="let m of months" [value]="m.v" [selected]="bdMonth == m.v">{{ m.l }}</option></select>
+          <select (change)="bdDay = $any($event.target).value; onBdChange()"><option value="">Día</option><option *ngFor="let d of bdDays" [value]="d" [selected]="bdDay == d">{{ d }}</option></select>
         </div>
       </div>
-      <div class="field">
-        <label>Estado Civil</label>
-        <select formControlName="maritalStatus">
-          <option value="">— ninguno —</option>
-          <option *ngFor="let m of maritalStatuses" [value]="m">{{ m }}</option>
-        </select>
-      </div>
+      <div class="field"><label>Estado Civil</label><select formControlName="maritalStatus"><option value="">— ninguno —</option><option *ngFor="let m of maritalStatuses" [value]="m">{{ m }}</option></select></div>
     </div>
     <div class="form-row">
-      <div class="field">
-        <label>Correo</label>
-        <input formControlName="email" placeholder="correo@ejemplo.com" />
-      </div>
-      <div class="field">
-        <label>Teléfono</label>
-        <input formControlName="phone" placeholder="+1 555..." />
-      </div>
+      <div class="field"><label>Correo</label><input formControlName="email" placeholder="correo@ejemplo.com" /></div>
+      <div class="field"><label>Teléfono</label><input formControlName="phone" placeholder="+1 555..." /></div>
     </div>
     <div class="form-row">
-      <div class="field">
-        <label>Iglesia</label>
-        <input formControlName="church" placeholder="Nombre de la iglesia" />
-      </div>
-      <div class="field">
-        <label>País</label>
-        <input formControlName="country" placeholder="País" />
-      </div>
+      <div class="field"><label>Iglesia</label><input formControlName="church" placeholder="Nombre de la iglesia" /></div>
+      <div class="field"><label>País</label><input formControlName="country" placeholder="País" /></div>
     </div>
     <div class="form-row">
-      <div class="field">
-        <label>Equipo</label>
-        <select formControlName="commissionId">
-          <option value="">— sin asignar —</option>
-          <option *ngFor="let c of commissions" [value]="c.id">{{ c.name }}</option>
-        </select>
-      </div>
+      <div class="field"><label>Equipo</label><select formControlName="commissionId"><option value="">— sin asignar —</option><option *ngFor="let c of commissions" [value]="c.id">{{ c.name }}</option></select></div>
     </div>
     <div class="form-row">
       <div class="field checkboxes">
         <label><input type="checkbox" formControlName="hasDiscipleship" /> Tiene Discipulado</label>
-        <label *ngIf="form.get('hasDiscipleship')?.value">
-          <input type="checkbox" formControlName="hasDiscipleshipPatch" /> ¿Ya tiene su parche de discípulo?
-        </label>
+        <label *ngIf="form.get('hasDiscipleship')?.value"><input type="checkbox" formControlName="hasDiscipleshipPatch" /> ¿Ya tiene su parche de discípulo?</label>
         <label><input type="checkbox" formControlName="hasGroup" /> Tiene Grupo</label>
       </div>
     </div>
@@ -112,25 +62,13 @@
       </div>
       <div class="field" *ngIf="estaEnNewLife">
         <label>Módulo</label>
-        <select formControlName="modulo">
-          <option [ngValue]="null">— Selecciona —</option>
-          <option *ngFor="let m of moduloOpciones" [value]="m">Módulo {{ m }}</option>
-        </select>
+        <select formControlName="modulo"><option [ngValue]="null">— Selecciona —</option><option *ngFor="let m of moduloOpciones" [value]="m">Módulo {{ m }}</option></select>
       </div>
     </div>
     <div class="form-row">
-      <div class="field">
-        <label>Nombre del Líder</label>
-        <input formControlName="nombreLider" placeholder="Nombre del líder directo" />
-      </div>
-      <div class="field">
-        <label>Teléfono del Líder</label>
-        <input formControlName="telefonoLider" placeholder="+506 8888-8888" />
-      </div>
-      <div class="field">
-        <label>Email del Líder</label>
-        <input type="email" formControlName="emailLider" placeholder="lider@iglesia.com" />
-      </div>
+      <div class="field"><label>Nombre del Líder</label><input formControlName="nombreLider" placeholder="Nombre del líder directo" /></div>
+      <div class="field"><label>Teléfono del Líder</label><input formControlName="telefonoLider" placeholder="+506 8888-8888" /></div>
+      <div class="field"><label>Email del Líder</label><input type="email" formControlName="emailLider" placeholder="lider@iglesia.com" /></div>
     </div>
     <div class="form-actions">
       <button class="btn-secondary" type="button" (click)="cancel()">Cancelar</button>
@@ -144,12 +82,7 @@
   <h3>Reasignar Equipo</h3>
   <form [formGroup]="reassignForm" (ngSubmit)="confirmReassign()">
     <div class="form-row">
-      <div class="field">
-        <label>Nuevo Equipo *</label>
-        <select formControlName="commissionId">
-          <option *ngFor="let c of commissions" [value]="c.id">{{ c.name }}</option>
-        </select>
-      </div>
+      <div class="field"><label>Nuevo Equipo *</label><select formControlName="commissionId"><option *ngFor="let c of commissions" [value]="c.id">{{ c.name }}</option></select></div>
     </div>
     <div class="form-actions">
       <button class="btn-secondary" type="button" (click)="reassigningId = null">Cancelar</button>
@@ -158,79 +91,49 @@
   </form>
 </div>
 
-<div class="toolbar">
-  <label>Filtrar por equipo:</label>
-  <select [(ngModel)]="filterCommissionId">
-    <option value="">Todos los Equipos</option>
-    <option *ngFor="let c of commissions" [value]="c.id">{{ c.name }}</option>
-  </select>
-  <label>Aprobación:</label>
-  <select [(ngModel)]="filterApprovalStatus">
-    <option value="">Todos</option>
-    <option value="Pendiente">Pendientes</option>
-    <option value="Aprobado">Aprobados</option>
-    <option value="Denegado">Denegados</option>
-  </select>
-  <span class="count">{{ filtered.length }} servidores</span>
+<!-- Search + filters -->
+<div class="table-controls">
+  <div class="search-wrap">
+    <lucide-icon name="search" [size]="15" [strokeWidth]="1.5" class="search-icon"></lucide-icon>
+    <input class="search-input" [(ngModel)]="searchTerm" placeholder="Buscar por nombre o cédula..." />
+  </div>
+  <div class="filter-chips">
+    <button class="chip" [class.active]="filterApprovalStatus === 'Aprobado'"  (click)="setApprovalFilter('Aprobado')">✅ Aprobados</button>
+    <button class="chip" [class.active]="filterApprovalStatus === 'Pendiente'" (click)="setApprovalFilter('Pendiente')">⏳ Pendientes</button>
+    <button class="chip" [class.active]="filterApprovalStatus === 'Denegado'"  (click)="setApprovalFilter('Denegado')">❌ Denegados</button>
+    <button class="chip" [class.active]="filterCheckin === 'done'"             (click)="setCheckinFilter('done')">Con Check-in</button>
+    <button class="chip" [class.active]="filterCheckin === 'pending'"          (click)="setCheckinFilter('pending')">Sin Check-in</button>
+    <select class="chip-select" [(ngModel)]="filterCommissionId">
+      <option value="">Todos los Equipos</option>
+      <option *ngFor="let c of commissions" [value]="c.id">{{ c.name }}</option>
+    </select>
+  </div>
+  <span class="count">Mostrando {{ filtered.length }} de {{ servers.length }}</span>
 </div>
 
 <div *ngIf="loading" class="loading">Cargando...</div>
 
-<table *ngIf="!loading" class="data-table">
+<table *ngIf="!loading" class="data-table compact-table">
   <thead>
     <tr>
       <th>Nombre</th>
       <th>Cédula</th>
-      <th>Edad</th>
-      <th>Correo</th>
-      <th>Teléfono</th>
-      <th>Iglesia</th>
       <th>Equipo</th>
-      <th>Discipulado</th>
-      <th>Grupo</th>
       <th>Check-in</th>
-      <th>New Life</th>
-      <th>Módulo</th>
-      <th>Líder</th>
-      <th>Tel. Líder</th>
       <th>Aprobación</th>
-      <th>QR</th>
-      <th>Comprobante</th>
       <th>Acciones</th>
     </tr>
   </thead>
   <tbody>
-    <tr *ngFor="let s of filtered">
-      <td>{{ s.firstLastName }} {{ s.firstName }} {{ s.secondLastName || '' }}</td>
+    <tr *ngFor="let s of filtered" (click)="openDrawer(s)" class="row-clickable">
+      <td class="name-cell">{{ s.firstLastName }} {{ s.firstName }} {{ s.secondLastName || '' }}</td>
       <td>{{ s.cedula || '—' }}</td>
-      <td>{{ s.age ?? '—' }}</td>
-      <td>{{ s.email || '—' }}</td>
-      <td>{{ s.phone || '—' }}</td>
-      <td>{{ s.church || '—' }}</td>
       <td>{{ s.commissionName || '—' }}</td>
       <td>
-        <span [class]="s.hasDiscipleship ? 'badge-ok' : 'badge-pending'">
-          {{ s.hasDiscipleship ? 'Sí' : 'No' }}
-        </span>
-      </td>
-      <td>
-        <span [class]="s.hasGroup ? 'badge-ok' : 'badge-pending'">
-          {{ s.hasGroup ? 'Sí' : 'No' }}
-        </span>
-      </td>
-      <td>
         <span [class]="s.checkInCompleted ? 'badge-ok' : 'badge-pending'">
-          {{ s.checkInCompleted ? 'Realizado' : 'Pendiente' }}
+          {{ s.checkInCompleted ? '✅ Realizado' : '⏳ Pendiente' }}
         </span>
       </td>
-      <td>
-        <span [class]="s.estaEnNewLife ? 'badge-ok' : 'badge-pending'">
-          {{ s.estaEnNewLife ? 'Sí' : 'No' }}
-        </span>
-      </td>
-      <td>{{ s.modulo ?? '—' }}</td>
-      <td>{{ s.nombreLider || '—' }}</td>
-      <td>{{ s.telefonoLider || '—' }}</td>
       <td>
         <span class="badge-approval"
           [class.badge-pending]="s.approvalStatus === 'Pendiente'"
@@ -239,17 +142,11 @@
           {{ s.approvalStatus === 'Pendiente' ? '⏳ Pendiente' : s.approvalStatus === 'Aprobado' ? '✅ Aprobado' : '❌ Denegado' }}
         </span>
       </td>
-      <td>
-        <a *ngIf="s.qrCode" [href]="getQrUrl(s)" target="_blank" class="btn-sm">Ver QR</a>
-        <span *ngIf="!s.qrCode">—</span>
-      </td>
-      <td>
-        <a *ngIf="s.comprobantePagoPath" [href]="getComprobanteUrl(s)" target="_blank" class="btn-sm">Ver</a>
-        <span *ngIf="!s.comprobantePagoPath">—</span>
-      </td>
-      <td class="actions">
+      <td class="actions" (click)="$event.stopPropagation()">
+        <button class="btn-sm btn-icon" (click)="openDrawer(s)" title="Ver detalle">
+          <lucide-icon name="eye" [size]="14" [strokeWidth]="1.5"></lucide-icon>
+        </button>
         <button class="btn-sm" (click)="openEdit(s)">Editar</button>
-        <button class="btn-sm" (click)="openReassign(s)">Reasignar</button>
         <ng-container *ngIf="s.approvalStatus === 'Pendiente'">
           <button class="btn-sm btn-approve" (click)="approveServer(s)">Aprobar</button>
           <button class="btn-sm danger" (click)="denyServer(s)">Denegar</button>
@@ -258,7 +155,17 @@
       </td>
     </tr>
     <tr *ngIf="filtered.length === 0">
-      <td colspan="18" class="empty">No hay servidores.</td>
+      <td colspan="6" class="empty">No hay servidores.</td>
     </tr>
   </tbody>
 </table>
+
+<app-server-drawer
+  [server]="drawerServer"
+  [isOpen]="drawerOpen"
+  (closed)="closeDrawer()"
+  (editRequested)="onDrawerEdit($event)"
+  (deleteRequested)="onDrawerDelete($event)"
+  (approveRequested)="onDrawerApprove($event)"
+  (denyRequested)="onDrawerDeny($event)">
+</app-server-drawer>

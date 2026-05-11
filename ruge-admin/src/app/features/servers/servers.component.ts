@@ -31,8 +31,14 @@ export class ServersComponent implements OnInit {
   maritalStatuses = MARITAL_STATUSES;
   filterCommissionId = '';
   filterApprovalStatus = '';
+  filterCheckin = '';
+  searchTerm = '';
   apiUrl = environment.apiUrl;
   copied = false;
+
+  // Drawer
+  drawerOpen = false;
+  drawerServer: import('../../core/models/server.model').Server | null = null;
 
   readonly moduloOpciones = [1, 2, 3, 4, 5];
   get estaEnNewLife(): boolean { return !!this.form.get('estaEnNewLife')?.value; }
@@ -115,12 +121,29 @@ export class ServersComponent implements OnInit {
   }
 
   get filtered(): Server[] {
+    const q = this.searchTerm.toLowerCase();
     return this.servers.filter(s => {
-      const commOk = !this.filterCommissionId || s.commissionId === this.filterCommissionId;
-      const apprOk = !this.filterApprovalStatus || s.approvalStatus === this.filterApprovalStatus;
-      return commOk && apprOk;
+      if (q) {
+        const name = `${s.firstLastName} ${s.firstName} ${s.secondLastName ?? ''}`.toLowerCase();
+        if (!name.includes(q) && !(s.cedula ?? '').toLowerCase().includes(q)) return false;
+      }
+      if (this.filterCommissionId  && s.commissionId   !== this.filterCommissionId)   return false;
+      if (this.filterApprovalStatus && s.approvalStatus !== this.filterApprovalStatus) return false;
+      if (this.filterCheckin === 'done'    && !s.checkInCompleted) return false;
+      if (this.filterCheckin === 'pending' && s.checkInCompleted)  return false;
+      return true;
     });
   }
+
+  setApprovalFilter(v: string): void { this.filterApprovalStatus = this.filterApprovalStatus === v ? '' : v; }
+  setCheckinFilter(v: string):   void { this.filterCheckin = this.filterCheckin === v ? '' : v; }
+
+  openDrawer(s: Server): void  { this.drawerServer = s; this.drawerOpen = true; }
+  closeDrawer(): void          { this.drawerOpen = false; }
+  onDrawerEdit(s: Server): void  { this.closeDrawer(); this.openEdit(s); }
+  onDrawerDelete(id: string): void { this.closeDrawer(); this.delete(id); }
+  onDrawerApprove(s: Server): void { this.closeDrawer(); this.approveServer(s); }
+  onDrawerDeny(s: Server): void    { this.closeDrawer(); this.denyServer(s); }
 
   approveServer(s: Server): void {
     if (!confirm(`¿Aprobar manualmente a ${s.firstName} ${s.firstLastName}?`)) return;
