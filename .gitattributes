@@ -1,0 +1,2 @@
+# Keep impact-specific files during merges
+ruge-admin/src/environments/environment.production.ts merge=ours
