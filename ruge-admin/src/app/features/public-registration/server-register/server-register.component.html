@@ -1,6 +1,7 @@
 <div class="public-page">
   <div class="public-card">
     <div class="public-header">
+      <img src="assets/ruge-logo.png" alt="RUGE" class="public-logo" />
       <h1>Registro de Servidor</h1>
       <p>Completa el formulario para registrarte como servidor del evento</p>
     </div>
@@ -74,8 +75,11 @@
 
       <div class="pub-row">
         <div class="pub-field">
-          <label>Correo Electrónico</label>
+          <label>Correo Electrónico *</label>
           <input type="email" formControlName="email" placeholder="correo@ejemplo.com" />
+          <span class="field-error" *ngIf="form.get('email')?.invalid && form.get('email')?.touched">
+            El correo electrónico es obligatorio
+          </span>
         </div>
         <div class="pub-field">
           <label>Teléfono</label>

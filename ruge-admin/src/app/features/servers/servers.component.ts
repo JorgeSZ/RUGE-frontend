@@ -4,6 +4,7 @@ import { ServerService } from '../../core/services/server.service';
 import { CommissionService } from '../../core/services/commission.service';
 import { TribeService } from '../../core/services/tribe.service';
 import { EventContextService } from '../../core/services/event-context.service';
+import { ApprovalService } from '../../core/services/approval.service';
 import { Server } from '../../core/models/server.model';
 import { Commission } from '../../core/models/commission.model';
 import { Tribe } from '../../core/models/tribe.model';
@@ -29,8 +30,15 @@ export class ServersComponent implements OnInit {
   reassignForm: FormGroup;
   maritalStatuses = MARITAL_STATUSES;
   filterCommissionId = '';
+  filterApprovalStatus = '';
+  filterCheckin = '';
+  searchTerm = '';
   apiUrl = environment.apiUrl;
   copied = false;
+
+  // Drawer
+  drawerOpen = false;
+  drawerServer: import('../../core/models/server.model').Server | null = null;
 
   readonly moduloOpciones = [1, 2, 3, 4, 5];
   get estaEnNewLife(): boolean { return !!this.form.get('estaEnNewLife')?.value; }
@@ -64,6 +72,7 @@ export class ServersComponent implements OnInit {
     private commissionService: CommissionService,
     private tribeService: TribeService,
     public eventCtx: EventContextService,
+    private approvalService: ApprovalService,
     private cdr: ChangeDetectorRef
   ) {
     this.form = this.fb.group({
@@ -112,8 +121,44 @@ export class ServersComponent implements OnInit {
   }
 
   get filtered(): Server[] {
-    if (!this.filterCommissionId) return this.servers;
-    return this.servers.filter(s => s.commissionId === this.filterCommissionId);
+    const q = this.searchTerm.toLowerCase();
+    return this.servers.filter(s => {
+      if (q) {
+        const name = `${s.firstLastName} ${s.firstName} ${s.secondLastName ?? ''}`.toLowerCase();
+        if (!name.includes(q) && !(s.cedula ?? '').toLowerCase().includes(q)) return false;
+      }
+      if (this.filterCommissionId  && s.commissionId   !== this.filterCommissionId)   return false;
+      if (this.filterApprovalStatus && s.approvalStatus !== this.filterApprovalStatus) return false;
+      if (this.filterCheckin === 'done'    && !s.checkInCompleted) return false;
+      if (this.filterCheckin === 'pending' && s.checkInCompleted)  return false;
+      return true;
+    });
+  }
+
+  setApprovalFilter(v: string): void { this.filterApprovalStatus = this.filterApprovalStatus === v ? '' : v; }
+  setCheckinFilter(v: string):   void { this.filterCheckin = this.filterCheckin === v ? '' : v; }
+
+  openDrawer(s: Server): void  { this.drawerServer = s; this.drawerOpen = true; }
+  closeDrawer(): void          { this.drawerOpen = false; }
+  onDrawerEdit(s: Server): void  { this.closeDrawer(); this.openEdit(s); }
+  onDrawerDelete(id: string): void { this.closeDrawer(); this.delete(id); }
+  onDrawerApprove(s: Server): void { this.closeDrawer(); this.approveServer(s); }
+  onDrawerDeny(s: Server): void    { this.closeDrawer(); this.denyServer(s); }
+
+  approveServer(s: Server): void {
+    if (!confirm(`¿Aprobar manualmente a ${s.firstName} ${s.firstLastName}?`)) return;
+    this.approvalService.approveServer(this.eventId, s.id).subscribe({
+      next: () => this.load(),
+      error: err => alert(err.error?.error ?? 'Error al aprobar')
+    });
+  }
+
+  denyServer(s: Server): void {
+    if (!confirm(`¿Denegar la participación de ${s.firstName} ${s.firstLastName}?`)) return;
+    this.approvalService.denyServer(this.eventId, s.id).subscribe({
+      next: () => this.load(),
+      error: err => alert(err.error?.error ?? 'Error al denegar')
+    });
   }
 
   openCreate(): void {

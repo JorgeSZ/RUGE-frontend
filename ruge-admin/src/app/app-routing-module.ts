@@ -24,6 +24,7 @@ import { UsersComponent } from './features/users/users.component';
 import { ProvisionComponent } from './features/provision/provision.component';
 import { MenusComponent } from './features/menus/menus.component';
 import { MenuDetailComponent } from './features/menus/menu-detail.component';
+import { ApprovalComponent } from './features/approval/approval.component';
 import { AuthGuard } from './core/guards/auth.guard';
 import { RoleGuard } from './core/guards/role.guard';
 import { EventGuard } from './core/guards/event.guard';
@@ -42,6 +43,7 @@ const routes: Routes = [
   { path: 'registro/servidor/:eventId',   component: ServerRegisterComponent },
   { path: 'registro/confirmacion',        component: RegistrationSuccessComponent },
   { path: 'checkin/:eventId',             component: CheckinComponent },
+  { path: 'approve/:token',              component: ApprovalComponent },
 
   // ── Protected admin shell ────────────────────────────────────────────────
   {

@@ -27,8 +27,14 @@ export class ParticipantsComponent implements OnInit {
   maritalStatuses = MARITAL_STATUSES;
   filterTribeId = '';
   filterSinTribu = false;
+  filterCheckin = '';
+  searchTerm = '';
   apiUrl = environment.apiUrl;
   copied = false;
+
+  // Drawer
+  drawerOpen = false;
+  drawerParticipant: import('../../core/models/participant.model').Participant | null = null;
 
   readonly years = Array.from({length: new Date().getFullYear() - 1929}, (_, i) => String(new Date().getFullYear() - i));
   readonly months = [
@@ -98,16 +104,32 @@ export class ParticipantsComponent implements OnInit {
   }
 
   get filtered(): Participant[] {
-    let result = this.participants;
-    if (this.filterSinTribu) return result.filter(p => !p.tribeId);
-    if (this.filterTribeId) return result.filter(p => p.tribeId === this.filterTribeId);
-    return result;
+    const q = this.searchTerm.toLowerCase();
+    return this.participants.filter(p => {
+      if (q) {
+        const name = `${p.firstLastName} ${p.firstName} ${p.secondLastName ?? ''}`.toLowerCase();
+        if (!name.includes(q) && !(p.cedula ?? '').toLowerCase().includes(q)) return false;
+      }
+      if (this.filterSinTribu && p.tribeId) return false;
+      if (this.filterTribeId && p.tribeId !== this.filterTribeId) return false;
+      if (this.filterCheckin === 'done'    && !p.checkInCompleted) return false;
+      if (this.filterCheckin === 'pending' && p.checkInCompleted)  return false;
+      return true;
+    });
   }
 
   toggleSinTribu(): void {
     this.filterSinTribu = !this.filterSinTribu;
     if (this.filterSinTribu) this.filterTribeId = '';
   }
+
+  setCheckinFilter(v: string): void { this.filterCheckin = this.filterCheckin === v ? '' : v; }
+
+  openDrawer(p: Participant): void { this.drawerParticipant = p; this.drawerOpen = true; }
+  closeDrawer(): void { this.drawerOpen = false; }
+
+  onDrawerEdit(p: Participant): void { this.closeDrawer(); this.openEdit(p); }
+  onDrawerDelete(id: string): void   { this.closeDrawer(); this.delete(id); }
 
   openCreate(): void {
     this.editingId = null;

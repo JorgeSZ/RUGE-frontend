@@ -3,7 +3,7 @@
   <!-- PIN screen -->
   <div class="pin-screen" *ngIf="!pinVerified">
     <div class="pin-card">
-      <div class="pin-logo">RUGE</div>
+      <img src="assets/ruge-logo.png" alt="RUGE" class="pin-logo" />
       <h1>Check-in</h1>
       <p>Ingresa el PIN para acceder</p>
       <form [formGroup]="pinForm" (ngSubmit)="verifyPin()">

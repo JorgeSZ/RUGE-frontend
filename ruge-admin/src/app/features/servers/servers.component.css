@@ -11,3 +11,32 @@
 .birth-selects { display: flex; gap: 6px; }
 .birth-selects select { flex: 1; min-width: 0; }
 .checkbox-row { display: flex; gap: 20px; padding: 6px 0; } .checkbox-row label { display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 0.88rem; }
+
+/* Page header actions */
+.header-actions { display: flex; align-items: center; gap: 10px; }
+.url-row-compact { display: flex; gap: 6px; }
+.url-input { width: 240px; padding: 7px 10px; border: 1px solid var(--ruge-border); border-radius: 6px; font-size: 0.8rem; background: var(--ruge-black); color: var(--ruge-text-muted); outline: none; }
+
+/* Search + filter controls */
+.table-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-bottom: 14px; }
+.search-wrap { display: flex; align-items: center; gap: 8px; background: var(--ruge-dark-card); border: 1px solid var(--ruge-border); border-radius: 6px; padding: 7px 10px; flex: 1; min-width: 200px; max-width: 320px; }
+.search-icon { color: var(--ruge-text-muted); flex-shrink: 0; }
+.search-input { background: none; border: none; outline: none; color: var(--ruge-text-primary); font-size: 0.88rem; width: 100%; }
+.search-input::placeholder { color: var(--ruge-text-muted); }
+
+.filter-chips { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.chip { padding: 4px 12px; border: 1px solid var(--ruge-border); border-radius: 20px; background: transparent; color: var(--ruge-text-secondary); font-size: 0.8rem; cursor: pointer; transition: all 0.15s; white-space: nowrap; }
+.chip:hover { background: var(--ruge-dark-hover); color: var(--ruge-text-primary); }
+.chip.active { background: rgba(240,180,41,0.12); border-color: var(--ruge-yellow); color: var(--ruge-yellow); font-weight: 600; }
+.chip-select { padding: 4px 8px; border: 1px solid var(--ruge-border); border-radius: 20px; background: transparent; color: var(--ruge-text-secondary); font-size: 0.8rem; cursor: pointer; }
+
+.count { color: var(--ruge-text-muted); font-size: 0.8rem; margin-left: auto; white-space: nowrap; }
+
+/* Compact table */
+.compact-table td, .compact-table th { padding: 10px 12px; }
+.name-cell { font-weight: 500; }
+.row-clickable { cursor: pointer; }
+.row-clickable:hover td { background: var(--ruge-dark-hover); }
+.btn-icon { display: inline-flex; align-items: center; justify-content: center; padding: 5px 7px; }
+.btn-approve { background: rgba(34,197,94,0.1); color: #22C55E; border-color: rgba(34,197,94,0.3) !important; }
+.badge-denied { background: rgba(239,68,68,0.12); color: #EF4444; border: 1px solid rgba(239,68,68,0.3); }

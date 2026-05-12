@@ -33,6 +33,9 @@ import { UsersComponent } from './features/users/users.component';
 import { ProvisionComponent } from './features/provision/provision.component';
 import { MenusComponent } from './features/menus/menus.component';
 import { MenuDetailComponent } from './features/menus/menu-detail.component';
+import { ApprovalComponent } from './features/approval/approval.component';
+import { ParticipantDrawerComponent } from './features/participants/participant-drawer/participant-drawer.component';
+import { ServerDrawerComponent } from './features/servers/server-drawer/server-drawer.component';
 
 import { EventContextService } from './core/services/event-context.service';
 import { AuthInterceptor } from './core/interceptors/auth.interceptor';
@@ -64,6 +67,9 @@ import { AuthInterceptor } from './core/interceptors/auth.interceptor';
     ProvisionComponent,
     MenusComponent,
     MenuDetailComponent,
+    ApprovalComponent,
+    ParticipantDrawerComponent,
+    ServerDrawerComponent,
   ],
   imports: [
     BrowserModule,

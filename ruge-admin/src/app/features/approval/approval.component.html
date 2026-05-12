@@ -1,0 +1,91 @@
+<div class="approval-page">
+  <div class="approval-header">
+    <img src="assets/ruge-logo.png" alt="RUGE" class="approval-logo" />
+  </div>
+
+  <!-- Loading -->
+  <div class="approval-card" *ngIf="state === 'loading'">
+    <div class="skeleton-title"></div>
+    <div class="skeleton-row"></div>
+    <div class="skeleton-row short"></div>
+    <div class="skeleton-row"></div>
+  </div>
+
+  <!-- Error / invalid token -->
+  <div class="approval-card error-card" *ngIf="state === 'error'">
+    <div class="status-badge badge-error">❌ Link inválido</div>
+    <h2>Link no válido</h2>
+    <p>{{ errorMsg }}</p>
+  </div>
+
+  <!-- Already processed -->
+  <div class="approval-card" *ngIf="state === 'already' && info">
+    <div class="status-badge" [class.badge-approved]="info.currentStatus === 'Aprobado'" [class.badge-denied]="info.currentStatus === 'Denegado'">
+      {{ info.currentStatus === 'Aprobado' ? '✅' : '❌' }} Esta solicitud ya fue procesada
+    </div>
+    <h2>{{ info.nombreCompleto }}</h2>
+    <table class="info-table">
+      <tr><td>Evento</td><td><strong>{{ info.nombreEvento }}</strong></td></tr>
+      <tr><td>Estado actual</td><td><strong>{{ statusLabel }}</strong></td></tr>
+    </table>
+  </div>
+
+  <!-- Pending: show approve/deny -->
+  <div class="approval-card" *ngIf="state === 'pending' && info">
+    <h2>Solicitud de aprobación</h2>
+    <p class="subtitle">Revisa los datos antes de tomar una decisión</p>
+
+    <table class="info-table">
+      <tr><td>Nombre completo</td><td><strong>{{ info.nombreCompleto }}</strong></td></tr>
+      <tr><td>Iglesia</td><td>{{ info.iglesia || '—' }}</td></tr>
+      <tr><td>Equipo solicitado</td><td>{{ info.comision || '—' }}</td></tr>
+      <tr><td>Evento</td><td><strong>{{ info.nombreEvento }}</strong></td></tr>
+    </table>
+
+    <div class="action-buttons">
+      <button class="btn-approve" (click)="openDialog('approve')">
+        ✓ Aprobar participación
+      </button>
+      <button class="btn-deny" (click)="openDialog('deny')">
+        ✗ Denegar participación
+      </button>
+    </div>
+  </div>
+
+  <!-- Success -->
+  <div class="approval-card" *ngIf="state === 'success'">
+    <div *ngIf="resultAction === 'approve'">
+      <div class="status-badge badge-approved">✅ Aprobación confirmada</div>
+      <h2>Aprobación registrada</h2>
+      <p>Has aprobado la participación de <strong>{{ resultNombre }}</strong> en <strong>{{ resultEvento }}</strong>.</p>
+      <p class="hint">Se le ha notificado por correo electrónico.</p>
+    </div>
+    <div *ngIf="resultAction === 'deny'">
+      <div class="status-badge badge-denied">❌ Participación denegada</div>
+      <h2>Denegación registrada</h2>
+      <p>Has denegado la participación de <strong>{{ resultNombre }}</strong> en <strong>{{ resultEvento }}</strong>.</p>
+      <p class="hint">Se le ha notificado por correo electrónico.</p>
+    </div>
+  </div>
+</div>
+
+<!-- Confirmation dialog -->
+<div class="dialog-backdrop" *ngIf="showDialog" (click)="cancelDialog()">
+  <div class="dialog-card" (click)="$event.stopPropagation()">
+    <h3>¿Confirmar {{ actionLabel === 'APROBAR' ? 'aprobación' : 'denegación' }}?</h3>
+    <p>
+      ¿Confirmas que deseas <strong [class.text-green]="pendingAction === 'approve'" [class.text-red]="pendingAction === 'deny'">{{ actionLabel }}</strong>
+      la participación de <strong>{{ info?.nombreCompleto }}</strong>?
+    </p>
+    <div class="dialog-actions">
+      <button class="btn-secondary" (click)="cancelDialog()" [disabled]="submitting">Cancelar</button>
+      <button
+        [class.btn-approve]="pendingAction === 'approve'"
+        [class.btn-deny]="pendingAction === 'deny'"
+        (click)="confirm()"
+        [disabled]="submitting">
+        {{ submitting ? 'Procesando...' : 'Confirmar' }}
+      </button>
+    </div>
+  </div>
+</div>

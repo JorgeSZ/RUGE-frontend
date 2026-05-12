@@ -1,6 +1,7 @@
 .public-page { min-height: 100vh; background: var(--ruge-dark); display: flex; justify-content: center; align-items: flex-start; padding: 32px 16px; }
 .public-card { background: var(--ruge-dark-card); border: 1px solid var(--ruge-border); border-radius: 8px; box-shadow: 0 8px 32px rgba(0,0,0,0.5); max-width: 800px; width: 100%; padding: 40px; }
 .public-header { text-align: center; margin-bottom: 32px; }
+.public-logo { width: 180px; height: auto; display: block; margin: 0 auto 20px; }
 .public-header h1 { font-family: 'Barlow Condensed', sans-serif; font-size: 2rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ruge-yellow); margin: 0 0 8px; }
 .public-header p { color: var(--ruge-text-muted); margin: 0; font-size: 0.9rem; }
 .section-title { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; color: var(--ruge-text-secondary); border-bottom: 2px solid var(--ruge-olive); padding-bottom: 8px; margin: 24px 0 16px; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.07em; }
