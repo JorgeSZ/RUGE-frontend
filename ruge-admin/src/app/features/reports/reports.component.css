@@ -182,7 +182,7 @@
 
 .caps-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
   gap: 4px 12px;
   margin-top: 12px;
 }
@@ -206,7 +206,8 @@
   flex-shrink: 0;
 }
 
-.caps-name { color: var(--ruge-text-primary); }
+.caps-name { color: var(--ruge-text-primary); font-weight: 600; min-width: 120px; }
+.caps-full { color: var(--ruge-text-muted); font-size: 0.82rem; }
 
 .list-toolbar {
   display: flex;

@@ -30,6 +30,12 @@ export class LogisticsComponent implements OnInit {
 
   get eventId(): string { return this.eventCtx.activeEvent!.id; }
 
+  get globalTotal(): number      { return this.segments.reduce((s, g) => s + g.total, 0); }
+  get globalCompletados(): number { return this.segments.reduce((s, g) => s + g.completados, 0); }
+  get globalPorcentaje(): number {
+    return this.globalTotal === 0 ? 0 : Math.round(this.globalCompletados / this.globalTotal * 100);
+  }
+
   load(): void {
     this.loading = true;
     this.logisticsService.getOverview(this.eventId).subscribe({

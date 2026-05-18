@@ -26,10 +26,23 @@
         </div>
       </div>
 
+      <!-- Nombre preferido (CAMBIO 1) -->
+      <div class="pub-row">
+        <div class="pub-field full">
+          <label>Nombre preferido (para la gorra)</label>
+          <input formControlName="nombrePreferido" placeholder="Ej: Alexandra" />
+          <p class="field-hint">
+            Este nombre será impreso en tu gorra.
+            No se permiten apodos, diminutivos ni nicknames.
+            Usa tu nombre real tal como te llaman formalmente.
+          </p>
+        </div>
+      </div>
+
       <div class="pub-row">
         <div class="pub-field">
           <label>Cédula / Documento *</label>
-          <input formControlName="cedula" placeholder="Número de documento" required />
+          <input formControlName="cedula" placeholder="Número de documento" />
           <span class="field-error" *ngIf="form.get('cedula')?.invalid && form.get('cedula')?.touched">
             La cédula es requerida
           </span>
@@ -87,13 +100,114 @@
         </div>
       </div>
 
+      <!-- CAMBIO 2: Medicamentos -->
+      <div class="section-title">Medicamentos</div>
+
+      <div class="pub-row">
+        <div class="pub-field full">
+          <div class="toggle-row">
+            <span>¿Tomas algún medicamento?</span>
+            <label class="toggle-switch">
+              <input type="checkbox" [checked]="tomaMedicamentos" (change)="toggleMedicamentos()" />
+              <span class="toggle-slider"></span>
+            </label>
+            <span class="toggle-label">{{ tomaMedicamentos ? 'Sí' : 'No' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <ng-container *ngIf="tomaMedicamentos">
+        <div class="med-list">
+          <div class="med-item" *ngFor="let med of medications; let i = index">
+            <div class="med-header">
+              <strong>Medicamento {{ i + 1 }}</strong>
+              <button type="button" class="btn-remove-med" (click)="removeMed(i)">✕</button>
+            </div>
+            <div class="pub-row">
+              <div class="pub-field">
+                <label>Nombre del medicamento *</label>
+                <input [(ngModel)]="med.nombre" [ngModelOptions]="{standalone: true}" placeholder="Ej: Metformina" />
+              </div>
+              <div class="pub-field">
+                <label>Dosis</label>
+                <input [(ngModel)]="med.dosis" [ngModelOptions]="{standalone: true}" placeholder="Ej: 500mg" />
+              </div>
+              <div class="pub-field">
+                <label>Horario</label>
+                <input [(ngModel)]="med.horario" [ngModelOptions]="{standalone: true}" placeholder="Ej: 8:00 AM con comida" />
+              </div>
+            </div>
+            <div class="pub-row">
+              <div class="pub-field full">
+                <label>Notas adicionales</label>
+                <input [(ngModel)]="med.notas" [ngModelOptions]="{standalone: true}" placeholder="Observaciones opcionales" />
+              </div>
+            </div>
+          </div>
+          <button type="button" class="btn-add-med" (click)="addMed()" *ngIf="medications.length < 10">
+            + Agregar otro medicamento
+          </button>
+        </div>
+      </ng-container>
+
+      <!-- CAMBIO 3: Iglesia condicional -->
+      <div class="section-title">Iglesia</div>
+
+      <div class="pub-row">
+        <div class="pub-field full">
+          <div class="toggle-row">
+            <span>¿Asistes a una iglesia?</span>
+            <label class="toggle-switch">
+              <input type="checkbox" formControlName="asistesIglesia" />
+              <span class="toggle-slider"></span>
+            </label>
+            <span class="toggle-label">{{ asistesIglesia ? 'Sí' : 'No' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <ng-container *ngIf="asistesIglesia">
+        <div class="pub-row">
+          <div class="pub-field full">
+            <label>Nombre de tu iglesia *</label>
+            <input formControlName="church" placeholder="Iglesia a la que perteneces" />
+          </div>
+        </div>
+
+        <!-- Detección Impact -->
+        <ng-container *ngIf="showImpactFields">
+          <div class="impact-section">
+            <div class="pub-row">
+              <div class="pub-field full">
+                <div class="toggle-row">
+                  <span>¿Perteneces a un grupo de amistad o discipulado?</span>
+                  <label class="toggle-switch">
+                    <input type="checkbox" formControlName="perteneceGrupo" />
+                    <span class="toggle-slider"></span>
+                  </label>
+                  <span class="toggle-label">{{ perteneceGrupo ? 'Sí' : 'No' }}</span>
+                </div>
+              </div>
+            </div>
+            <ng-container *ngIf="perteneceGrupo">
+              <div class="pub-row">
+                <div class="pub-field">
+                  <label>Nombre completo de tu líder *</label>
+                  <input formControlName="nombreLiderGrupo" placeholder="Nombre del líder" />
+                </div>
+                <div class="pub-field">
+                  <label>Teléfono de tu líder *</label>
+                  <input formControlName="telefonoLiderGrupo" placeholder="+506 8888-8888" />
+                </div>
+              </div>
+            </ng-container>
+          </div>
+        </ng-container>
+      </ng-container>
+
       <div class="section-title">Información del Evento</div>
 
       <div class="pub-row">
-        <div class="pub-field">
-          <label>Iglesia</label>
-          <input formControlName="church" placeholder="Nombre de tu iglesia" />
-        </div>
         <div class="pub-field">
           <label>Talla de Camisa</label>
           <select formControlName="shirtSize">
@@ -116,7 +230,7 @@
       </div>
 
       <div class="pub-actions">
-        <button type="submit" class="btn-register" [disabled]="form.invalid || loading">
+        <button type="submit" class="btn-register" [disabled]="form.invalid || loading || !medsValid">
           {{ loading ? 'Registrando...' : 'Completar Registro' }}
         </button>
       </div>

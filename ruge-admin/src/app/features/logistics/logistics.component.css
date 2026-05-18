@@ -100,6 +100,16 @@
   letter-spacing: 0.03em;
 }
 
+.global-stats { background: var(--ruge-dark-card); border: 1px solid var(--ruge-border); border-radius: 8px; padding: 18px 20px; margin-bottom: 20px; }
+.global-bar-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.global-label { font-family: 'Barlow Condensed', sans-serif; font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ruge-text-muted); }
+.global-pct { font-family: 'Barlow Condensed', sans-serif; font-size: 1.4rem; font-weight: 800; color: var(--ruge-yellow); }
+.global-bar { height: 10px; margin-bottom: 10px; }
+.mini-stats { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.mini-stat { font-size: 0.82rem; color: var(--ruge-text-secondary); }
+.mini-stat strong { color: var(--ruge-text-primary); }
+.mini-stat-sep { color: var(--ruge-text-muted); }
+
 .loading  { text-align: center; padding: 40px; color: var(--ruge-text-muted); }
 .error-msg { background: rgba(224,82,82,0.1); border: 1px solid rgba(224,82,82,0.3); color: var(--ruge-danger); border-radius: 6px; padding: 12px; margin-bottom: 16px; }
 .empty-state { text-align: center; padding: 60px 20px; color: var(--ruge-text-muted); }

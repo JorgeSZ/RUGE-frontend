@@ -6,6 +6,8 @@ import { ParticipantService } from '../../../core/services/participant.service';
 const SHIRT_SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
 const MARITAL_STATUSES = ['Soltero', 'Casado', 'Divorciado', 'Viudo', 'Unión libre'];
 
+export interface MedRow { nombre: string; dosis: string; horario: string; notas: string; }
+
 @Component({
   selector: 'app-participant-register',
   templateUrl: './participant-register.component.html',
@@ -21,6 +23,10 @@ export class ParticipantRegisterComponent implements OnInit {
   previewUrl: string | null = null;
   shirtSizes = SHIRT_SIZES;
   maritalStatuses = MARITAL_STATUSES;
+
+  // Medications
+  tomaMedicamentos = false;
+  medications: MedRow[] = [];
 
   readonly years = Array.from({length: new Date().getFullYear() - 1929}, (_, i) => String(new Date().getFullYear() - i));
   readonly months = [
@@ -45,6 +51,12 @@ export class ParticipantRegisterComponent implements OnInit {
     this.form.patchValue({birthDate: v});
   }
 
+  // Church conditional
+  get asistesIglesia(): boolean { return !!this.form.get('asistesIglesia')?.value; }
+  get churchValue(): string { return this.form.get('church')?.value ?? ''; }
+  get showImpactFields(): boolean { return this.asistesIglesia && /impact/i.test(this.churchValue); }
+  get perteneceGrupo(): boolean { return !!this.form.get('perteneceGrupo')?.value; }
+
   constructor(
     private fb: FormBuilder,
     private route: ActivatedRoute,
@@ -52,17 +64,36 @@ export class ParticipantRegisterComponent implements OnInit {
     private participantService: ParticipantService
   ) {
     this.form = this.fb.group({
-      firstName: ['', [Validators.required]],
-      firstLastName: ['', [Validators.required]],
-      secondLastName: [''],
-      cedula: ['', [Validators.required, Validators.maxLength(20)]],
-      birthDate: [''],
-      email: ['', [Validators.required, Validators.email]],
-      phone: [''],
-      church: [''],
-      shirtSize: [''],
-      maritalStatus: [''],
-      country: [''],
+      firstName:          ['', [Validators.required]],
+      firstLastName:      ['', [Validators.required]],
+      secondLastName:     [''],
+      cedula:             ['', [Validators.required, Validators.maxLength(20)]],
+      nombrePreferido:    [''],
+      birthDate:          [''],
+      email:              ['', [Validators.required, Validators.email]],
+      phone:              [''],
+      asistesIglesia:     [false],
+      church:             [''],
+      perteneceGrupo:     [false],
+      nombreLiderGrupo:   [''],
+      telefonoLiderGrupo: [''],
+      shirtSize:          [''],
+      maritalStatus:      [''],
+      country:            [''],
+    });
+
+    // React to asistesIglesia changes
+    this.form.get('asistesIglesia')?.valueChanges.subscribe(val => {
+      if (!val) {
+        this.form.patchValue({ church: '', perteneceGrupo: false, nombreLiderGrupo: '', telefonoLiderGrupo: '' });
+      }
+    });
+
+    // React to perteneceGrupo changes
+    this.form.get('perteneceGrupo')?.valueChanges.subscribe(val => {
+      if (!val) {
+        this.form.patchValue({ nombreLiderGrupo: '', telefonoLiderGrupo: '' });
+      }
     });
   }
 
@@ -86,8 +117,26 @@ export class ParticipantRegisterComponent implements OnInit {
     }
   }
 
+  toggleMedicamentos(): void {
+    this.tomaMedicamentos = !this.tomaMedicamentos;
+    if (this.tomaMedicamentos && this.medications.length === 0) this.addMed();
+    if (!this.tomaMedicamentos) this.medications = [];
+  }
+
+  addMed(): void {
+    if (this.medications.length < 10)
+      this.medications.push({ nombre: '', dosis: '', horario: '', notas: '' });
+  }
+
+  removeMed(i: number): void { this.medications.splice(i, 1); }
+
+  get medsValid(): boolean {
+    if (!this.tomaMedicamentos) return true;
+    return this.medications.length > 0 && this.medications.every(m => !!m.nombre.trim());
+  }
+
   submit(): void {
-    if (this.form.invalid || !this.eventId) return;
+    if (this.form.invalid || !this.eventId || !this.medsValid) return;
 
     this.loading = true;
     this.error = '';
@@ -95,16 +144,24 @@ export class ParticipantRegisterComponent implements OnInit {
     const fd = new FormData();
     const val = this.form.value;
     Object.entries(val).forEach(([k, v]) => {
-      if (v !== null && v !== undefined && v !== '') fd.append(k, v as string);
+      if (v !== null && v !== undefined && v !== '' && v !== false) fd.append(k, String(v));
+      if (v === true) fd.append(k, 'true');
     });
     if (this.selectedFile) fd.append('comprobante', this.selectedFile);
+
+    if (this.tomaMedicamentos && this.medications.length > 0) {
+      fd.append('medicamentosJson', JSON.stringify(this.medications.map(m => ({
+        nombreMedicamento: m.nombre,
+        dosis: m.dosis || null,
+        horario: m.horario || null,
+        notas: m.notas || null,
+      }))));
+    }
 
     this.participantService.registerPublic(this.eventId, fd).subscribe({
       next: result => {
         this.loading = false;
-        this.router.navigate(['/registro/confirmacion'], {
-          state: { result, type: 'Senderista' }
-        });
+        this.router.navigate(['/registro/confirmacion'], { state: { result, type: 'Senderista' } });
       },
       error: err => {
         this.loading = false;

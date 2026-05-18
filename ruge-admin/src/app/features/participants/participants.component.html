@@ -24,6 +24,13 @@
     </div>
     <div class="form-row">
       <div class="field">
+        <label>Nombre preferido (para la gorra)</label>
+        <input formControlName="nombrePreferido" placeholder="Ej: Alexandra" />
+        <span class="field-hint">Si se deja vacío, se usará el nombre</span>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="field">
         <label>Cédula</label><input formControlName="cedula" placeholder="Número de documento" />
       </div>
       <div class="field">
@@ -41,9 +48,30 @@
       <div class="field"><label>Teléfono</label><input formControlName="phone" placeholder="+1 555..." /></div>
     </div>
     <div class="form-row">
-      <div class="field"><label>Iglesia</label><input formControlName="church" placeholder="Nombre de la iglesia" /></div>
+      <div class="field">
+        <label>¿Asiste a iglesia?</label>
+        <label style="display:flex;align-items:center;gap:8px;margin-top:6px;">
+          <input type="checkbox" formControlName="asistesIglesia" /> Sí, asiste a una iglesia
+        </label>
+      </div>
+      <div class="field" *ngIf="asistesIglesia">
+        <label>Iglesia</label>
+        <input formControlName="church" placeholder="Nombre de la iglesia" />
+      </div>
       <div class="field"><label>País</label><input formControlName="country" placeholder="País" /></div>
     </div>
+    <ng-container *ngIf="showImpactFields">
+      <div class="form-row">
+        <div class="field">
+          <label>¿Pertenece a un grupo?</label>
+          <label style="display:flex;align-items:center;gap:8px;margin-top:6px;">
+            <input type="checkbox" formControlName="perteneceGrupo" /> Sí
+          </label>
+        </div>
+        <div class="field" *ngIf="perteneceGrupo"><label>Nombre del líder</label><input formControlName="nombreLiderGrupo" placeholder="Nombre líder" /></div>
+        <div class="field" *ngIf="perteneceGrupo"><label>Teléfono del líder</label><input formControlName="telefonoLiderGrupo" placeholder="+506..." /></div>
+      </div>
+    </ng-container>
     <div class="form-row">
       <div class="field"><label>Talla de Camisa</label><select formControlName="shirtSize"><option value="">— ninguna —</option><option *ngFor="let s of shirtSizes" [value]="s">{{ s }}</option></select></div>
       <div class="field"><label>Tribu</label><select formControlName="tribeId"><option value="">— sin asignar —</option><option *ngFor="let t of tribes" [value]="t.id">{{ t.name }}</option></select></div>

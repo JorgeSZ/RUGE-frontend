@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { ApiService } from './api.service';
-import { Participant, CreateParticipantRequest, UpdateParticipantRequest } from '../models/participant.model';
+import { Participant, CreateParticipantRequest, UpdateParticipantRequest, Medication, CreateMedicationRequest, CalaqueroEntry } from '../models/participant.model';
 import { environment } from '../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
@@ -32,5 +32,25 @@ export class ParticipantService {
       `${environment.apiUrl}/public/events/${eventId}/senderistas/register`,
       formData
     );
+  }
+
+  getMedications(eventId: string, participantId: string): Observable<Medication[]> {
+    return this.api.get<Medication[]>(`${this.base(eventId)}/${participantId}/medications`);
+  }
+
+  addMedication(eventId: string, participantId: string, data: CreateMedicationRequest): Observable<Medication> {
+    return this.api.post<Medication>(`${this.base(eventId)}/${participantId}/medications`, data);
+  }
+
+  deleteMedication(eventId: string, participantId: string, medicationId: string): Observable<void> {
+    return this.api.delete<void>(`${this.base(eventId)}/${participantId}/medications/${medicationId}`);
+  }
+
+  getCalaquero(eventId: string): Observable<CalaqueroEntry[]> {
+    return this.api.get<CalaqueroEntry[]>(`/events/${eventId}/calaquero`);
+  }
+
+  getConsolidacion(eventId: string): Observable<Participant[]> {
+    return this.api.get<Participant[]>(`/events/${eventId}/consolidacion`);
   }
 }

@@ -1,0 +1,56 @@
+<div class="page-header">
+  <div>
+    <h2>Calaquero</h2>
+    <span class="sub">{{ eventCtx.activeEvent?.name }}</span>
+  </div>
+  <button class="btn-primary" (click)="exportExcel()">Exportar Excel</button>
+</div>
+
+<div *ngIf="!eventCtx.activeEvent" class="empty-state">
+  <p>No hay ningún reto activo seleccionado.</p>
+</div>
+
+<ng-container *ngIf="eventCtx.activeEvent">
+  <div class="calaquero-controls">
+    <div class="search-wrap">
+      <lucide-icon name="search" [size]="15" [strokeWidth]="1.5" class="search-icon"></lucide-icon>
+      <input class="search-input" [(ngModel)]="searchTerm" placeholder="Buscar por nombre..." />
+    </div>
+    <select class="chip-select" [(ngModel)]="filterTribu">
+      <option value="">Todas las tribus</option>
+      <option *ngFor="let t of tribus" [value]="t">{{ t }}</option>
+    </select>
+    <span class="count-badge">
+      {{ filtered.length }} senderista{{ filtered.length !== 1 ? 's' : '' }} con medicamentos
+    </span>
+  </div>
+
+  <div *ngIf="loading" class="loading">Cargando...</div>
+
+  <div *ngIf="!loading && filtered.length === 0" class="empty-state">
+    <p>Ningún senderista tiene medicamentos registrados. ✅</p>
+  </div>
+
+  <div class="calaquero-grid" *ngIf="!loading && filtered.length > 0">
+    <div class="cal-card" *ngFor="let entry of filtered">
+      <div class="cal-card-header">
+        <div>
+          <div class="cal-name">
+            {{ entry.nombreCompleto }}
+            <span class="cal-nombre-preferido" *ngIf="entry.nombrePreferido">({{ entry.nombrePreferido }})</span>
+          </div>
+          <div class="cal-meta">{{ entry.edad ? entry.edad + ' años' : '' }}</div>
+        </div>
+        <span class="cal-tribu" *ngIf="entry.tribu">{{ entry.tribu }}</span>
+      </div>
+      <div class="cal-meds-title">MEDICAMENTOS:</div>
+      <ul class="cal-meds-list">
+        <li *ngFor="let m of entry.medicamentos" class="cal-med-item">
+          <strong>• {{ m.nombre }}</strong>  <span *ngIf="m.dosis"> {{ m.dosis }}</span>
+          <div class="cal-med-detail" *ngIf="m.horario">⏰ {{ m.horario }}</div>
+          <div class="cal-med-detail" *ngIf="m.notas">📝 {{ m.notas }}</div>
+        </li>
+      </ul>
+    </div>
+  </div>
+</ng-container>
