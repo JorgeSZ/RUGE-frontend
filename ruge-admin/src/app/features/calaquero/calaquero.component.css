@@ -1,0 +1,46 @@
+.calaquero-controls {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-bottom: 20px;
+}
+.search-wrap {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--ruge-dark-card); border: 1px solid var(--ruge-border);
+  border-radius: 6px; padding: 7px 10px; flex: 1; min-width: 200px; max-width: 320px;
+}
+.search-icon { color: var(--ruge-text-muted); flex-shrink: 0; }
+.search-input { background: none; border: none; outline: none; color: var(--ruge-text-primary); font-size: 0.88rem; width: 100%; }
+.search-input::placeholder { color: var(--ruge-text-muted); }
+.chip-select { padding: 7px 10px; border: 1px solid var(--ruge-border); border-radius: 6px; background: var(--ruge-dark-card); color: var(--ruge-text-secondary); font-size: 0.88rem; }
+.count-badge { background: rgba(240,180,41,0.12); color: var(--ruge-yellow); border: 1px solid rgba(240,180,41,0.3); padding: 4px 12px; border-radius: 20px; font-size: 0.82rem; font-weight: 600; margin-left: auto; }
+
+.calaquero-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 16px;
+}
+
+.cal-card {
+  background: var(--ruge-dark-card);
+  border: 1px solid var(--ruge-border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.cal-card-header {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  padding: 16px; border-bottom: 1px solid var(--ruge-border);
+  background: rgba(240,180,41,0.04);
+}
+
+.cal-name { font-size: 0.95rem; font-weight: 700; color: var(--ruge-text-primary); }
+.cal-nombre-preferido { color: var(--ruge-yellow); font-weight: 400; font-size: 0.88rem; }
+.cal-meta { color: var(--ruge-text-muted); font-size: 0.8rem; margin-top: 2px; }
+.cal-tribu { background: rgba(99,179,237,0.12); color: #63B3ED; border: 1px solid rgba(99,179,237,0.3); padding: 3px 10px; border-radius: 20px; font-size: 0.72rem; font-weight: 600; white-space: nowrap; }
+
+.cal-meds-title { padding: 10px 16px 4px; font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--ruge-text-muted); }
+
+.cal-meds-list { list-style: none; padding: 0 16px 16px; margin: 0; }
+.cal-med-item { padding: 8px 0; border-bottom: 1px solid var(--ruge-border); font-size: 0.85rem; color: var(--ruge-text-primary); }
+.cal-med-item:last-child { border-bottom: none; }
+.cal-med-detail { color: var(--ruge-text-secondary); font-size: 0.8rem; margin-top: 3px; }
+
+.empty-state { text-align: center; padding: 48px; color: var(--ruge-text-muted); }

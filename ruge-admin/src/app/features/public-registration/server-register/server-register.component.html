@@ -6,6 +6,16 @@
       <p>Completa el formulario para registrarte como servidor del evento</p>
     </div>
 
+    <div class="disclaimer-banner">
+      <div class="disclaimer-icon">⚠️</div>
+      <div class="disclaimer-content">
+        <strong>INFORMACIÓN IMPORTANTE</strong>
+        <p>Toda la información proporcionada en este formulario debe ser verídica y exacta.</p>
+        <p>En caso de comprobarse que algún dato es falso o incorrecto, el servicio será automáticamente denegado sin posibilidad de apelación.</p>
+        <p>Al completar este formulario confirmas que toda la información es verdadera.</p>
+      </div>
+    </div>
+
     <div class="error-msg" *ngIf="error">{{ error }}</div>
 
     <form [formGroup]="form" (ngSubmit)="submit()">
@@ -185,6 +195,18 @@
           <div class="preview" *ngIf="previewUrl">
             <img [src]="previewUrl" alt="Comprobante" />
           </div>
+        </div>
+      </div>
+
+      <div class="pub-row">
+        <div class="pub-field full">
+          <label class="checkbox-confirm">
+            <input type="checkbox" formControlName="confirmacionVeracidad" />
+            <span>
+              Confirmo que toda la información proporcionada es verídica y acepto que el servicio
+              puede ser denegado si se comprueba lo contrario.
+            </span>
+          </label>
         </div>
       </div>
 

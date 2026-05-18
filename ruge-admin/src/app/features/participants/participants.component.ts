@@ -26,6 +26,10 @@ export class ParticipantsComponent implements OnInit {
   shirtSizes = SHIRT_SIZES;
   maritalStatuses = MARITAL_STATUSES;
   filterTribeId = '';
+  get asistesIglesia(): boolean { return !!this.form.get('asistesIglesia')?.value; }
+  get churchValue(): string { return this.form.get('church')?.value ?? ''; }
+  get showImpactFields(): boolean { return this.asistesIglesia && /impact/i.test(this.churchValue); }
+  get perteneceGrupo(): boolean { return !!this.form.get('perteneceGrupo')?.value; }
   filterSinTribu = false;
   filterCheckin = '';
   searchTerm = '';
@@ -67,18 +71,23 @@ export class ParticipantsComponent implements OnInit {
     private cdr: ChangeDetectorRef
   ) {
     this.form = this.fb.group({
-      firstName: ['', [Validators.required, Validators.minLength(2)]],
-      firstLastName: ['', [Validators.required, Validators.minLength(2)]],
-      secondLastName: [''],
-      cedula: [''],
-      birthDate: [''],
-      email: [''],
-      phone: [''],
-      church: [''],
-      shirtSize: [''],
-      maritalStatus: [''],
-      country: [''],
-      tribeId: [''],
+      firstName:          ['', [Validators.required, Validators.minLength(2)]],
+      firstLastName:      ['', [Validators.required, Validators.minLength(2)]],
+      secondLastName:     [''],
+      cedula:             [''],
+      nombrePreferido:    [''],
+      birthDate:          [''],
+      email:              [''],
+      phone:              [''],
+      asistesIglesia:     [false],
+      church:             [''],
+      perteneceGrupo:     [false],
+      nombreLiderGrupo:   [''],
+      telefonoLiderGrupo: [''],
+      shirtSize:          [''],
+      maritalStatus:      [''],
+      country:            [''],
+      tribeId:            [''],
     });
   }
 
@@ -147,18 +156,23 @@ export class ParticipantsComponent implements OnInit {
       this.bdYear = ''; this.bdMonth = ''; this.bdDay = '';
     }
     this.form.patchValue({
-      firstName: p.firstName,
-      firstLastName: p.firstLastName,
-      secondLastName: p.secondLastName,
-      cedula: p.cedula,
-      birthDate: p.birthDate?.substring(0, 10),
-      email: p.email,
-      phone: p.phone,
-      church: p.church,
-      shirtSize: p.shirtSize,
-      maritalStatus: p.maritalStatus,
-      country: p.country,
-      tribeId: p.tribeId,
+      firstName:          p.firstName,
+      firstLastName:      p.firstLastName,
+      secondLastName:     p.secondLastName,
+      cedula:             p.cedula,
+      nombrePreferido:    p.nombrePreferido ?? '',
+      birthDate:          p.birthDate?.substring(0, 10),
+      email:              p.email,
+      phone:              p.phone,
+      asistesIglesia:     p.asistesIglesia,
+      church:             p.church,
+      perteneceGrupo:     p.perteneceGrupo,
+      nombreLiderGrupo:   p.nombreLiderGrupo ?? '',
+      telefonoLiderGrupo: p.telefonoLiderGrupo ?? '',
+      shirtSize:          p.shirtSize,
+      maritalStatus:      p.maritalStatus,
+      country:            p.country,
+      tribeId:            p.tribeId,
     });
     this.showForm = true;
   }

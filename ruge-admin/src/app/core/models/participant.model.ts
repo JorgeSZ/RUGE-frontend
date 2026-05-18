@@ -1,3 +1,19 @@
+export interface Medication {
+  id: string;
+  nombreMedicamento: string;
+  dosis?: string;
+  horario?: string;
+  notas?: string;
+  creadoEn: string;
+}
+
+export interface CreateMedicationRequest {
+  nombreMedicamento: string;
+  dosis?: string;
+  horario?: string;
+  notas?: string;
+}
+
 export interface Participant {
   id: string;
   eventId: string;
@@ -21,6 +37,12 @@ export interface Participant {
   checkInDate?: string;
   createdAt: string;
   updatedAt?: string;
+  nombrePreferido?: string;
+  asistesIglesia: boolean;
+  perteneceGrupo: boolean;
+  nombreLiderGrupo?: string;
+  telefonoLiderGrupo?: string;
+  medications?: Medication[];
 }
 
 export interface CreateParticipantRequest {
@@ -38,6 +60,11 @@ export interface CreateParticipantRequest {
   country?: string;
   tribeId?: string;
   comprobantePagoPath?: string;
+  nombrePreferido?: string;
+  asistesIglesia?: boolean;
+  perteneceGrupo?: boolean;
+  nombreLiderGrupo?: string;
+  telefonoLiderGrupo?: string;
 }
 
 export interface UpdateParticipantRequest {
@@ -54,4 +81,18 @@ export interface UpdateParticipantRequest {
   country?: string;
   tribeId?: string;
   comprobantePagoPath?: string;
+  nombrePreferido?: string;
+  asistesIglesia?: boolean;
+  perteneceGrupo?: boolean;
+  nombreLiderGrupo?: string;
+  telefonoLiderGrupo?: string;
+}
+
+export interface CalaqueroEntry {
+  participantId: string;
+  nombreCompleto: string;
+  nombrePreferido?: string;
+  edad?: number;
+  tribu?: string;
+  medicamentos: { nombre: string; dosis?: string; horario?: string; notas?: string }[];
 }

@@ -1,0 +1,94 @@
+<div class="page-header">
+  <div>
+    <h2>Consolidación</h2>
+    <span class="sub">{{ eventCtx.activeEvent?.name }}</span>
+  </div>
+  <span class="count-badge" *ngIf="!loading">{{ filtered.length }} sin iglesia</span>
+</div>
+
+<div *ngIf="!eventCtx.activeEvent" class="empty-state">
+  <p>No hay ningún reto activo seleccionado.</p>
+</div>
+
+<ng-container *ngIf="eventCtx.activeEvent">
+  <div class="filters-bar">
+    <div class="search-wrap">
+      <lucide-icon name="search" [size]="15" [strokeWidth]="1.5" class="search-icon"></lucide-icon>
+      <input class="search-input" [(ngModel)]="searchTerm" placeholder="Buscar por nombre..." />
+    </div>
+    <div class="filter-row">
+      <div class="filter-group">
+        <label>Edad</label>
+        <div class="age-inputs">
+          <input type="number" [(ngModel)]="filterEdadMin" placeholder="Desde" class="age-input" />
+          <span>—</span>
+          <input type="number" [(ngModel)]="filterEdadMax" placeholder="Hasta" class="age-input" />
+        </div>
+      </div>
+      <div class="filter-group">
+        <label>Estado Civil</label>
+        <select [(ngModel)]="filterEstadoCivil" class="filter-select">
+          <option value="">Todos</option>
+          <option *ngFor="let m of maritalStatuses" [value]="m">{{ m }}</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label>País</label>
+        <select [(ngModel)]="filterPais" class="filter-select">
+          <option value="">Todos</option>
+          <option *ngFor="let p of paises" [value]="p">{{ p }}</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label>Tribu</label>
+        <select [(ngModel)]="filterTribeId" class="filter-select">
+          <option value="">Todas</option>
+          <option *ngFor="let t of tribes" [value]="t.id">{{ t.name }}</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="loading">Cargando...</div>
+
+  <div *ngIf="!loading && filtered.length === 0" class="empty-state">
+    <p *ngIf="participants.length === 0">Todos los senderistas asisten a una iglesia ✅</p>
+    <p *ngIf="participants.length > 0">No hay resultados para los filtros seleccionados.</p>
+  </div>
+
+  <table *ngIf="!loading && filtered.length > 0" class="data-table compact-table">
+    <thead>
+      <tr>
+        <th>Nombre</th>
+        <th>Edad</th>
+        <th>Estado Civil</th>
+        <th>País</th>
+        <th>Teléfono</th>
+        <th>Correo</th>
+        <th>Tribu</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let p of filtered" (click)="openDrawer(p)" class="row-clickable">
+        <td class="name-cell">{{ p.firstLastName }} {{ p.firstName }} {{ p.secondLastName || '' }}</td>
+        <td>{{ p.age ?? '—' }}</td>
+        <td>{{ p.maritalStatus || '—' }}</td>
+        <td>{{ p.country || '—' }}</td>
+        <td>{{ p.phone || '—' }}</td>
+        <td>{{ p.email || '—' }}</td>
+        <td>
+          <span *ngIf="p.tribeName">{{ p.tribeName }}</span>
+          <span *ngIf="!p.tribeName" style="color:var(--ruge-text-muted);font-size:0.78rem;">Sin tribu</span>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <app-participant-drawer
+    [participant]="drawerParticipant"
+    [isOpen]="drawerOpen"
+    (closed)="closeDrawer()"
+    (editRequested)="onDrawerEdit($event)"
+    (deleteRequested)="onDrawerDelete($event)">
+  </app-participant-drawer>
+</ng-container>

@@ -15,6 +15,22 @@
     Este evento no tiene un track asignado o el track no tiene segmentos.
   </div>
 
+  <div class="global-stats" *ngIf="!loading && segments.length > 0">
+    <div class="global-bar-row">
+      <span class="global-label">Progreso global</span>
+      <span class="global-pct">{{ globalPorcentaje }}%</span>
+    </div>
+    <div class="progress-bar global-bar">
+      <div class="progress-fill" [ngClass]="colorClass(globalPorcentaje)" [style.width.%]="globalPorcentaje"></div>
+    </div>
+    <div class="mini-stats">
+      <span class="mini-stat"><strong>{{ globalTotal }}</strong> ítems</span>
+      <span class="mini-stat-sep">·</span>
+      <span class="mini-stat"><strong>{{ globalCompletados }}</strong> completados</span>
+      <span class="mini-stat"><strong>{{ globalTotal - globalCompletados }}</strong> pendientes</span>
+    </div>
+  </div>
+
   <div class="segments-grid" *ngIf="!loading && segments.length > 0">
     <div
       class="segment-card"

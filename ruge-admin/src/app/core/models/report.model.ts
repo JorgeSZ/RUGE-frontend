@@ -31,7 +31,7 @@ export interface DiscipleshipPatchResponse {
 }
 
 // ── Gorras (caps) report model ─────────────────────────────────────────────
-export interface CapsEntry { firstName: string; }
+export interface CapsEntry { nombreGorra: string; nombreCompleto: string; }
 export interface CapsReportResponse { totalGorras: number; senderistas: CapsEntry[]; }
 
 // Re-export from provision/menu models for use in reports component

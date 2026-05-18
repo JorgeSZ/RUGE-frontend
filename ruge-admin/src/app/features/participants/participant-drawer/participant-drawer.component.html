@@ -17,6 +17,7 @@
 
       <div class="drawer-section">
         <div class="drawer-section-title">Información Personal</div>
+        <div class="drawer-row" *ngIf="participant.nombrePreferido"><span class="drawer-label">Nombre gorra</span><span style="color:var(--ruge-yellow);font-weight:600;">{{ participant.nombrePreferido }}</span></div>
         <div class="drawer-row"><span class="drawer-label">Cédula</span><span>{{ participant.cedula || '—' }}</span></div>
         <div class="drawer-row"><span class="drawer-label">Teléfono</span><span>{{ participant.phone || '—' }}</span></div>
         <div class="drawer-row"><span class="drawer-label">Correo</span><span>{{ participant.email || '—' }}</span></div>
@@ -29,7 +30,10 @@
 
       <div class="drawer-section">
         <div class="drawer-section-title">Evento</div>
-        <div class="drawer-row"><span class="drawer-label">Iglesia</span><span>{{ participant.church || '—' }}</span></div>
+        <div class="drawer-row"><span class="drawer-label">Asiste iglesia</span><span>{{ participant.asistesIglesia ? 'Sí' : 'No' }}</span></div>
+        <div class="drawer-row" *ngIf="participant.asistesIglesia"><span class="drawer-label">Iglesia</span><span>{{ participant.church || '—' }}</span></div>
+        <div class="drawer-row" *ngIf="participant.perteneceGrupo"><span class="drawer-label">Líder grupo</span><span>{{ participant.nombreLiderGrupo || '—' }}</span></div>
+        <div class="drawer-row" *ngIf="participant.perteneceGrupo"><span class="drawer-label">Tel. líder</span><span>{{ participant.telefonoLiderGrupo || '—' }}</span></div>
         <div class="drawer-row"><span class="drawer-label">País</span><span>{{ participant.country || '—' }}</span></div>
         <div class="drawer-row"><span class="drawer-label">Talla camisa</span><span>{{ participant.shirtSize || '—' }}</span></div>
         <div class="drawer-row">
@@ -50,6 +54,16 @@
         <div class="drawer-row" *ngIf="participant.checkInCompleted">
           <span class="drawer-label">Fecha / hora</span>
           <span>{{ formatDateTime(participant.checkInDate) }}</span>
+        </div>
+      </div>
+
+      <div class="drawer-section" *ngIf="participant.medications && participant.medications.length > 0">
+        <div class="drawer-section-title">Medicamentos</div>
+        <div *ngFor="let m of participant.medications" class="med-drawer-item">
+          <div class="med-drawer-name">{{ m.nombreMedicamento }}</div>
+          <div class="med-drawer-detail" *ngIf="m.dosis">💊 {{ m.dosis }}</div>
+          <div class="med-drawer-detail" *ngIf="m.horario">⏰ {{ m.horario }}</div>
+          <div class="med-drawer-detail" *ngIf="m.notas">📝 {{ m.notas }}</div>
         </div>
       </div>
 

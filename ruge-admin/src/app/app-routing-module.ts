@@ -25,6 +25,8 @@ import { ProvisionComponent } from './features/provision/provision.component';
 import { MenusComponent } from './features/menus/menus.component';
 import { MenuDetailComponent } from './features/menus/menu-detail.component';
 import { ApprovalComponent } from './features/approval/approval.component';
+import { CalaqueroComponent } from './features/calaquero/calaquero.component';
+import { ConsolidacionComponent } from './features/consolidacion/consolidacion.component';
 import { AuthGuard } from './core/guards/auth.guard';
 import { RoleGuard } from './core/guards/role.guard';
 import { EventGuard } from './core/guards/event.guard';
@@ -62,7 +64,9 @@ const routes: Routes = [
       { path: 'servers',      component: ServersComponent,     canActivate: [RoleGuard, EventGuard], data: ADMIN },
       { path: 'commissions',  component: CommissionsComponent, canActivate: [RoleGuard, EventGuard], data: ADMIN },
       { path: 'checkin-admin',component: CheckinAdminComponent,canActivate: [RoleGuard, EventGuard], data: ADMIN },
-      { path: 'reports',      component: ReportsComponent,     canActivate: [RoleGuard, EventGuard], data: ADMIN_COCINA },
+      { path: 'reports',        component: ReportsComponent,      canActivate: [RoleGuard, EventGuard], data: ADMIN_COCINA },
+      { path: 'calaquero',      component: CalaqueroComponent,    canActivate: [RoleGuard, EventGuard], data: ADMIN },
+      { path: 'consolidacion',  component: ConsolidacionComponent, canActivate: [RoleGuard, EventGuard], data: ADMIN },
 
       // Admin + Logistica
       { path: 'logistics',                       component: LogisticsComponent,      canActivate: [RoleGuard, EventGuard], data: ADMIN_LOGISTICA },

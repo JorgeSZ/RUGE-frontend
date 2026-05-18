@@ -143,7 +143,7 @@ export class ReportsComponent implements OnInit {
   get filteredCaps() {
     if (!this.caps) return [];
     const q = this.capsSearch.toLowerCase();
-    return this.caps.senderistas.filter(s => !q || s.firstName.toLowerCase().includes(q));
+    return this.caps.senderistas.filter(s => !q || s.nombreGorra.toLowerCase().includes(q) || s.nombreCompleto.toLowerCase().includes(q));
   }
 
   openProvision(): void {

@@ -1,7 +1,30 @@
 .public-page { min-height: 100vh; background: var(--ruge-dark); display: flex; justify-content: center; align-items: flex-start; padding: 32px 16px; }
 .public-card { background: var(--ruge-dark-card); border: 1px solid var(--ruge-border); border-radius: 8px; box-shadow: 0 8px 32px rgba(0,0,0,0.5); max-width: 800px; width: 100%; padding: 40px; }
-.public-header { text-align: center; margin-bottom: 32px; }
+.public-header { text-align: center; margin-bottom: 24px; }
 .public-logo { width: 180px; height: auto; display: block; margin: 0 auto 20px; }
+
+.disclaimer-banner {
+  display: flex; gap: 14px; align-items: flex-start;
+  background: rgba(240,180,41,0.10);
+  border-left: 4px solid #F0B429;
+  border-radius: 0 6px 6px 0;
+  padding: 16px 20px;
+  margin-bottom: 24px;
+}
+.disclaimer-icon { font-size: 1.4rem; flex-shrink: 0; margin-top: 2px; }
+.disclaimer-content { flex: 1; }
+.disclaimer-content strong { display: block; color: #F0B429; font-size: 0.88rem; letter-spacing: 0.05em; margin-bottom: 8px; }
+.disclaimer-content p { color: var(--ruge-text-secondary); font-size: 0.85rem; margin: 0 0 6px; line-height: 1.5; }
+.disclaimer-content p:last-child { margin-bottom: 0; }
+
+.checkbox-confirm {
+  display: flex; gap: 10px; align-items: flex-start; cursor: pointer;
+  padding: 12px; background: rgba(240,180,41,0.06);
+  border: 1px solid rgba(240,180,41,0.2); border-radius: 6px;
+}
+.checkbox-confirm input[type="checkbox"] { flex-shrink: 0; margin-top: 3px; accent-color: #F0B429; width: 16px; height: 16px; }
+.checkbox-confirm span { color: var(--ruge-text-secondary); font-size: 0.85rem; line-height: 1.5; }
+
 .public-header h1 { font-family: 'Barlow Condensed', sans-serif; font-size: 2rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ruge-yellow); margin: 0 0 8px; }
 .public-header p { color: var(--ruge-text-muted); margin: 0; font-size: 0.9rem; }
 .section-title { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; color: var(--ruge-text-secondary); border-bottom: 2px solid var(--ruge-olive); padding-bottom: 8px; margin: 24px 0 16px; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.07em; }

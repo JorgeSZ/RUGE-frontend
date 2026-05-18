@@ -24,6 +24,7 @@
 .badge-sin-tribu { display: inline-block; background: rgba(240,180,41,0.12); color: var(--ruge-yellow); border: 1px solid rgba(240,180,41,0.25); font-size: 0.7rem; font-weight: 600; padding: 2px 8px; border-radius: 20px; }
 .birth-selects { display: flex; gap: 6px; }
 .birth-selects select { flex: 1; min-width: 0; }
+.field-hint { color: var(--ruge-text-muted); font-size: 0.72rem; margin: 2px 0 0; font-style: italic; }
 
 /* Page header actions */
 .header-actions { display: flex; align-items: center; gap: 10px; }

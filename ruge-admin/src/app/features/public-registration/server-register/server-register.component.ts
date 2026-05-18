@@ -73,6 +73,7 @@ export class ServerRegisterComponent implements OnInit {
       nombreLider: ['', [Validators.required]],
       telefonoLider: ['', [Validators.required]],
       emailLider: ['', [Validators.email]],
+      confirmacionVeracidad: [false, [Validators.requiredTrue]],
     });
   }
 
