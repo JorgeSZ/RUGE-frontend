@@ -1,13 +1,14 @@
+<ng-container *ngIf="{ event: eventCtx.activeEvent$ | async, state: eventCtx.state$ | async, user: auth.user$ | async } as ctx">
 <div class="shell">
   <aside class="sidebar">
     <div class="brand">
       <img src="assets/ruge-logo.png" alt="RUGE" class="sidebar-logo" />
     </div>
 
-    <div class="event-badge-skeleton" *ngIf="eventState === 'loading'"></div>
-    <div class="event-badge" *ngIf="eventState !== 'loading' && activeEvent">
+    <div class="event-badge-skeleton" *ngIf="ctx.state === 'loading'"></div>
+    <div class="event-badge" *ngIf="ctx.state !== 'loading' && ctx.event">
       <span class="event-label">Reto Activo</span>
-      <span class="event-name">{{ activeEvent.name }}</span>
+      <span class="event-name">{{ ctx.event!.name }}</span>
     </div>
 
     <nav>
@@ -35,7 +36,7 @@
           <span>Cena de restitución</span>
         </a>
 
-        <ng-container *ngIf="activeEvent">
+        <ng-container *ngIf="ctx.event">
           <div class="nav-section-label">Reto Activo</div>
           <a routerLink="/participants" routerLinkActive="active">
             <lucide-icon name="users" [size]="18" [strokeWidth]="1.5"></lucide-icon>
@@ -109,7 +110,7 @@
           <lucide-icon name="utensils" [size]="18" [strokeWidth]="1.5"></lucide-icon>
           <span>Cena de restitución</span>
         </a>
-        <ng-container *ngIf="activeEvent">
+        <ng-container *ngIf="ctx.event">
           <a routerLink="/reports" routerLinkActive="active">
             <lucide-icon name="bar-chart-2" [size]="18" [strokeWidth]="1.5"></lucide-icon>
             <span>Reportes</span>
@@ -128,11 +129,11 @@
     </nav>
 
     <!-- User info + logout -->
-    <div class="sidebar-user" *ngIf="currentUser">
-      <div class="user-initials">{{ initials }}</div>
+    <div class="sidebar-user" *ngIf="ctx.user as user">
+      <div class="user-initials">{{ user.nombre | slice:0:2 | uppercase }}</div>
       <div class="user-info">
-        <div class="user-name">{{ currentUser.nombre }}</div>
-        <div class="user-role">{{ currentUser.rol }}</div>
+        <div class="user-name">{{ user.nombre }}</div>
+        <div class="user-role">{{ user.rol }}</div>
       </div>
     </div>
 
@@ -146,9 +147,10 @@
   </aside>
 
   <main class="content">
-    <div class="no-event-banner" *ngIf="isAdmin && !activeEvent">
+    <div class="no-event-banner" *ngIf="isAdmin && !ctx.event">
       No hay un reto activo. Ve a <a routerLink="/events">Retos</a> y haz clic en <strong>Seleccionar</strong>.
     </div>
     <router-outlet></router-outlet>
   </main>
 </div>
+</ng-container>
