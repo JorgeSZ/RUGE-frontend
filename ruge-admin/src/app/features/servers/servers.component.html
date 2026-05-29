@@ -126,7 +126,7 @@
   </thead>
   <tbody>
     <tr *ngFor="let s of filtered" (click)="openDrawer(s)" class="row-clickable">
-      <td class="name-cell">{{ s.firstLastName }} {{ s.firstName }} {{ s.secondLastName || '' }}</td>
+      <td class="name-cell">{{ s.firstName }} {{ s.firstLastName }} {{ s.secondLastName || '' }}</td>
       <td>{{ s.cedula || '—' }}</td>
       <td>{{ s.commissionName || '—' }}</td>
       <td>

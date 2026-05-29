@@ -84,7 +84,7 @@
               </thead>
               <tbody>
                 <tr *ngFor="let p of filteredShirtList">
-                  <td>{{ p.primerApellido }} {{ p.nombre }} {{ p.segundoApellido || '' }}</td>
+                  <td>{{ p.nombre }} {{ p.primerApellido }} {{ p.segundoApellido || '' }}</td>
                   <td>
                     <span class="talla-badge"
                           [style.background]="tallaColor(p.talla)"
@@ -148,7 +148,7 @@
                 </thead>
                 <tbody>
                   <tr *ngFor="let s of group.items">
-                    <td>{{ s.primerApellido }} {{ s.nombre }} {{ s.segundoApellido || '' }}</td>
+                    <td>{{ s.nombre }} {{ s.primerApellido }} {{ s.segundoApellido || '' }}</td>
                     <td class="muted-col">{{ s.iglesia || '—' }}</td>
                   </tr>
                 </tbody>
