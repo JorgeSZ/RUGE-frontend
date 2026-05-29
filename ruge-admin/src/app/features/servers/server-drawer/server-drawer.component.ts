@@ -39,9 +39,9 @@ export class ServerDrawerComponent {
     });
   }
 
-  getQrUrl(): string {
+  getPdfUrl(): string {
     const s = this.server;
-    return s?.qrCode ? `${environment.r2PublicUrl}/qrcodes/${s.eventId}/${s.qrCode}.png` : '';
+    return s?.qrCode ? `${environment.r2PublicUrl}/pdfs/${s.eventId}/${s.qrCode}.pdf` : '';
   }
 
   getComprobanteUrl(): string {

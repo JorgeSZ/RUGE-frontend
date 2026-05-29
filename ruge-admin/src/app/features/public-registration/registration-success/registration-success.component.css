@@ -4,26 +4,64 @@
 h1 { font-family: 'Barlow Condensed', sans-serif; font-size: 2rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ruge-text-primary); margin: 0 0 12px; }
 .welcome { color: var(--ruge-text-secondary); font-size: 1rem; margin: 0 0 8px; }
 .type-badge { display: inline-block; background: var(--ruge-olive); color: var(--ruge-yellow); border-radius: 20px; padding: 4px 16px; font-size: 0.82rem; font-weight: 600; margin: 0 0 32px; }
-.qr-section { background: var(--ruge-black); border: 1px solid var(--ruge-border); border-radius: 8px; padding: 24px; margin: 0 0 24px; }
-.qr-instructions { color: var(--ruge-text-secondary); font-size: 0.9rem; margin: 0 0 20px; font-weight: 500; }
-.qr-container { display: flex; justify-content: center; margin-bottom: 16px; }
-.qr-image { width: 220px; height: 220px; border: 2px solid var(--ruge-border); border-radius: 8px; object-fit: contain; }
-.qr-token { font-size: 0.8rem; color: var(--ruge-text-muted); word-break: break-all; }
 
-/* Download */
+/* ── PDF section ─────────────────────────────────────────────────────────── */
+.pdf-section {
+  background: var(--ruge-black);
+  border: 1px solid var(--ruge-border);
+  border-radius: 8px;
+  padding: 24px;
+  margin: 0 0 24px;
+  text-align: left;
+}
+.pdf-instructions {
+  color: var(--ruge-text-secondary);
+  font-size: 0.9rem;
+  margin: 0 0 20px;
+  text-align: center;
+  line-height: 1.55;
+}
+.pdf-info-box {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: rgba(240, 180, 41, 0.08);
+  border: 1px solid rgba(240, 180, 41, 0.25);
+  border-radius: 8px;
+  padding: 14px 18px;
+  margin-bottom: 16px;
+}
+.pdf-icon { color: var(--ruge-yellow); flex-shrink: 0; }
+.pdf-label { font-weight: 700; font-size: 0.95rem; color: var(--ruge-text-primary); }
+.pdf-sublabel { font-size: 0.8rem; color: var(--ruge-text-muted); margin-top: 2px; }
+.email-note {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--ruge-text-muted);
+  font-size: 0.82rem;
+  justify-content: center;
+}
+
+/* ── Actions ─────────────────────────────────────────────────────────────── */
 .actions { margin-bottom: 16px; }
+
 .btn-download {
   display: flex; align-items: center; justify-content: center; gap: 8px;
-  width: 100%; background: var(--ruge-yellow); color: var(--ruge-black);
-  border: none; border-radius: 8px; padding: 14px 32px;
+  width: 100%; border: none; border-radius: 8px; padding: 14px 32px;
   font-family: 'Barlow Condensed', sans-serif; font-size: 1.1rem;
   font-weight: 800; cursor: pointer; text-transform: uppercase;
   letter-spacing: 0.06em; transition: background 0.2s;
 }
-.btn-download:hover:not(:disabled) { background: var(--ruge-yellow-dark); }
+.btn-pdf { background: var(--ruge-yellow); color: var(--ruge-black); }
+.btn-pdf:hover:not(:disabled) { background: var(--ruge-yellow-dark); }
 .btn-download:disabled { opacity: 0.6; cursor: not-allowed; }
 
-.download-hint { color: var(--ruge-text-muted); font-size: 0.82rem; margin: 10px 0 0; }
+.pdf-fallback {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  color: var(--ruge-text-muted); font-size: 0.88rem; margin: 0;
+}
+
 .note { color: var(--ruge-text-muted); font-size: 0.85rem; margin: 8px 0 0; }
 
 @media (max-width: 480px) { .success-card { padding: 32px 20px; } }
