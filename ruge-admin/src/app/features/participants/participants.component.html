@@ -117,7 +117,7 @@
   </thead>
   <tbody>
     <tr *ngFor="let p of filtered" (click)="openDrawer(p)" class="row-clickable">
-      <td class="name-cell">{{ p.firstLastName }} {{ p.firstName }} {{ p.secondLastName || '' }}</td>
+      <td class="name-cell">{{ p.firstName }} {{ p.firstLastName }} {{ p.secondLastName || '' }}</td>
       <td>{{ p.cedula || '—' }}</td>
       <td>
         <span *ngIf="p.tribeName">{{ p.tribeName }}</span>
