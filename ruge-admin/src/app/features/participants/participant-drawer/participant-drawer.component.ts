@@ -43,9 +43,9 @@ export class ParticipantDrawerComponent {
     });
   }
 
-  getQrUrl(): string {
+  getPdfUrl(): string {
     const p = this.participant;
-    return p?.qrCode ? `${environment.r2PublicUrl}/qrcodes/${p.eventId}/${p.qrCode}.png` : '';
+    return p?.qrCode ? `${environment.r2PublicUrl}/pdfs/${p.eventId}/${p.qrCode}.pdf` : '';
   }
 
   getComprobanteUrl(): string {

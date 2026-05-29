@@ -88,9 +88,9 @@
           <span *ngIf="!getComprobanteUrl()">—</span>
         </div>
         <div class="drawer-row">
-          <span class="drawer-label">Código QR</span>
-          <a *ngIf="getQrUrl()" [href]="getQrUrl()" target="_blank" class="drawer-link">Ver QR</a>
-          <span *ngIf="!getQrUrl()">—</span>
+          <span class="drawer-label">Acuerdo PDF</span>
+          <a *ngIf="getPdfUrl()" [href]="getPdfUrl()" target="_blank" class="drawer-link">Ver PDF</a>
+          <span *ngIf="!getPdfUrl()">—</span>
         </div>
       </div>
 

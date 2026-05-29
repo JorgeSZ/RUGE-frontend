@@ -5,25 +5,43 @@
     <p class="welcome">Bienvenido, <strong>{{ result.fullName }}</strong></p>
     <p class="type-badge">{{ type }}</p>
 
-    <div class="qr-section">
-      <p class="qr-instructions">
-        Guarda este código QR. Lo necesitarás el día del evento para hacer check-in.
+    <!-- PDF section (replaces the old QR section) -->
+    <div class="pdf-section">
+      <p class="pdf-instructions">
+        Tu <strong>Acuerdo de Participación</strong> con tu código QR de acceso está listo.
+        Imprímelo y preséntalo el día del evento — <strong>no se permiten celulares</strong>
+        en el área del evento.
       </p>
-      <div class="qr-container" *ngIf="result.qrImageUrl">
-        <img [src]="result.qrImageUrl" alt="Tu código QR" class="qr-image" />
+
+      <div class="pdf-info-box">
+        <lucide-icon name="file-text" [size]="28" [strokeWidth]="1.5" class="pdf-icon"></lucide-icon>
+        <div>
+          <div class="pdf-label">Acuerdo de Participación</div>
+          <div class="pdf-sublabel">Incluye tu código QR de check-in</div>
+        </div>
       </div>
-      <div class="qr-token" *ngIf="result.qrToken">
-        <span>Código: </span><strong>{{ result.qrToken }}</strong>
+
+      <div class="email-note">
+        <lucide-icon name="mail" [size]="16" [strokeWidth]="2"></lucide-icon>
+        El documento también fue enviado a tu correo electrónico.
       </div>
     </div>
 
-    <div class="actions" *ngIf="result.qrImageUrl">
-      <button class="btn-download" (click)="downloadQr()" [disabled]="downloading">
+    <div class="actions">
+      <!-- Download PDF button -->
+      <button
+        *ngIf="result.pdfUrl"
+        class="btn-download btn-pdf"
+        (click)="downloadPdf()"
+        [disabled]="downloading">
         <lucide-icon name="download" [size]="18" [strokeWidth]="2"></lucide-icon>
-        {{ downloading ? 'Descargando...' : 'Descargar QR' }}
+        {{ downloading ? 'Descargando...' : 'Descargar PDF' }}
       </button>
-      <p class="download-hint">
-        Guarda este QR — lo necesitarás el día del evento
+
+      <!-- Fallback if PDF URL is missing (generation error on server) -->
+      <p *ngIf="!result.pdfUrl" class="pdf-fallback">
+        <lucide-icon name="mail" [size]="16" [strokeWidth]="2"></lucide-icon>
+        El documento fue enviado a tu correo electrónico.
       </p>
     </div>
 

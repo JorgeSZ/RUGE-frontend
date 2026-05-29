@@ -25,13 +25,13 @@ export class RegistrationSuccessComponent implements OnInit {
     }
   }
 
-  async downloadQr(): Promise<void> {
-    if (!this.result?.qrImageUrl || this.downloading) return;
+  async downloadPdf(): Promise<void> {
+    if (!this.result?.pdfUrl || this.downloading) return;
     this.downloading = true;
 
     try {
-      const filename = this.buildFilename();
-      const response = await fetch(this.result.qrImageUrl);
+      const filename = this.buildPdfFilename();
+      const response = await fetch(this.result.pdfUrl);
       const blob     = await response.blob();
       const blobUrl  = URL.createObjectURL(blob);
 
@@ -43,24 +43,22 @@ export class RegistrationSuccessComponent implements OnInit {
       document.body.removeChild(a);
       URL.revokeObjectURL(blobUrl);
     } catch {
-      // Fallback for environments where fetch/blob fails
+      // Fallback: open URL in new tab
       const a = document.createElement('a');
-      a.href     = this.result.qrImageUrl;
-      a.download = this.buildFilename();
-      a.target   = '_blank';
+      a.href   = this.result.pdfUrl;
+      a.target = '_blank';
       a.click();
     } finally {
       this.downloading = false;
     }
   }
 
-  private buildFilename(): string {
-    const full   = (this.result?.fullName ?? 'RUGE') as string;
-    const parts  = full.trim().split(/\s+/);
-    // Convention: first token = nombre, rest = apellidos
-    const nombre    = parts[0] ?? '';
-    const apellidos = parts.slice(1).join('');
-    const safe      = (apellidos + nombre).replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ]/g, '');
-    return `RUGE-QR-${safe || 'Participante'}.png`;
+  private buildPdfFilename(): string {
+    const full     = (this.result?.fullName ?? 'RUGE') as string;
+    const parts    = full.trim().split(/\s+/);
+    const nombre   = parts[0] ?? '';
+    const apellido = parts.slice(1).join('');
+    const safe     = (apellido + nombre).replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ]/g, '');
+    return `RUGE-Acuerdo-${safe || 'Participante'}.pdf`;
   }
 }
