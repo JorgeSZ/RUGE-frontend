@@ -36,6 +36,7 @@ const ADMIN_LOGISTICA    = { roles: ['Admin', 'Logistica'] };
 const ADMIN_EVENTOS      = { roles: ['Admin', 'Eventos'] };
 const ADMIN_TIEMPOS      = { roles: ['Admin', 'Tiempos'] };
 const ADMIN_COCINA       = { roles: ['Admin', 'Cocina'] };
+const ADMIN_CALAQUERO    = { roles: ['Admin', 'Calaquero'] };
 
 const routes: Routes = [
   // ── Public (no auth, no shell) ──────────────────────────────────────────
@@ -65,7 +66,7 @@ const routes: Routes = [
       { path: 'commissions',  component: CommissionsComponent, canActivate: [RoleGuard, EventGuard], data: ADMIN },
       { path: 'checkin-admin',component: CheckinAdminComponent,canActivate: [RoleGuard, EventGuard], data: ADMIN },
       { path: 'reports',        component: ReportsComponent,      canActivate: [RoleGuard, EventGuard], data: ADMIN_COCINA },
-      { path: 'calaquero',      component: CalaqueroComponent,    canActivate: [RoleGuard, EventGuard], data: ADMIN },
+      { path: 'calaquero',      component: CalaqueroComponent,    canActivate: [RoleGuard, EventGuard], data: ADMIN_CALAQUERO },
       { path: 'consolidacion',  component: ConsolidacionComponent, canActivate: [RoleGuard, EventGuard], data: ADMIN },
 
       // Admin + Logistica

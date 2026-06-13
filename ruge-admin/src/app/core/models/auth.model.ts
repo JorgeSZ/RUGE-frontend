@@ -2,7 +2,7 @@ export interface AuthUser {
   id: string;
   username: string;
   nombre: string;
-  rol: 'Admin' | 'Logistica' | 'Eventos' | 'Tiempos';
+  rol: 'Admin' | 'Logistica' | 'Eventos' | 'Tiempos' | 'Cocina' | 'Calaquero';
 }
 
 export interface LoginResponse {

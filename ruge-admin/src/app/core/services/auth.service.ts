@@ -75,6 +75,8 @@ export class AuthService {
     else if (role === 'Logistica') this.router.navigate(['/logistics']);
     else if (role === 'Eventos')   this.router.navigate(['/ev-tasks']);
     else if (role === 'Tiempos')   this.router.navigate(['/tracks']);
+    else if (role === 'Cocina')    this.router.navigate(['/provision']);
+    else if (role === 'Calaquero') this.router.navigate(['/calaquero']);
     else this.router.navigate(['/login']);
   }
 

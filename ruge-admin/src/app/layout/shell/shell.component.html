@@ -118,6 +118,17 @@
         </ng-container>
       </ng-container>
 
+      <!-- Calaquero: only calaquero module -->
+      <ng-container *ngIf="isCalaquero">
+        <div class="nav-section-label">Módulo</div>
+        <ng-container *ngIf="ctx.event">
+          <a routerLink="/calaquero" routerLinkActive="active">
+            <lucide-icon name="cross" [size]="18" [strokeWidth]="1.5"></lucide-icon>
+            <span>Calaquero</span>
+          </a>
+        </ng-container>
+      </ng-container>
+
       <!-- Tiempos: only tracks module -->
       <ng-container *ngIf="isTiempos">
         <div class="nav-section-label">Módulo</div>

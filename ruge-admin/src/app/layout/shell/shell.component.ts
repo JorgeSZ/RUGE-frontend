@@ -17,6 +17,7 @@ export class ShellComponent {
   get isEventos(): boolean   { return this.auth.hasRole('Eventos'); }
   get isTiempos(): boolean   { return this.auth.hasRole('Tiempos'); }
   get isCocina(): boolean    { return this.auth.hasRole('Cocina'); }
+  get isCalaquero(): boolean { return this.auth.hasRole('Calaquero'); }
 
   constructor(public eventCtx: EventContextService, public auth: AuthService) {}
 
