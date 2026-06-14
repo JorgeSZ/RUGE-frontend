@@ -62,7 +62,8 @@
         <div *ngFor="let m of participant.medications" class="med-drawer-item">
           <div class="med-drawer-name">{{ m.nombreMedicamento }}</div>
           <div class="med-drawer-detail" *ngIf="m.dosis">💊 {{ m.dosis }}</div>
-          <div class="med-drawer-detail" *ngIf="m.horario">⏰ {{ m.horario }}</div>
+          <div class="med-drawer-detail" *ngIf="m.horarios?.length">⏰ {{ m.horarios?.join(', ') }}</div>
+          <div class="med-drawer-detail" *ngIf="!m.horarios?.length && m.horario">⏰ {{ m.horario }}</div>
           <div class="med-drawer-detail" *ngIf="m.notas">📝 {{ m.notas }}</div>
         </div>
       </div>

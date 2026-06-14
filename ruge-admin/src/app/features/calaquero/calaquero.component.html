@@ -47,7 +47,8 @@
       <ul class="cal-meds-list">
         <li *ngFor="let m of entry.medicamentos" class="cal-med-item">
           <strong>• {{ m.nombre }}</strong>  <span *ngIf="m.dosis"> {{ m.dosis }}</span>
-          <div class="cal-med-detail" *ngIf="m.horario">⏰ {{ m.horario }}</div>
+          <div class="cal-med-detail" *ngIf="m.horarios?.length">⏰ {{ m.horarios?.join(', ') }}</div>
+          <div class="cal-med-detail" *ngIf="!m.horarios?.length && m.horario">⏰ {{ m.horario }}</div>
           <div class="cal-med-detail" *ngIf="m.notas">📝 {{ m.notas }}</div>
         </li>
       </ul>

@@ -6,7 +6,7 @@ import { ParticipantService } from '../../../core/services/participant.service';
 const SHIRT_SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
 const MARITAL_STATUSES = ['Soltero', 'Casado', 'Divorciado', 'Viudo', 'Unión libre'];
 
-export interface MedRow { nombre: string; dosis: string; horario: string; notas: string; }
+export interface MedRow { nombre: string; dosis: string; horarios: string[]; notas: string; }
 
 @Component({
   selector: 'app-participant-register',
@@ -125,14 +125,24 @@ export class ParticipantRegisterComponent implements OnInit {
 
   addMed(): void {
     if (this.medications.length < 10)
-      this.medications.push({ nombre: '', dosis: '', horario: '', notas: '' });
+      this.medications.push({ nombre: '', dosis: '', horarios: [''], notas: '' });
   }
 
   removeMed(i: number): void { this.medications.splice(i, 1); }
 
+  addHorario(medIndex: number): void {
+    const med = this.medications[medIndex];
+    if (med.horarios.length < 6) med.horarios.push('');
+  }
+
+  removeHorario(medIndex: number, horaIndex: number): void {
+    this.medications[medIndex].horarios.splice(horaIndex, 1);
+  }
+
   get medsValid(): boolean {
     if (!this.tomaMedicamentos) return true;
-    return this.medications.length > 0 && this.medications.every(m => !!m.nombre.trim());
+    return this.medications.length > 0 && this.medications.every(m =>
+      !!m.nombre.trim() && m.horarios.some(h => !!h));
   }
 
   submit(): void {
@@ -153,7 +163,7 @@ export class ParticipantRegisterComponent implements OnInit {
       fd.append('medicamentosJson', JSON.stringify(this.medications.map(m => ({
         nombreMedicamento: m.nombre,
         dosis: m.dosis || null,
-        horario: m.horario || null,
+        horarios: m.horarios.filter(h => !!h),
         notas: m.notas || null,
       }))));
     }
