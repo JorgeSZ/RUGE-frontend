@@ -3,6 +3,7 @@ export interface Medication {
   nombreMedicamento: string;
   dosis?: string;
   horario?: string;
+  horarios?: string[];
   notas?: string;
   creadoEn: string;
 }
@@ -11,6 +12,7 @@ export interface CreateMedicationRequest {
   nombreMedicamento: string;
   dosis?: string;
   horario?: string;
+  horarios?: string[];
   notas?: string;
 }
 
@@ -94,5 +96,5 @@ export interface CalaqueroEntry {
   nombrePreferido?: string;
   edad?: number;
   tribu?: string;
-  medicamentos: { nombre: string; dosis?: string; horario?: string; notas?: string }[];
+  medicamentos: { nombre: string; dosis?: string; horario?: string; horarios?: string[]; notas?: string }[];
 }

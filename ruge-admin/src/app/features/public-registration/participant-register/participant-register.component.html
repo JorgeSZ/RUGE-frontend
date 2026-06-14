@@ -132,9 +132,19 @@
                 <label>Dosis</label>
                 <input [(ngModel)]="med.dosis" [ngModelOptions]="{standalone: true}" placeholder="Ej: 500mg" />
               </div>
-              <div class="pub-field">
-                <label>Horario</label>
-                <input [(ngModel)]="med.horario" [ngModelOptions]="{standalone: true}" placeholder="Ej: 8:00 AM con comida" />
+            </div>
+            <div class="pub-row">
+              <div class="pub-field full">
+                <label>Horarios (hora de cada toma) *</label>
+                <div class="horarios-list">
+                  <div class="horario-row" *ngFor="let h of med.horarios; let hi = index">
+                    <input type="time" [(ngModel)]="med.horarios[hi]" [ngModelOptions]="{standalone: true}" />
+                    <button type="button" class="btn-remove-hora" (click)="removeHorario(i, hi)" *ngIf="med.horarios.length > 1">✕</button>
+                  </div>
+                  <button type="button" class="btn-add-hora" (click)="addHorario(i)" *ngIf="med.horarios.length < 6">
+                    + Agregar hora
+                  </button>
+                </div>
               </div>
             </div>
             <div class="pub-row">
