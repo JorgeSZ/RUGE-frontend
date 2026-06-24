@@ -1,0 +1,14 @@
+.public-page { min-height: 100vh; background: var(--ruge-dark); display: flex; justify-content: center; padding: 48px 16px; }
+.doc-card { background: var(--ruge-dark-card); border: 1px solid var(--ruge-border); border-radius: 8px; box-shadow: 0 8px 32px rgba(0,0,0,0.5); max-width: 680px; width: 100%; padding: 48px 40px; }
+.doc-icon { width: 64px; height: 64px; background: rgba(240, 180, 41, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--ruge-yellow); margin: 0 auto 20px; }
+h1 { font-family: 'Barlow Condensed', sans-serif; font-size: 1.9rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ruge-text-primary); margin: 0 0 6px; text-align: center; }
+.updated { color: var(--ruge-text-muted); font-size: 0.82rem; margin: 0 0 32px; text-align: center; }
+
+section { margin-bottom: 24px; }
+section:last-child { margin-bottom: 0; }
+h2 { font-family: 'Barlow Condensed', sans-serif; font-size: 1.05rem; font-weight: 700; color: var(--ruge-yellow); margin: 0 0 8px; }
+p { color: var(--ruge-text-secondary); font-size: 0.92rem; line-height: 1.6; margin: 0; }
+a { color: var(--ruge-yellow); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+@media (max-width: 480px) { .doc-card { padding: 32px 22px; } }

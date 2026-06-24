@@ -27,6 +27,8 @@ import { MenuDetailComponent } from './features/menus/menu-detail.component';
 import { ApprovalComponent } from './features/approval/approval.component';
 import { CalaqueroComponent } from './features/calaquero/calaquero.component';
 import { ConsolidacionComponent } from './features/consolidacion/consolidacion.component';
+import { TerminosCondicionesComponent } from './features/public-registration/terminos-condiciones/terminos-condiciones.component';
+import { SoporteComponent } from './features/public-registration/soporte/soporte.component';
 import { AuthGuard } from './core/guards/auth.guard';
 import { RoleGuard } from './core/guards/role.guard';
 import { EventGuard } from './core/guards/event.guard';
@@ -47,6 +49,8 @@ const routes: Routes = [
   { path: 'registro/confirmacion',        component: RegistrationSuccessComponent },
   { path: 'checkin/:eventId',             component: CheckinComponent },
   { path: 'approve/:token',              component: ApprovalComponent },
+  { path: 'terminos',                    component: TerminosCondicionesComponent },
+  { path: 'soporte',                     component: SoporteComponent },
 
   // ── Protected admin shell ────────────────────────────────────────────────
   {

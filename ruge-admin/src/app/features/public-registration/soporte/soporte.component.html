@@ -1,0 +1,38 @@
+<div class="public-page">
+  <div class="support-card">
+    <div class="support-icon"><lucide-icon name="message-circle" [size]="32" [strokeWidth]="1.5"></lucide-icon></div>
+    <h1>Soporte</h1>
+    <p class="subtitle">
+      ¿Tienes un problema con la app RUGE o alguna pregunta? Escríbenos y te
+      ayudamos.
+    </p>
+
+    <div class="contact-list">
+      <a class="contact-row" [href]="'mailto:' + email">
+        <span class="contact-icon"><lucide-icon name="mail" [size]="20" [strokeWidth]="1.5"></lucide-icon></span>
+        <span class="contact-text">
+          <span class="contact-label">Correo</span>
+          <span class="contact-value">{{ email }}</span>
+        </span>
+      </a>
+
+      <a class="contact-row" [href]="'tel:' + phoneTel">
+        <span class="contact-icon"><lucide-icon name="phone" [size]="20" [strokeWidth]="1.5"></lucide-icon></span>
+        <span class="contact-text">
+          <span class="contact-label">Teléfono</span>
+          <span class="contact-value">{{ phoneDisplay }}</span>
+        </span>
+      </a>
+
+      <a class="contact-row" [href]="whatsappUrl" target="_blank" rel="noopener">
+        <span class="contact-icon"><lucide-icon name="message-circle" [size]="20" [strokeWidth]="1.5"></lucide-icon></span>
+        <span class="contact-text">
+          <span class="contact-label">WhatsApp</span>
+          <span class="contact-value">Escríbenos directamente</span>
+        </span>
+      </a>
+    </div>
+
+    <p class="note">Te responderemos a la brevedad posible.</p>
+  </div>
+</div>
