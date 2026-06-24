@@ -9,4 +9,5 @@ export {
   Shirt, Award, FileSpreadsheet, Loader2, Hash, FileX, X, Check,
   RefreshCw, PackageOpen, CalendarX, TriangleAlert, Info, Menu,
   KeyRound, UserMinus, XCircle, Utensils, Cross,
+  Mail, Phone, FileText, MessageCircle,
 } from 'lucide-angular';
