@@ -8,7 +8,7 @@ import { Component } from '@angular/core';
 })
 export class SoporteComponent {
   readonly email = 'software@retoruge.com';
-  readonly phoneDisplay = '+506 8427-7806';
-  readonly phoneTel = '+50684277806';
-  readonly whatsappUrl = 'https://wa.me/50684277806';
+  readonly phoneDisplay = '+506 6234-8953';
+  readonly phoneTel = '+50662348953';
+  readonly whatsappUrl = 'https://wa.me/50662348953';
 }
