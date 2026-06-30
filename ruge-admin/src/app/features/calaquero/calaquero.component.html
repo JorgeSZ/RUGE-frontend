@@ -31,27 +31,34 @@
     <p>Ningún senderista tiene medicamentos registrados. ✅</p>
   </div>
 
-  <div class="calaquero-grid" *ngIf="!loading && filtered.length > 0">
-    <div class="cal-card" *ngFor="let entry of filtered">
-      <div class="cal-card-header">
-        <div>
-          <div class="cal-name">
-            {{ entry.nombreCompleto }}
-            <span class="cal-nombre-preferido" *ngIf="entry.nombrePreferido">({{ entry.nombrePreferido }})</span>
+  <ng-container *ngIf="!loading && filtered.length > 0">
+    <div class="tribu-group" *ngFor="let group of groupedByTribu">
+      <h3 class="tribu-group-title">
+        {{ group.tribu }}
+        <span class="tribu-group-count">{{ group.entries.length }}</span>
+      </h3>
+      <div class="calaquero-grid">
+        <div class="cal-card" *ngFor="let entry of group.entries">
+          <div class="cal-card-header">
+            <div>
+              <div class="cal-name">
+                {{ entry.nombreCompleto }}
+                <span class="cal-nombre-preferido" *ngIf="entry.nombrePreferido">({{ entry.nombrePreferido }})</span>
+              </div>
+              <div class="cal-meta">{{ entry.edad ? entry.edad + ' años' : '' }}</div>
+            </div>
           </div>
-          <div class="cal-meta">{{ entry.edad ? entry.edad + ' años' : '' }}</div>
+          <div class="cal-meds-title">MEDICAMENTOS:</div>
+          <ul class="cal-meds-list">
+            <li *ngFor="let m of entry.medicamentos" class="cal-med-item">
+              <strong>• {{ m.nombre }}</strong>  <span *ngIf="m.dosis"> {{ m.dosis }}</span>
+              <div class="cal-med-detail" *ngIf="m.horarios?.length">⏰ {{ m.horarios?.join(', ') }}</div>
+              <div class="cal-med-detail" *ngIf="!m.horarios?.length && m.horario">⏰ {{ m.horario }}</div>
+              <div class="cal-med-detail" *ngIf="m.notas">📝 {{ m.notas }}</div>
+            </li>
+          </ul>
         </div>
-        <span class="cal-tribu" *ngIf="entry.tribu">{{ entry.tribu }}</span>
       </div>
-      <div class="cal-meds-title">MEDICAMENTOS:</div>
-      <ul class="cal-meds-list">
-        <li *ngFor="let m of entry.medicamentos" class="cal-med-item">
-          <strong>• {{ m.nombre }}</strong>  <span *ngIf="m.dosis"> {{ m.dosis }}</span>
-          <div class="cal-med-detail" *ngIf="m.horarios?.length">⏰ {{ m.horarios?.join(', ') }}</div>
-          <div class="cal-med-detail" *ngIf="!m.horarios?.length && m.horario">⏰ {{ m.horario }}</div>
-          <div class="cal-med-detail" *ngIf="m.notas">📝 {{ m.notas }}</div>
-        </li>
-      </ul>
     </div>
-  </div>
+  </ng-container>
 </ng-container>
