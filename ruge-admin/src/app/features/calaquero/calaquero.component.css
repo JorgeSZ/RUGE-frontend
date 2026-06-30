@@ -12,6 +12,19 @@
 .chip-select { padding: 7px 10px; border: 1px solid var(--ruge-border); border-radius: 6px; background: var(--ruge-dark-card); color: var(--ruge-text-secondary); font-size: 0.88rem; }
 .count-badge { background: rgba(240,180,41,0.12); color: var(--ruge-yellow); border: 1px solid rgba(240,180,41,0.3); padding: 4px 12px; border-radius: 20px; font-size: 0.82rem; font-weight: 600; margin-left: auto; }
 
+.tribu-group { margin-bottom: 28px; }
+.tribu-group-title {
+  display: flex; align-items: center; gap: 10px;
+  font-family: 'Barlow Condensed', sans-serif; font-size: 1.05rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.05em; color: var(--ruge-text-primary);
+  margin: 0 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--ruge-border);
+}
+.tribu-group-count {
+  background: rgba(99,179,237,0.12); color: #63B3ED; border: 1px solid rgba(99,179,237,0.3);
+  padding: 2px 10px; border-radius: 20px; font-size: 0.72rem; font-weight: 600;
+  text-transform: none; letter-spacing: normal;
+}
+
 .calaquero-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
@@ -34,7 +47,6 @@
 .cal-name { font-size: 0.95rem; font-weight: 700; color: var(--ruge-text-primary); }
 .cal-nombre-preferido { color: var(--ruge-yellow); font-weight: 400; font-size: 0.88rem; }
 .cal-meta { color: var(--ruge-text-muted); font-size: 0.8rem; margin-top: 2px; }
-.cal-tribu { background: rgba(99,179,237,0.12); color: #63B3ED; border: 1px solid rgba(99,179,237,0.3); padding: 3px 10px; border-radius: 20px; font-size: 0.72rem; font-weight: 600; white-space: nowrap; }
 
 .cal-meds-title { padding: 10px 16px 4px; font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--ruge-text-muted); }
 

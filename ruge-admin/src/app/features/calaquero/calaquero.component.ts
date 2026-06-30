@@ -39,6 +39,17 @@ export class CalaqueroComponent implements OnInit {
     });
   }
 
+  get groupedByTribu(): { tribu: string; entries: CalaqueroEntry[] }[] {
+    const groups = new Map<string, CalaqueroEntry[]>();
+    for (const entry of this.filtered) {
+      const key = entry.tribu || 'Sin tribu';
+      (groups.get(key) ?? groups.set(key, []).get(key)!).push(entry);
+    }
+    return [...groups.entries()]
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([tribu, entries]) => ({ tribu, entries }));
+  }
+
   load(): void {
     if (!this.eventId) return;
     this.loading = true;
