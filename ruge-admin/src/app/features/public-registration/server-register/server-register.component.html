@@ -25,14 +25,23 @@
         <div class="pub-field">
           <label>Nombre *</label>
           <input formControlName="firstName" placeholder="Tu nombre" />
+          <span class="field-error" *ngIf="form.get('firstName')?.invalid && form.get('firstName')?.touched">
+            Este campo es requerido
+          </span>
         </div>
         <div class="pub-field">
           <label>1er Apellido *</label>
           <input formControlName="firstLastName" placeholder="Primer apellido" />
+          <span class="field-error" *ngIf="form.get('firstLastName')?.invalid && form.get('firstLastName')?.touched">
+            Este campo es requerido
+          </span>
         </div>
         <div class="pub-field">
-          <label>2do Apellido</label>
+          <label>2do Apellido *</label>
           <input formControlName="secondLastName" placeholder="Segundo apellido" />
+          <span class="field-error" *ngIf="form.get('secondLastName')?.invalid && form.get('secondLastName')?.touched">
+            Este campo es requerido
+          </span>
         </div>
       </div>
 
@@ -45,21 +54,24 @@
           </span>
         </div>
         <div class="pub-field">
-          <label>Fecha de Nacimiento</label>
+          <label>Fecha de Nacimiento *</label>
           <div class="birth-selects">
-            <select (change)="bdYear = $any($event.target).value; onBdChange()">
+            <select (change)="bdYear = $any($event.target).value; onBdChange(); form.get('birthDate')?.markAsTouched()">
               <option value="">Año</option>
               <option *ngFor="let y of years" [value]="y" [selected]="bdYear == y">{{ y }}</option>
             </select>
-            <select (change)="bdMonth = $any($event.target).value; onBdChange()">
+            <select (change)="bdMonth = $any($event.target).value; onBdChange(); form.get('birthDate')?.markAsTouched()">
               <option value="">Mes</option>
               <option *ngFor="let m of months" [value]="m.v" [selected]="bdMonth == m.v">{{ m.l }}</option>
             </select>
-            <select (change)="bdDay = $any($event.target).value; onBdChange()">
+            <select (change)="bdDay = $any($event.target).value; onBdChange(); form.get('birthDate')?.markAsTouched()">
               <option value="">Día</option>
               <option *ngFor="let d of bdDays" [value]="d" [selected]="bdDay == d">{{ d }}</option>
             </select>
           </div>
+          <span class="field-error" *ngIf="form.get('birthDate')?.invalid && form.get('birthDate')?.touched">
+            La fecha de nacimiento es requerida
+          </span>
         </div>
         <div class="pub-field">
           <label>Edad</label>
@@ -69,15 +81,21 @@
 
       <div class="pub-row">
         <div class="pub-field">
-          <label>Estado Civil</label>
+          <label>Estado Civil *</label>
           <select formControlName="maritalStatus">
             <option value="">— Selecciona —</option>
             <option *ngFor="let m of maritalStatuses" [value]="m">{{ m }}</option>
           </select>
+          <span class="field-error" *ngIf="form.get('maritalStatus')?.invalid && form.get('maritalStatus')?.touched">
+            Este campo es requerido
+          </span>
         </div>
         <div class="pub-field">
-          <label>País</label>
+          <label>País *</label>
           <input formControlName="country" placeholder="Tu país" />
+          <span class="field-error" *ngIf="form.get('country')?.invalid && form.get('country')?.touched">
+            Este campo es requerido
+          </span>
         </div>
       </div>
 
@@ -92,8 +110,11 @@
           </span>
         </div>
         <div class="pub-field">
-          <label>Teléfono</label>
+          <label>Teléfono *</label>
           <input formControlName="phone" placeholder="+1 555..." />
+          <span class="field-error" *ngIf="form.get('phone')?.invalid && form.get('phone')?.touched">
+            Este campo es requerido
+          </span>
         </div>
       </div>
 
@@ -101,8 +122,11 @@
 
       <div class="pub-row">
         <div class="pub-field full">
-          <label>Nombre de tu iglesia</label>
+          <label>Nombre de tu iglesia *</label>
           <input formControlName="church" placeholder="Iglesia a la que perteneces" />
+          <span class="field-error" *ngIf="form.get('church')?.invalid && form.get('church')?.touched">
+            Este campo es requerido
+          </span>
         </div>
       </div>
 
@@ -110,11 +134,14 @@
 
       <div class="pub-row">
         <div class="pub-field full">
-          <label>¿En qué equipo vas a servir?</label>
+          <label>¿En qué equipo vas a servir? *</label>
           <select formControlName="commissionId">
             <option value="">— Selecciona un equipo —</option>
             <option *ngFor="let c of commissions" [value]="c.id">{{ c.name }}</option>
           </select>
+          <span class="field-error" *ngIf="form.get('commissionId')?.invalid && form.get('commissionId')?.touched">
+            Este campo es requerido
+          </span>
         </div>
       </div>
 
@@ -162,6 +189,9 @@
             <option [ngValue]="null">— Selecciona —</option>
             <option *ngFor="let m of moduloOpciones" [value]="m">Módulo {{ m }}</option>
           </select>
+          <span class="field-error" *ngIf="form.get('modulo')?.invalid && form.get('modulo')?.touched">
+            Este campo es requerido
+          </span>
         </div>
       </div>
 
@@ -181,8 +211,11 @@
           </span>
         </div>
         <div class="pub-field">
-          <label>Email de tu líder directo</label>
+          <label>Email de tu líder directo *</label>
           <input type="email" formControlName="emailLider" placeholder="lider@iglesia.com" />
+          <span class="field-error" *ngIf="form.get('emailLider')?.invalid && form.get('emailLider')?.touched">
+            El correo electrónico es requerido y debe ser válido
+          </span>
         </div>
       </div>
 
@@ -190,8 +223,11 @@
 
       <div class="pub-row">
         <div class="pub-field full">
-          <label>Imagen de comprobante</label>
-          <input type="file" accept="image/*" (change)="onFileChange($event)" />
+          <label>Imagen de comprobante *</label>
+          <input type="file" accept="image/*" (change)="onFileChange($event)" (blur)="fileTouched = true" />
+          <span class="field-error" *ngIf="(submitted || fileTouched) && !selectedFile">
+            Debes subir el comprobante de pago
+          </span>
           <div class="preview" *ngIf="previewUrl">
             <img [src]="previewUrl" alt="Comprobante" />
           </div>
@@ -211,7 +247,7 @@
       </div>
 
       <div class="pub-actions">
-        <button type="submit" class="btn-register" [disabled]="form.invalid || loading">
+        <button type="submit" class="btn-register" [disabled]="form.invalid || loading || !selectedFile">
           {{ loading ? 'Registrando...' : 'Completar Registro' }}
         </button>
       </div>

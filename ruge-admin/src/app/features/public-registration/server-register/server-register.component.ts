@@ -20,6 +20,8 @@ export class ServerRegisterComponent implements OnInit {
   error = '';
   selectedFile: File | null = null;
   previewUrl: string | null = null;
+  submitted = false;
+  fileTouched = false;
   maritalStatuses = MARITAL_STATUSES;
   commissions: Commission[] = [];
 
@@ -56,15 +58,15 @@ export class ServerRegisterComponent implements OnInit {
     this.form = this.fb.group({
       firstName: ['', [Validators.required]],
       firstLastName: ['', [Validators.required]],
-      secondLastName: [''],
+      secondLastName: ['', [Validators.required]],
       cedula: ['', [Validators.required, Validators.maxLength(20)]],
-      birthDate: [''],
+      birthDate: ['', [Validators.required]],
       email: ['', [Validators.required, Validators.email]],
-      phone: [''],
-      church: [''],
-      maritalStatus: [''],
-      country: [''],
-      commissionId: [''],
+      phone: ['', [Validators.required]],
+      church: ['', [Validators.required]],
+      maritalStatus: ['', [Validators.required]],
+      country: ['', [Validators.required]],
+      commissionId: ['', [Validators.required]],
       hasDiscipleship: [false],
       hasDiscipleshipPatch: [false],
       hasGroup: [false],
@@ -72,8 +74,19 @@ export class ServerRegisterComponent implements OnInit {
       modulo: [null],
       nombreLider: ['', [Validators.required]],
       telefonoLider: ['', [Validators.required]],
-      emailLider: ['', [Validators.email]],
+      emailLider: ['', [Validators.required, Validators.email]],
       confirmacionVeracidad: [false, [Validators.requiredTrue]],
+    });
+
+    this.form.get('estaEnNewLife')?.valueChanges.subscribe(val => {
+      const moduloCtrl = this.form.get('modulo');
+      if (val) {
+        moduloCtrl?.setValidators([Validators.required]);
+      } else {
+        moduloCtrl?.clearValidators();
+        moduloCtrl?.patchValue(null, { emitEvent: false });
+      }
+      moduloCtrl?.updateValueAndValidity({ emitEvent: false });
     });
   }
 
@@ -93,6 +106,7 @@ export class ServerRegisterComponent implements OnInit {
   }
 
   onFileChange(event: Event): void {
+    this.fileTouched = true;
     const input = event.target as HTMLInputElement;
     if (input.files?.length) {
       this.selectedFile = input.files[0];
@@ -103,7 +117,9 @@ export class ServerRegisterComponent implements OnInit {
   }
 
   submit(): void {
-    if (this.form.invalid || !this.eventId) return;
+    this.submitted = true;
+    this.form.markAllAsTouched();
+    if (this.form.invalid || !this.eventId || !this.selectedFile) return;
 
     this.loading = true;
     this.error = '';

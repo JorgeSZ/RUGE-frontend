@@ -21,6 +21,8 @@ export class ParticipantRegisterComponent implements OnInit {
   error = '';
   selectedFile: File | null = null;
   previewUrl: string | null = null;
+  submitted = false;
+  fileTouched = false;
   shirtSizes = SHIRT_SIZES;
   maritalStatuses = MARITAL_STATUSES;
 
@@ -66,20 +68,20 @@ export class ParticipantRegisterComponent implements OnInit {
     this.form = this.fb.group({
       firstName:          ['', [Validators.required]],
       firstLastName:      ['', [Validators.required]],
-      secondLastName:     [''],
+      secondLastName:     ['', [Validators.required]],
       cedula:             ['', [Validators.required, Validators.maxLength(20)]],
-      nombrePreferido:    [''],
-      birthDate:          [''],
+      nombrePreferido:    ['', [Validators.required]],
+      birthDate:          ['', [Validators.required]],
       email:              ['', [Validators.required, Validators.email]],
-      phone:              [''],
+      phone:              ['', [Validators.required]],
       asistesIglesia:     [false],
       church:             [''],
       perteneceGrupo:     [false],
       nombreLiderGrupo:   [''],
       telefonoLiderGrupo: [''],
-      shirtSize:          [''],
-      maritalStatus:      [''],
-      country:            [''],
+      shirtSize:          ['', [Validators.required]],
+      maritalStatus:      ['', [Validators.required]],
+      country:            ['', [Validators.required]],
     });
 
     // React to asistesIglesia changes
@@ -87,14 +89,42 @@ export class ParticipantRegisterComponent implements OnInit {
       if (!val) {
         this.form.patchValue({ church: '', perteneceGrupo: false, nombreLiderGrupo: '', telefonoLiderGrupo: '' });
       }
+      this.updateConditionalValidators();
     });
+
+    // React to church changes (affects showImpactFields)
+    this.form.get('church')?.valueChanges.subscribe(() => this.updateConditionalValidators());
 
     // React to perteneceGrupo changes
     this.form.get('perteneceGrupo')?.valueChanges.subscribe(val => {
       if (!val) {
         this.form.patchValue({ nombreLiderGrupo: '', telefonoLiderGrupo: '' });
       }
+      this.updateConditionalValidators();
     });
+  }
+
+  private updateConditionalValidators(): void {
+    const churchCtrl = this.form.get('church');
+    const nombreLiderGrupoCtrl = this.form.get('nombreLiderGrupo');
+    const telefonoLiderGrupoCtrl = this.form.get('telefonoLiderGrupo');
+
+    if (this.asistesIglesia) {
+      churchCtrl?.setValidators([Validators.required]);
+    } else {
+      churchCtrl?.clearValidators();
+    }
+    churchCtrl?.updateValueAndValidity({ emitEvent: false });
+
+    if (this.showImpactFields && this.perteneceGrupo) {
+      nombreLiderGrupoCtrl?.setValidators([Validators.required]);
+      telefonoLiderGrupoCtrl?.setValidators([Validators.required]);
+    } else {
+      nombreLiderGrupoCtrl?.clearValidators();
+      telefonoLiderGrupoCtrl?.clearValidators();
+    }
+    nombreLiderGrupoCtrl?.updateValueAndValidity({ emitEvent: false });
+    telefonoLiderGrupoCtrl?.updateValueAndValidity({ emitEvent: false });
   }
 
   ngOnInit(): void {
@@ -108,6 +138,7 @@ export class ParticipantRegisterComponent implements OnInit {
   }
 
   onFileChange(event: Event): void {
+    this.fileTouched = true;
     const input = event.target as HTMLInputElement;
     if (input.files?.length) {
       this.selectedFile = input.files[0];
@@ -146,7 +177,9 @@ export class ParticipantRegisterComponent implements OnInit {
   }
 
   submit(): void {
-    if (this.form.invalid || !this.eventId || !this.medsValid) return;
+    this.submitted = true;
+    this.form.markAllAsTouched();
+    if (this.form.invalid || !this.eventId || !this.medsValid || !this.selectedFile) return;
 
     this.loading = true;
     this.error = '';
