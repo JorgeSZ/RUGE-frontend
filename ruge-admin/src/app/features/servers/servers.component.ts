@@ -8,6 +8,7 @@ import { ApprovalService } from '../../core/services/approval.service';
 import { Server } from '../../core/models/server.model';
 import { Commission } from '../../core/models/commission.model';
 import { Tribe } from '../../core/models/tribe.model';
+import { preserveDocumentPaths } from '../../core/utils/document-paths';
 import { environment } from '../../../environments/environment';
 
 const MARITAL_STATUSES = ['Soltero', 'Casado', 'Divorciado', 'Viudo', 'Unión libre'];
@@ -204,12 +205,15 @@ export class ServersComponent implements OnInit {
   submit(): void {
     if (this.form.invalid) return;
     const val = this.form.value;
+    const existingServer = this.editingId ? this.servers.find(s => s.id === this.editingId) : null;
+    const payload = this.editingId ? preserveDocumentPaths(val, existingServer) : val;
+
     if (this.editingId) {
-      this.serverService.update(this.eventId, this.editingId, val).subscribe(() => {
+      this.serverService.update(this.eventId, this.editingId, payload).subscribe(() => {
         this.showForm = false; this.editingId = null; this.load();
       });
     } else {
-      this.serverService.create(this.eventId, val).subscribe(() => {
+      this.serverService.create(this.eventId, payload).subscribe(() => {
         this.showForm = false; this.load();
       });
     }

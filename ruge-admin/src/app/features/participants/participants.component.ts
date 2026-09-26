@@ -5,6 +5,7 @@ import { TribeService } from '../../core/services/tribe.service';
 import { EventContextService } from '../../core/services/event-context.service';
 import { Participant } from '../../core/models/participant.model';
 import { Tribe } from '../../core/models/tribe.model';
+import { preserveDocumentPaths } from '../../core/utils/document-paths';
 import { environment } from '../../../environments/environment';
 
 const SHIRT_SIZES = ['XS','S','M','L','XL','2XL','3XL','4XL','5XL'];
@@ -180,12 +181,15 @@ export class ParticipantsComponent implements OnInit {
   submit(): void {
     if (this.form.invalid) return;
     const val = this.form.value;
+    const existingParticipant = this.editingId ? this.participants.find(p => p.id === this.editingId) : null;
+    const payload = this.editingId ? preserveDocumentPaths(val, existingParticipant) : val;
+
     if (this.editingId) {
-      this.participantService.update(this.eventId, this.editingId, val).subscribe(() => {
+      this.participantService.update(this.eventId, this.editingId, payload).subscribe(() => {
         this.showForm = false; this.load();
       });
     } else {
-      this.participantService.create(this.eventId, val).subscribe(() => {
+      this.participantService.create(this.eventId, payload).subscribe(() => {
         this.showForm = false; this.load();
       });
     }
