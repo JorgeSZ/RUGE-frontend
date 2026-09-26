@@ -7,7 +7,7 @@ import { Participant } from '../../core/models/participant.model';
 import { Tribe } from '../../core/models/tribe.model';
 import { environment } from '../../../environments/environment';
 
-const SHIRT_SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
+const SHIRT_SIZES = ['XS','S','M','L','XL','2XL','3XL','4XL','5XL'];
 const MARITAL_STATUSES = ['Soltero', 'Casado', 'Divorciado', 'Viudo', 'Unión libre'];
 
 @Component({

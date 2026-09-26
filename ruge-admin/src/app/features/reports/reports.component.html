@@ -67,7 +67,7 @@
             <div class="list-filters">
               <select [(ngModel)]="shirtFilter">
                 <option value="">Todas las tallas</option>
-                <option *ngFor="let t of ['S','M','L','XL']" [value]="t">{{ t }}</option>
+                <option *ngFor="let t of ['XS','S','M','L','XL','2XL','3XL','4XL','5XL']" [value]="t">{{ t }}</option>
               </select>
               <input class="search-input" [(ngModel)]="shirtSearch" placeholder="Buscar por nombre..." />
               <span class="count">{{ filteredShirtList.length }} resultado(s)</span>

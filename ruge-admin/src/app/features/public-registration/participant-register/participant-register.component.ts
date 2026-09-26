@@ -3,7 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ParticipantService } from '../../../core/services/participant.service';
 
-const SHIRT_SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
+const SHIRT_SIZES = ['XS','S','M','L','XL','2XL','3XL','4XL','5XL'];
 const MARITAL_STATUSES = ['Soltero', 'Casado', 'Divorciado', 'Viudo', 'Unión libre'];
 
 export interface MedRow { nombre: string; dosis: string; horarios: string[]; notas: string; }
