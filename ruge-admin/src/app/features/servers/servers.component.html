@@ -10,6 +10,10 @@
         <lucide-icon [name]="copied ? 'copy-check' : 'copy'" [size]="14" [strokeWidth]="1.5"></lucide-icon>
       </button>
     </div>
+    <button class="btn-export" (click)="exportExcel()" [disabled]="loading || !servers.length">
+      <lucide-icon name="download" [size]="15" [strokeWidth]="1.5"></lucide-icon>
+      Exportar a Excel
+    </button>
     <button class="btn-primary" (click)="openCreate()">+ Agregar</button>
   </div>
 </div>
