@@ -10,6 +10,10 @@
         <lucide-icon [name]="copied ? 'copy-check' : 'copy'" [size]="14" [strokeWidth]="1.5"></lucide-icon>
       </button>
     </div>
+    <button class="btn-export" (click)="exportExcel()" [disabled]="loading || !participants.length">
+      <lucide-icon name="download" [size]="15" [strokeWidth]="1.5"></lucide-icon>
+      Exportar a Excel
+    </button>
     <button class="btn-primary" (click)="openCreate()">+ Agregar</button>
   </div>
 </div>
@@ -110,6 +114,9 @@
     <tr>
       <th>Nombre</th>
       <th>Cédula</th>
+      <th>Estado Civil</th>
+      <th>Edad</th>
+      <th>Talla</th>
       <th>Tribu</th>
       <th>Check-in</th>
       <th>Acciones</th>
@@ -119,6 +126,9 @@
     <tr *ngFor="let p of filtered" (click)="openDrawer(p)" class="row-clickable">
       <td class="name-cell">{{ p.firstName }} {{ p.firstLastName }} {{ p.secondLastName || '' }}</td>
       <td>{{ p.cedula || '—' }}</td>
+      <td>{{ p.maritalStatus || '—' }}</td>
+      <td>{{ p.age ?? '—' }}</td>
+      <td>{{ p.shirtSize || '—' }}</td>
       <td>
         <span *ngIf="p.tribeName">{{ p.tribeName }}</span>
         <span *ngIf="!p.tribeName" class="badge-sin-tribu">Sin tribu</span>
@@ -137,7 +147,7 @@
       </td>
     </tr>
     <tr *ngIf="filtered.length === 0">
-      <td colspan="5" class="empty">No hay senderistas.</td>
+      <td colspan="8" class="empty">No hay senderistas.</td>
     </tr>
   </tbody>
 </table>

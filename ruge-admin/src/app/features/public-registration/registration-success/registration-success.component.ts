@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-registration-success',
@@ -11,6 +12,8 @@ export class RegistrationSuccessComponent implements OnInit {
   result: any = null;
   type = '';
   downloading = false;
+  downloadingGuide = false;
+  readonly guideUrl = `${environment.apiUrl.replace(/\/api\/?$/, '')}/assets/guia-ruge-2026.pdf`;
 
   constructor(private router: Router) {}
 
@@ -30,27 +33,46 @@ export class RegistrationSuccessComponent implements OnInit {
     this.downloading = true;
 
     try {
-      const filename = this.buildPdfFilename();
-      const response = await fetch(this.result.pdfUrl);
-      const blob     = await response.blob();
-      const blobUrl  = URL.createObjectURL(blob);
-
-      const a = document.createElement('a');
-      a.href     = blobUrl;
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(blobUrl);
+      await this.downloadFile(this.result.pdfUrl, this.buildPdfFilename());
     } catch {
-      // Fallback: open URL in new tab
-      const a = document.createElement('a');
-      a.href   = this.result.pdfUrl;
-      a.target = '_blank';
-      a.click();
+      this.openFile(this.result.pdfUrl);
     } finally {
       this.downloading = false;
     }
+  }
+
+  async downloadGuide(): Promise<void> {
+    if (this.downloadingGuide) return;
+    this.downloadingGuide = true;
+
+    try {
+      await this.downloadFile(this.guideUrl, 'Guia-RUGE-2026.pdf');
+    } catch {
+      this.openFile(this.guideUrl);
+    } finally {
+      this.downloadingGuide = false;
+    }
+  }
+
+  private async downloadFile(url: string, filename: string): Promise<void> {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`No se pudo descargar ${filename}`);
+    const blob = await response.blob();
+    const blobUrl = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = blobUrl;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(blobUrl);
+  }
+
+  private openFile(url: string): void {
+    const a = document.createElement('a');
+    a.href = url;
+    a.target = '_blank';
+    a.click();
   }
 
   private buildPdfFilename(): string {

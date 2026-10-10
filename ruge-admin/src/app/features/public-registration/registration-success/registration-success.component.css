@@ -55,6 +55,8 @@ h1 { font-family: 'Barlow Condensed', sans-serif; font-size: 2rem; font-weight: 
 }
 .btn-pdf { background: var(--ruge-yellow); color: var(--ruge-black); }
 .btn-pdf:hover:not(:disabled) { background: var(--ruge-yellow-dark); }
+.btn-guide { background: transparent; color: var(--ruge-text-primary); border: 1px solid var(--ruge-yellow); margin-top: 12px; }
+.btn-guide:hover:not(:disabled) { background: rgba(240, 180, 41, 0.12); }
 .btn-download:disabled { opacity: 0.6; cursor: not-allowed; }
 
 .pdf-fallback {

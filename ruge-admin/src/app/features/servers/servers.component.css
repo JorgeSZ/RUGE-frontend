@@ -13,7 +13,10 @@
 .checkbox-row { display: flex; gap: 20px; padding: 6px 0; } .checkbox-row label { display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 0.88rem; }
 
 /* Page header actions */
-.header-actions { display: flex; align-items: center; gap: 10px; }
+.header-actions { display: flex; align-items: center; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+.btn-export { display: inline-flex; align-items: center; gap: 6px; padding: 7px 12px; border: 1px solid var(--ruge-border); border-radius: 6px; background: transparent; color: var(--ruge-text-secondary); cursor: pointer; font-size: 0.82rem; white-space: nowrap; }
+.btn-export:hover:not(:disabled) { background: var(--ruge-dark-hover); color: var(--ruge-text-primary); }
+.btn-export:disabled { opacity: 0.5; cursor: not-allowed; }
 .url-row-compact { display: flex; gap: 6px; }
 .url-input { width: 240px; padding: 7px 10px; border: 1px solid var(--ruge-border); border-radius: 6px; font-size: 0.8rem; background: var(--ruge-black); color: var(--ruge-text-muted); outline: none; }
 

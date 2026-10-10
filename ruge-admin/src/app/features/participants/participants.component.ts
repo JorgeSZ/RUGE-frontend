@@ -6,6 +6,7 @@ import { EventContextService } from '../../core/services/event-context.service';
 import { Participant } from '../../core/models/participant.model';
 import { Tribe } from '../../core/models/tribe.model';
 import { preserveDocumentPaths } from '../../core/utils/document-paths';
+import { downloadExcelCsv, exportFileSlug } from '../../core/utils/excel-export';
 import { environment } from '../../../environments/environment';
 
 const SHIRT_SIZES = ['XS','S','M','L','XL','2XL','3XL','4XL','5XL'];
@@ -210,6 +211,32 @@ export class ParticipantsComponent implements OnInit {
     if (!p.comprobantePagoPath) return '';
     if (p.comprobantePagoPath.startsWith('http')) return p.comprobantePagoPath;
     return `${this.apiUrl.replace('/api', '')}/${p.comprobantePagoPath}`;
+  }
+
+  exportExcel(): void {
+    const headers = [
+      'ID', 'ID evento', 'Nombre', 'Primer apellido', 'Segundo apellido', 'Nombre preferido',
+      'Cédula', 'Fecha de nacimiento', 'Edad', 'Estado civil', 'Correo', 'Teléfono',
+      'Iglesia', 'Asiste a iglesia', 'Pertenece a grupo', 'Nombre del líder', 'Teléfono del líder',
+      'País', 'Talla de camisa', 'ID tribu', 'Tribu', 'URL comprobante', 'Código QR',
+      'URL acuerdo de participación', 'Check-in completado', 'Fecha de check-in',
+      'Medicamentos (JSON)', 'Creado', 'Actualizado'
+    ];
+    const rows = this.participants.map(p => [
+      p.id, p.eventId, p.firstName, p.firstLastName, p.secondLastName, p.nombrePreferido,
+      p.cedula, p.birthDate, p.age, p.maritalStatus, p.email, p.phone, p.church,
+      p.asistesIglesia ? 'Sí' : 'No', p.perteneceGrupo ? 'Sí' : 'No',
+      p.nombreLiderGrupo, p.telefonoLiderGrupo, p.country, p.shirtSize, p.tribeId,
+      p.tribeName, this.getComprobanteUrl(p), p.qrCode, this.getAgreementUrl(p),
+      p.checkInCompleted ? 'Sí' : 'No', p.checkInDate,
+      p.medications?.length ? JSON.stringify(p.medications) : '', p.createdAt, p.updatedAt
+    ]);
+    const date = new Date().toISOString().slice(0, 10);
+    downloadExcelCsv(`senderistas-${exportFileSlug(this.eventCtx.activeEvent?.name)}-${date}.csv`, headers, rows);
+  }
+
+  private getAgreementUrl(p: Participant): string {
+    return p.qrCode ? `${environment.r2PublicUrl}/pdfs/${p.eventId}/${p.qrCode}.pdf` : '';
   }
 
   copyUrl(): void {

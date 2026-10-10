@@ -9,6 +9,7 @@ import { Server } from '../../core/models/server.model';
 import { Commission } from '../../core/models/commission.model';
 import { Tribe } from '../../core/models/tribe.model';
 import { preserveDocumentPaths } from '../../core/utils/document-paths';
+import { downloadExcelCsv, exportFileSlug } from '../../core/utils/excel-export';
 import { environment } from '../../../environments/environment';
 
 const MARITAL_STATUSES = ['Soltero', 'Casado', 'Divorciado', 'Viudo', 'Unión libre'];
@@ -245,6 +246,34 @@ export class ServersComponent implements OnInit {
     if (!s.comprobantePagoPath) return '';
     if (s.comprobantePagoPath.startsWith('http')) return s.comprobantePagoPath;
     return `${this.apiUrl.replace('/api', '')}/${s.comprobantePagoPath}`;
+  }
+
+  exportExcel(): void {
+    const headers = [
+      'ID', 'ID evento', 'Nombre', 'Primer apellido', 'Segundo apellido', 'Cédula',
+      'Fecha de nacimiento', 'Edad', 'Correo', 'Teléfono', 'Iglesia', 'Estado civil',
+      'País', 'ID equipo', 'Equipo', 'ID tribu', 'Tribu', 'Tiene discipulado',
+      'Tiene parche de discipulado', 'Tiene grupo', 'Está en New Life', 'Módulo',
+      'Nombre del líder', 'Teléfono del líder', 'Correo del líder', 'URL comprobante',
+      'Código QR', 'URL acuerdo de participación', 'Check-in completado', 'Fecha de check-in',
+      'Estado de aprobación', 'Fecha de aprobación', 'Creado', 'Actualizado'
+    ];
+    const rows = this.servers.map(s => [
+      s.id, s.eventId, s.firstName, s.firstLastName, s.secondLastName, s.cedula,
+      s.birthDate, s.age, s.email, s.phone, s.church, s.maritalStatus, s.country,
+      s.commissionId, s.commissionName, s.tribeId, s.tribeName,
+      s.hasDiscipleship ? 'Sí' : 'No', s.hasDiscipleshipPatch ? 'Sí' : 'No',
+      s.hasGroup ? 'Sí' : 'No', s.estaEnNewLife ? 'Sí' : 'No', s.modulo,
+      s.nombreLider, s.telefonoLider, s.emailLider, this.getComprobanteUrl(s),
+      s.qrCode, this.getAgreementUrl(s), s.checkInCompleted ? 'Sí' : 'No',
+      s.checkInDate, s.approvalStatus, s.approvalDate, s.createdAt, s.updatedAt
+    ]);
+    const date = new Date().toISOString().slice(0, 10);
+    downloadExcelCsv(`servidores-${exportFileSlug(this.eventCtx.activeEvent?.name)}-${date}.csv`, headers, rows);
+  }
+
+  private getAgreementUrl(s: Server): string {
+    return s.qrCode ? `${environment.r2PublicUrl}/pdfs/${s.eventId}/${s.qrCode}.pdf` : '';
   }
 
   copyUrl(): void {
