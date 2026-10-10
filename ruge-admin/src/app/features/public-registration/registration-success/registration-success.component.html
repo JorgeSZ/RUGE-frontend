@@ -8,16 +8,16 @@
     <!-- PDF section (replaces the old QR section) -->
     <div class="pdf-section">
       <p class="pdf-instructions">
-        Tu <strong>Acuerdo de Participación</strong> con tu código QR de acceso está listo.
-        Imprímelo y preséntalo el día del evento — <strong>no se permiten celulares</strong>
-        en el área del evento.
+        Tu <strong>Acuerdo de Participación</strong> con tu código QR está listo.
+        <span *ngIf="type === 'Senderista'">También enviamos la <strong>Guía RUGE 2026</strong> a tu correo.</span>
+        Imprime el acuerdo y preséntalo el día del evento.
       </p>
 
       <div class="pdf-info-box">
         <lucide-icon name="file-text" [size]="28" [strokeWidth]="1.5" class="pdf-icon"></lucide-icon>
         <div>
-          <div class="pdf-label">Acuerdo de Participación enviado a tu correo</div>
-          <div class="pdf-sublabel">Incluye tu código QR de check-in</div>
+          <div class="pdf-label">{{ type === 'Senderista' ? 'Acuerdo y Guía RUGE 2026 enviados a tu correo' : 'Acuerdo de Participación enviado a tu correo' }}</div>
+          <div class="pdf-sublabel">El acuerdo incluye tu código QR de check-in</div>
         </div>
       </div>
     </div>
@@ -31,6 +31,15 @@
         [disabled]="downloading">
         <lucide-icon name="download" [size]="18" [strokeWidth]="2"></lucide-icon>
         {{ downloading ? 'Descargando...' : 'Descargar PDF' }}
+      </button>
+
+      <button
+        *ngIf="type === 'Senderista'"
+        class="btn-download btn-guide"
+        (click)="downloadGuide()"
+        [disabled]="downloadingGuide">
+        <lucide-icon name="download" [size]="18" [strokeWidth]="2"></lucide-icon>
+        {{ downloadingGuide ? 'Descargando guía...' : 'Descargar Guía RUGE 2026' }}
       </button>
 
       <!-- Fallback if PDF URL is missing (generation error on server) -->
