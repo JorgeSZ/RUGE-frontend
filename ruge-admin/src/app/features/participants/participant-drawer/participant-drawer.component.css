@@ -93,6 +93,16 @@
 .med-drawer-name { font-size: 0.88rem; font-weight: 600; color: var(--ruge-text-primary); }
 .med-drawer-detail { font-size: 0.8rem; color: var(--ruge-text-secondary); margin-top: 2px; }
 
+.btn-resend-agreement {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  margin-top: 10px; padding: 9px 12px; border: 1px solid var(--ruge-border);
+  border-radius: 6px; background: var(--ruge-dark-card); color: var(--ruge-yellow);
+  font: inherit; font-size: 0.8rem; cursor: pointer;
+}
+.btn-resend-agreement:hover:not(:disabled) { border-color: var(--ruge-yellow); }
+.btn-resend-agreement:disabled { opacity: 0.55; cursor: not-allowed; }
+.resend-hint { color: var(--ruge-text-muted); font-size: 0.75rem; margin-top: 8px; }
+
 @media (max-width: 480px) {
   .drawer { width: 100vw; right: -100vw; }
   .drawer.open { right: 0; }

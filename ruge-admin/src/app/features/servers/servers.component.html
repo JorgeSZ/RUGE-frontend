@@ -167,9 +167,11 @@
 <app-server-drawer
   [server]="drawerServer"
   [isOpen]="drawerOpen"
+  [resendingAgreement]="resendingAgreementId === drawerServer?.id"
   (closed)="closeDrawer()"
   (editRequested)="onDrawerEdit($event)"
   (deleteRequested)="onDrawerDelete($event)"
   (approveRequested)="onDrawerApprove($event)"
-  (denyRequested)="onDrawerDeny($event)">
+  (denyRequested)="onDrawerDeny($event)"
+  (resendAgreementRequested)="onDrawerResendAgreement($event)">
 </app-server-drawer>

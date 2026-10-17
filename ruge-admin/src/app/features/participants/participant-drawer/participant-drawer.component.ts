@@ -11,9 +11,11 @@ import { environment } from '../../../../environments/environment';
 export class ParticipantDrawerComponent {
   @Input() participant: Participant | null = null;
   @Input() isOpen = false;
+  @Input() resendingAgreement = false;
   @Output() closed        = new EventEmitter<void>();
   @Output() editRequested = new EventEmitter<Participant>();
   @Output() deleteRequested = new EventEmitter<string>();
+  @Output() resendAgreementRequested = new EventEmitter<Participant>();
 
   @HostListener('document:keydown.escape')
   onEscape() { if (this.isOpen) this.closed.emit(); }
@@ -26,6 +28,10 @@ export class ParticipantDrawerComponent {
 
   onDelete() {
     if (this.participant) this.deleteRequested.emit(this.participant.id);
+  }
+
+  onResendAgreement() {
+    if (this.participant) this.resendAgreementRequested.emit(this.participant);
   }
 
   formatDate(d: string | undefined): string {

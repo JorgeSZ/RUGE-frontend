@@ -7,25 +7,28 @@
 
     <!-- PDF section (replaces the old QR section) -->
     <div class="pdf-section">
-      <p class="pdf-instructions">
+      <p class="pdf-instructions" *ngIf="type === 'Senderista'">
         Tu <strong>Acuerdo de Participación</strong> con tu código QR está listo.
-        <span *ngIf="type === 'Senderista'">También enviamos la <strong>Guía RUGE 2026</strong> a tu correo.</span>
+        También enviamos la <strong>Guía RUGE 2026</strong> a tu correo.
         Imprime el acuerdo y preséntalo el día del evento.
+      </p>
+      <p class="pdf-instructions" *ngIf="type === 'Servidor'">
+        Tu registro fue recibido y está <strong>pendiente de aprobación por tu líder</strong>.
+        Te enviaremos el Acuerdo de Participación con tu código QR cuando sea aprobado.
       </p>
 
       <div class="pdf-info-box">
         <lucide-icon name="file-text" [size]="28" [strokeWidth]="1.5" class="pdf-icon"></lucide-icon>
         <div>
-          <div class="pdf-label">{{ type === 'Senderista' ? 'Acuerdo y Guía RUGE 2026 enviados a tu correo' : 'Acuerdo de Participación enviado a tu correo' }}</div>
-          <div class="pdf-sublabel">El acuerdo incluye tu código QR de check-in</div>
+          <div class="pdf-label">{{ type === 'Senderista' ? 'Acuerdo y Guía RUGE 2026 enviados a tu correo' : 'Registro pendiente de aprobación' }}</div>
+          <div class="pdf-sublabel">{{ type === 'Senderista' ? 'El acuerdo incluye tu código QR de check-in' : 'El acuerdo con tu código QR llegará después de la aprobación' }}</div>
         </div>
       </div>
     </div>
 
     <div class="actions">
-      <!-- Download PDF button -->
       <button
-        *ngIf="result.pdfUrl"
+        *ngIf="type === 'Senderista' && result.pdfUrl"
         class="btn-download btn-pdf"
         (click)="downloadPdf()"
         [disabled]="downloading">
@@ -43,7 +46,7 @@
       </button>
 
       <!-- Fallback if PDF URL is missing (generation error on server) -->
-      <p *ngIf="!result.pdfUrl" class="pdf-fallback">
+      <p *ngIf="type === 'Senderista' && !result.pdfUrl" class="pdf-fallback">
         <lucide-icon name="mail" [size]="16" [strokeWidth]="2"></lucide-icon>
         El documento fue enviado a tu correo electrónico.
       </p>

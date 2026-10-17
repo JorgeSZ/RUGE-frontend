@@ -27,6 +27,10 @@ export class ParticipantService {
     return this.api.delete<void>(`${this.base(eventId)}/${id}`);
   }
 
+  resendAgreement(eventId: string, id: string): Observable<void> {
+    return this.api.post<void>(`${this.base(eventId)}/${id}/resend-agreement`, {});
+  }
+
   registerPublic(eventId: string, formData: FormData): Observable<any> {
     return this.http.post<any>(
       `${environment.apiUrl}/public/events/${eventId}/senderistas/register`,

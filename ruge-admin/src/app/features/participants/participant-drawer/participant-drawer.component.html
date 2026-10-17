@@ -80,6 +80,15 @@
           <a *ngIf="getPdfUrl()" [href]="getPdfUrl()" target="_blank" class="drawer-link">Ver PDF</a>
           <span *ngIf="!getPdfUrl()">—</span>
         </div>
+        <button
+          *ngIf="participant.qrCode"
+          class="btn-resend-agreement"
+          [disabled]="resendingAgreement || !participant.email"
+          (click)="onResendAgreement()">
+          <lucide-icon name="mail" [size]="15" [strokeWidth]="1.7"></lucide-icon>
+          {{ resendingAgreement ? 'Enviando...' : 'Reenviar acuerdo al correo' }}
+        </button>
+        <div class="resend-hint" *ngIf="participant.qrCode && !participant.email">No hay correo registrado.</div>
       </div>
 
     </div>

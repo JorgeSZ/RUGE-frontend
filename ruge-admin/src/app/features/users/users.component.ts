@@ -20,7 +20,7 @@ export class UsersComponent implements OnInit {
   toast: { message: string; type: 'success' | 'error' } | null = null;
   private toastTimer: any;
 
-  readonly roles = ['Admin', 'Logistica', 'Eventos', 'Tiempos', 'Cocina', 'Calaquero'];
+  readonly roles = ['Admin', 'Logistica', 'Eventos', 'Tiempos', 'Cocina', 'Calaquero', 'Guia'];
 
   get currentUserId(): string { return this.auth.currentUser?.id ?? ''; }
 

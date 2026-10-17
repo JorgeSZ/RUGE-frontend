@@ -41,6 +41,7 @@ export class ParticipantsComponent implements OnInit {
   // Drawer
   drawerOpen = false;
   drawerParticipant: import('../../core/models/participant.model').Participant | null = null;
+  resendingAgreementId: string | null = null;
 
   readonly years = Array.from({length: new Date().getFullYear() - 1929}, (_, i) => String(new Date().getFullYear() - i));
   readonly months = [
@@ -141,6 +142,23 @@ export class ParticipantsComponent implements OnInit {
 
   onDrawerEdit(p: Participant): void { this.closeDrawer(); this.openEdit(p); }
   onDrawerDelete(id: string): void   { this.closeDrawer(); this.delete(id); }
+
+  onDrawerResendAgreement(p: Participant): void {
+    if (this.resendingAgreementId || !p.email) return;
+    this.resendingAgreementId = p.id;
+    this.participantService.resendAgreement(this.eventId, p.id).subscribe({
+      next: () => {
+        this.resendingAgreementId = null;
+        this.cdr.detectChanges();
+        alert(`El acuerdo fue enviado nuevamente a ${p.email}.`);
+      },
+      error: err => {
+        this.resendingAgreementId = null;
+        this.cdr.detectChanges();
+        alert(err.error?.error ?? 'No se pudo reenviar el acuerdo.');
+      }
+    });
+  }
 
   openCreate(): void {
     this.editingId = null;
