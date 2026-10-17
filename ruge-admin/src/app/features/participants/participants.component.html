@@ -155,7 +155,9 @@
 <app-participant-drawer
   [participant]="drawerParticipant"
   [isOpen]="drawerOpen"
+  [resendingAgreement]="resendingAgreementId === drawerParticipant?.id"
   (closed)="closeDrawer()"
   (editRequested)="onDrawerEdit($event)"
-  (deleteRequested)="onDrawerDelete($event)">
+  (deleteRequested)="onDrawerDelete($event)"
+  (resendAgreementRequested)="onDrawerResendAgreement($event)">
 </app-participant-drawer>

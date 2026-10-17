@@ -61,6 +61,16 @@
 .drawer-link { color: var(--ruge-yellow); text-decoration: none; font-size: 0.82rem; }
 .drawer-link:hover { text-decoration: underline; }
 
+.btn-resend-agreement {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  margin-top: 10px; padding: 9px 12px; border: 1px solid var(--ruge-border);
+  border-radius: 6px; background: var(--ruge-dark-card); color: var(--ruge-yellow);
+  font: inherit; font-size: 0.8rem; cursor: pointer;
+}
+.btn-resend-agreement:hover:not(:disabled) { border-color: var(--ruge-yellow); }
+.btn-resend-agreement:disabled { opacity: 0.55; cursor: not-allowed; }
+.resend-hint { color: var(--ruge-text-muted); font-size: 0.75rem; margin-top: 8px; }
+
 .badge-sin-asignar {
   background: rgba(240,180,41,0.08); color: var(--ruge-yellow);
   border: 1px solid rgba(240,180,41,0.2); font-size: 0.7rem; padding: 2px 7px; border-radius: 20px;

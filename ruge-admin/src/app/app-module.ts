@@ -38,6 +38,7 @@ import { ParticipantDrawerComponent } from './features/participants/participant-
 import { ServerDrawerComponent } from './features/servers/server-drawer/server-drawer.component';
 import { CalaqueroComponent } from './features/calaquero/calaquero.component';
 import { ConsolidacionComponent } from './features/consolidacion/consolidacion.component';
+import { TribeChallengesComponent } from './features/tribe-challenges/tribe-challenges.component';
 import { TerminosCondicionesComponent } from './features/public-registration/terminos-condiciones/terminos-condiciones.component';
 import { SoporteComponent } from './features/public-registration/soporte/soporte.component';
 
@@ -76,6 +77,7 @@ import { AuthInterceptor } from './core/interceptors/auth.interceptor';
     ServerDrawerComponent,
     CalaqueroComponent,
     ConsolidacionComponent,
+    TribeChallengesComponent,
     TerminosCondicionesComponent,
     SoporteComponent,
   ],

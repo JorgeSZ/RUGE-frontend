@@ -11,11 +11,13 @@ import { environment } from '../../../../environments/environment';
 export class ServerDrawerComponent {
   @Input() server: Server | null = null;
   @Input() isOpen = false;
+  @Input() resendingAgreement = false;
   @Output() closed          = new EventEmitter<void>();
   @Output() editRequested   = new EventEmitter<Server>();
   @Output() deleteRequested = new EventEmitter<string>();
   @Output() approveRequested = new EventEmitter<Server>();
   @Output() denyRequested    = new EventEmitter<Server>();
+  @Output() resendAgreementRequested = new EventEmitter<Server>();
 
   @HostListener('document:keydown.escape')
   onEscape() { if (this.isOpen) this.closed.emit(); }
@@ -25,6 +27,7 @@ export class ServerDrawerComponent {
   onDelete() { if (this.server) this.deleteRequested.emit(this.server.id); }
   onApprove() { if (this.server) this.approveRequested.emit(this.server); }
   onDeny()    { if (this.server) this.denyRequested.emit(this.server); }
+  onResendAgreement() { if (this.server) this.resendAgreementRequested.emit(this.server); }
 
   formatDate(d: string | undefined): string {
     if (!d) return '—';

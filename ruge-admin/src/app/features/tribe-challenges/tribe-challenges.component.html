@@ -1,0 +1,62 @@
+<div class="page-header">
+  <div>
+    <h2>Retos</h2>
+    <span class="sub">Puntaje de tribus · {{ eventCtx.activeEvent?.name }}</span>
+  </div>
+  <button class="btn-refresh" (click)="load()" [disabled]="loading">
+    <lucide-icon name="refresh-cw" [size]="15" [strokeWidth]="1.5"></lucide-icon>
+    Actualizar
+  </button>
+</div>
+
+<div *ngIf="loading" class="loading">Cargando puntajes...</div>
+<div *ngIf="error" class="error-state">{{ error }}</div>
+
+<ng-container *ngIf="!loading && overview as data">
+  <section class="card ranking-card">
+    <div class="section-heading">
+      <div>
+        <h3>Ranking de tribus</h3>
+        <p>Puntaje acumulado en todos los retos registrados</p>
+      </div>
+      <span class="total-challenges">{{ data.challenges.length }} retos</span>
+    </div>
+
+    <div class="empty-state" *ngIf="data.ranking.length === 0">Este evento todavía no tiene tribus.</div>
+    <div class="ranking-list" *ngIf="data.ranking.length > 0">
+      <div class="ranking-row" *ngFor="let tribe of data.ranking">
+        <span class="rank-number">{{ tribe.position }}</span>
+        <span class="tribe-name">{{ tribe.tribeName }}</span>
+        <strong class="points">{{ tribe.totalPoints }} <small>pts</small></strong>
+      </div>
+    </div>
+  </section>
+
+  <section class="challenge-section">
+    <div class="section-heading">
+      <div>
+        <h3>Retos registrados</h3>
+        <p>Detalle de puntos otorgados en cada actividad</p>
+      </div>
+    </div>
+
+    <div class="empty-state card" *ngIf="data.challenges.length === 0">Todavía no se han registrado retos.</div>
+    <article class="card challenge-card" *ngFor="let challenge of data.challenges">
+      <div class="challenge-heading">
+        <div>
+          <h4>{{ challenge.name }}</h4>
+          <p *ngIf="challenge.description">{{ challenge.description }}</p>
+        </div>
+        <div class="challenge-meta">
+          <span>{{ challenge.createdAt | date:'medium' }}</span>
+          <span>Guía: {{ challenge.createdBy }}</span>
+        </div>
+      </div>
+      <div class="score-chips">
+        <span class="score-chip" *ngFor="let score of challenge.scores">
+          {{ score.tribeName }} <strong>{{ score.points }} pts</strong>
+        </span>
+      </div>
+    </article>
+  </section>
+</ng-container>

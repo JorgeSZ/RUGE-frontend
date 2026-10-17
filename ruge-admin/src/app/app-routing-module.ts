@@ -27,6 +27,7 @@ import { MenuDetailComponent } from './features/menus/menu-detail.component';
 import { ApprovalComponent } from './features/approval/approval.component';
 import { CalaqueroComponent } from './features/calaquero/calaquero.component';
 import { ConsolidacionComponent } from './features/consolidacion/consolidacion.component';
+import { TribeChallengesComponent } from './features/tribe-challenges/tribe-challenges.component';
 import { TerminosCondicionesComponent } from './features/public-registration/terminos-condiciones/terminos-condiciones.component';
 import { SoporteComponent } from './features/public-registration/soporte/soporte.component';
 import { AuthGuard } from './core/guards/auth.guard';
@@ -72,6 +73,7 @@ const routes: Routes = [
       { path: 'reports',        component: ReportsComponent,      canActivate: [RoleGuard, EventGuard], data: ADMIN_COCINA },
       { path: 'calaquero',      component: CalaqueroComponent,    canActivate: [RoleGuard, EventGuard], data: ADMIN_CALAQUERO },
       { path: 'consolidacion',  component: ConsolidacionComponent, canActivate: [RoleGuard, EventGuard], data: ADMIN },
+      { path: 'retos',        component: TribeChallengesComponent, canActivate: [RoleGuard, EventGuard], data: ADMIN },
 
       // Admin + Logistica
       { path: 'logistics',                       component: LogisticsComponent,      canActivate: [RoleGuard, EventGuard], data: ADMIN_LOGISTICA },

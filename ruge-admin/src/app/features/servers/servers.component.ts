@@ -41,6 +41,7 @@ export class ServersComponent implements OnInit {
   // Drawer
   drawerOpen = false;
   drawerServer: import('../../core/models/server.model').Server | null = null;
+  resendingAgreementId: string | null = null;
 
   readonly moduloOpciones = [1, 2, 3, 4, 5];
   get estaEnNewLife(): boolean { return !!this.form.get('estaEnNewLife')?.value; }
@@ -146,6 +147,23 @@ export class ServersComponent implements OnInit {
   onDrawerDelete(id: string): void { this.closeDrawer(); this.delete(id); }
   onDrawerApprove(s: Server): void { this.closeDrawer(); this.approveServer(s); }
   onDrawerDeny(s: Server): void    { this.closeDrawer(); this.denyServer(s); }
+
+  onDrawerResendAgreement(s: Server): void {
+    if (this.resendingAgreementId || !s.email || s.approvalStatus !== 'Aprobado') return;
+    this.resendingAgreementId = s.id;
+    this.serverService.resendAgreement(this.eventId, s.id).subscribe({
+      next: () => {
+        this.resendingAgreementId = null;
+        this.cdr.detectChanges();
+        alert(`El acuerdo fue enviado nuevamente a ${s.email}.`);
+      },
+      error: err => {
+        this.resendingAgreementId = null;
+        this.cdr.detectChanges();
+        alert(err.error?.error ?? 'No se pudo reenviar el acuerdo.');
+      }
+    });
+  }
 
   approveServer(s: Server): void {
     if (!confirm(`¿Aprobar manualmente a ${s.firstName} ${s.firstLastName}?`)) return;
