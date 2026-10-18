@@ -63,12 +63,21 @@
 
 .btn-resend-agreement {
   display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-  margin-top: 10px; padding: 9px 12px; border: 1px solid var(--ruge-border);
+  padding: 9px 12px; border: 1px solid var(--ruge-border);
   border-radius: 6px; background: var(--ruge-dark-card); color: var(--ruge-yellow);
   font: inherit; font-size: 0.8rem; cursor: pointer;
 }
 .btn-resend-agreement:hover:not(:disabled) { border-color: var(--ruge-yellow); }
+.btn-resend-approval {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 9px 12px; border: 1px solid rgba(76,175,110,0.35);
+  border-radius: 6px; background: rgba(76,175,110,0.08); color: var(--ruge-success);
+  font: inherit; font-size: 0.8rem; cursor: pointer;
+}
+.btn-resend-approval:hover:not(:disabled) { border-color: var(--ruge-success); }
 .btn-resend-agreement:disabled { opacity: 0.55; cursor: not-allowed; }
+.btn-resend-approval:disabled { opacity: 0.55; cursor: not-allowed; }
+.document-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
 .resend-hint { color: var(--ruge-text-muted); font-size: 0.75rem; margin-top: 8px; }
 
 .badge-sin-asignar {

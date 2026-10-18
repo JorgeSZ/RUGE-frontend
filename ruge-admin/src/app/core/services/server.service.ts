@@ -35,6 +35,10 @@ export class ServerService {
     return this.api.post<void>(`${this.base(eventId)}/${id}/resend-agreement`, {});
   }
 
+  resendApprovalRequest(eventId: string, id: string): Observable<void> {
+    return this.api.post<void>(`${this.base(eventId)}/${id}/resend-approval`, {});
+  }
+
   registerPublic(eventId: string, formData: FormData): Observable<any> {
     return this.http.post<any>(
       `${environment.apiUrl}/public/events/${eventId}/servers/register`,
