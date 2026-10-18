@@ -21,7 +21,11 @@
 .challenge-card h4 { margin: 0; color: var(--ruge-text-primary); font-size: 1rem; }
 .challenge-heading { display: flex; justify-content: space-between; gap: 16px; margin-bottom: 14px; }
 .challenge-heading p { margin: 5px 0 0; color: var(--ruge-text-secondary); font-size: 0.86rem; white-space: pre-wrap; }
+.challenge-actions { display: flex; align-items: flex-start; gap: 14px; }
 .challenge-meta { display: grid; gap: 4px; align-content: start; text-align: right; color: var(--ruge-text-muted); font-size: 0.74rem; white-space: nowrap; }
+.btn-delete { display: inline-flex; align-items: center; gap: 6px; padding: 6px 9px; border: 1px solid rgba(239,68,68,0.35); border-radius: 6px; background: rgba(239,68,68,0.08); color: #ef7777; font-size: 0.76rem; cursor: pointer; white-space: nowrap; }
+.btn-delete:hover:not(:disabled) { background: rgba(239,68,68,0.16); color: #ff8b8b; }
+.btn-delete:disabled { opacity: 0.55; cursor: wait; }
 .score-chips { display: flex; flex-wrap: wrap; gap: 7px; }
 .score-chip { display: inline-flex; align-items: center; gap: 8px; padding: 6px 9px; border-radius: 20px; background: rgba(76,175,110,0.1); color: var(--ruge-text-secondary); font-size: 0.76rem; }
 .score-chip strong { color: var(--ruge-success); }
@@ -29,6 +33,7 @@
 .error-state { padding: 14px; border-radius: 7px; background: rgba(239,68,68,0.1); color: #ef4444; }
 @media (max-width: 640px) {
   .challenge-heading { flex-direction: column; }
+  .challenge-actions { flex-wrap: wrap; justify-content: space-between; }
   .challenge-meta { text-align: left; }
   .card { padding: 15px; }
 }
