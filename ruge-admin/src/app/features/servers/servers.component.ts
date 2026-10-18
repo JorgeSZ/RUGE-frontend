@@ -42,6 +42,7 @@ export class ServersComponent implements OnInit {
   drawerOpen = false;
   drawerServer: import('../../core/models/server.model').Server | null = null;
   resendingAgreementId: string | null = null;
+  resendingApprovalRequestId: string | null = null;
 
   readonly moduloOpciones = [1, 2, 3, 4, 5];
   get estaEnNewLife(): boolean { return !!this.form.get('estaEnNewLife')?.value; }
@@ -161,6 +162,25 @@ export class ServersComponent implements OnInit {
         this.resendingAgreementId = null;
         this.cdr.detectChanges();
         alert(err.error?.error ?? 'No se pudo reenviar el acuerdo.');
+      }
+    });
+  }
+
+  onDrawerResendApprovalRequest(s: Server): void {
+    if (this.resendingApprovalRequestId || !s.emailLider || s.approvalStatus !== 'Pendiente') return;
+    if (!confirm(`¿Reenviar la solicitud de aprobación de ${s.firstName} ${s.firstLastName} a ${s.emailLider}?`)) return;
+
+    this.resendingApprovalRequestId = s.id;
+    this.serverService.resendApprovalRequest(this.eventId, s.id).subscribe({
+      next: () => {
+        this.resendingApprovalRequestId = null;
+        this.cdr.detectChanges();
+        alert(`La solicitud de aprobación fue enviada nuevamente a ${s.emailLider}.`);
+      },
+      error: err => {
+        this.resendingApprovalRequestId = null;
+        this.cdr.detectChanges();
+        alert(err.error?.error ?? 'No se pudo reenviar la solicitud de aprobación.');
       }
     });
   }
