@@ -10,4 +10,8 @@ export class TribeChallengeService {
   getOverview(eventId: string): Observable<TribeChallengeOverview> {
     return this.api.get<TribeChallengeOverview>(`/events/${eventId}/tribe-challenges`);
   }
+
+  delete(eventId: string, challengeId: string): Observable<void> {
+    return this.api.delete<void>(`/events/${eventId}/tribe-challenges/${challengeId}`);
+  }
 }

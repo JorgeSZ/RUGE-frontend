@@ -47,9 +47,20 @@
           <h4>{{ challenge.name }}</h4>
           <p *ngIf="challenge.description">{{ challenge.description }}</p>
         </div>
-        <div class="challenge-meta">
-          <span>{{ challenge.createdAt | date:'medium' }}</span>
-          <span>Guía: {{ challenge.createdBy }}</span>
+        <div class="challenge-actions">
+          <div class="challenge-meta">
+            <span>{{ challenge.createdAt | date:'medium' }}</span>
+            <span>Guía: {{ challenge.createdBy }}</span>
+          </div>
+          <button
+            class="btn-delete"
+            type="button"
+            [disabled]="deletingChallengeId === challenge.id"
+            [attr.aria-label]="'Eliminar reto ' + challenge.name"
+            (click)="deleteChallenge(challenge)">
+            <lucide-icon name="trash-2" [size]="15" [strokeWidth]="1.5"></lucide-icon>
+            {{ deletingChallengeId === challenge.id ? 'Eliminando...' : 'Eliminar' }}
+          </button>
         </div>
       </div>
       <div class="score-chips">
