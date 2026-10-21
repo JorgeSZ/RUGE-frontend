@@ -41,7 +41,7 @@
       </thead>
       <tbody>
         <tr *ngFor="let s of commissionServers">
-          <td>{{ s.firstLastName }} {{ s.firstName }} {{ s.secondLastName || '' }}</td>
+          <td>{{ s.firstName }} {{ s.firstLastName }}  {{ s.secondLastName || '' }}</td>
           <td>{{ s.cedula || '—' }}</td>
           <td>{{ s.phone || '—' }}</td>
           <td>{{ s.email || '—' }}</td>
