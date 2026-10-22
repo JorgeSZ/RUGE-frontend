@@ -16,6 +16,7 @@ export class EventInventoryComponent implements OnInit {
   inventory: EventInventoryOption[] = [];
   loading = false;
   loadError = false;
+  noActiveEvent = false;
   showForm = false;
   saving = false;
   inventorySearch = '';
@@ -66,9 +67,17 @@ export class EventInventoryComponent implements OnInit {
 
   load(): void {
     const eventId = this.eventId;
-    if (!eventId) { this.loadError = true; return; }
+    if (!eventId) {
+      this.loading = false;
+      this.loadError = false;
+      this.noActiveEvent = true;
+      this.items = [];
+      this.inventory = [];
+      return;
+    }
     this.loading = true;
     this.loadError = false;
+    this.noActiveEvent = false;
     forkJoin({
       inventory: this.inventoryService.getAvailableEventItems(),
       eventItems: this.inventoryService.getEventItems(eventId),

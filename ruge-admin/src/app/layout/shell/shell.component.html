@@ -119,6 +119,15 @@
         </a>
       </ng-container>
 
+      <!-- Inventario: solo inventario del reto -->
+      <ng-container *ngIf="isInventario">
+        <div class="nav-section-label">Módulo</div>
+        <a routerLink="/inventario-evento" routerLinkActive="active">
+          <lucide-icon name="package-open" [size]="18" [strokeWidth]="1.5"></lucide-icon>
+          <span>Inventario de reto</span>
+        </a>
+      </ng-container>
+
       <!-- Cocina: Provisión + Cena de restitución + Reportes -->
       <ng-container *ngIf="isCocina">
         <div class="nav-section-label">Módulo</div>
