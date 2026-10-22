@@ -44,7 +44,7 @@ const ADMIN_TIEMPOS      = { roles: ['Admin', 'Tiempos'] };
 const ADMIN_COCINA       = { roles: ['Admin', 'Cocina'] };
 const ADMIN_CALAQUERO    = { roles: ['Admin', 'Calaquero'] };
 const ADMIN_INVENTARIO   = { roles: ['Admin'] };
-const EVENT_INVENTARIO   = { roles: ['Admin', 'Logistica', 'Eventos'] };
+const EVENT_INVENTARIO   = { roles: ['Admin', 'Logistica', 'Eventos', 'Inventario'] };
 
 const routes: Routes = [
   // ── Public (no auth, no shell) ──────────────────────────────────────────

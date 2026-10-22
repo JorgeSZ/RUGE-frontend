@@ -5,28 +5,34 @@
     <h2>Inventario de reto</h2>
     <span class="sub">{{ eventCtx.activeEvent?.name || 'Reto activo' }} · Salidas desde el inventario general</span>
   </div>
-  <button class="btn-primary" (click)="openCreate()" [disabled]="availableItems.length === 0">+ Registrar salida</button>
+  <button class="btn-primary" (click)="openCreate()" [disabled]="!eventId || availableItems.length === 0">+ Registrar salida</button>
 </div>
 
-<div class="summary-line" *ngIf="!loading && !loadError">
+<div class="empty-state" *ngIf="noActiveEvent">
+  <lucide-icon name="calendar" [size]="44" [strokeWidth]="1.5" class="empty-icon"></lucide-icon>
+  <p>No hay un reto activo.</p>
+  <p class="empty-sub">Cuando Admin active un reto, aquí podrás registrar salidas y devoluciones del inventario.</p>
+</div>
+
+<div class="summary-line" *ngIf="!loading && !loadError && !noActiveEvent">
   <span>{{ availableItems.length }} artículos con stock disponible</span>
   <span>{{ pendingReturns }} salidas pendientes de devolución</span>
 </div>
 
 <div *ngIf="loading" class="loading">Cargando inventario del evento...</div>
 
-<div class="empty-state" *ngIf="!loading && loadError">
+<div class="empty-state" *ngIf="!loading && !noActiveEvent && loadError">
   <p>No se pudo cargar el inventario del evento.</p>
   <button class="btn-secondary" (click)="load()">Reintentar</button>
 </div>
 
-<div class="empty-state" *ngIf="!loading && !loadError && items.length === 0">
+<div class="empty-state" *ngIf="!loading && !loadError && !noActiveEvent && items.length === 0">
   <lucide-icon name="package-open" [size]="44" [strokeWidth]="1.5" class="empty-icon"></lucide-icon>
   <p>Aún no hay artículos retirados para este reto.</p>
   <p class="empty-sub">Registra una salida para descontarla del stock general.</p>
 </div>
 
-<div class="table-wrap" *ngIf="!loading && !loadError && items.length > 0">
+<div class="table-wrap" *ngIf="!loading && !loadError && !noActiveEvent && items.length > 0">
   <table class="data-table movement-table">
     <thead>
       <tr><th>#</th><th>Material</th><th>Categoría</th><th>Cantidad</th><th>Fecha salida</th><th>Fecha de uso</th><th>Quién lo retiró</th><th>Persona responsable</th><th>Fecha devolución</th><th>Estado</th><th>Notas</th><th>Acciones</th></tr>

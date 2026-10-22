@@ -37,3 +37,4 @@
 @keyframes slideIn { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 .badge-cocina    { background: rgba(76,175,110,0.15); color: var(--ruge-success);  border: 1px solid rgba(76,175,110,0.3); }
 .badge-calaquero { background: rgba(229,115,115,0.15); color: #E57373;             border: 1px solid rgba(229,115,115,0.3); }
+.badge-inventario { background: rgba(240,180,41,0.12); color: #F0B429;             border: 1px solid rgba(240,180,41,0.3); }

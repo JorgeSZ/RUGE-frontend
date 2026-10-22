@@ -94,6 +94,7 @@ export class AuthService {
     else if (role === 'Cocina')    this.router.navigate(['/provision']);
     else if (role === 'Calaquero') this.router.navigate(['/calaquero']);
     else if (role === 'Guia')      this.router.navigate(['/mi-perfil']);
+    else if (role === 'Inventario') this.router.navigate(['/inventario-evento']);
     else this.router.navigate(['/login']);
   }
 
