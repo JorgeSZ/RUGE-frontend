@@ -1,0 +1,100 @@
+<div class="page-header profile-header">
+  <div>
+    <h2>Mi perfil</h2>
+    <p>Actualiza tu nombre y contraseña. Tu usuario de acceso permanece fijo.</p>
+  </div>
+</div>
+
+<div class="profile-grid">
+  <section class="card profile-card">
+    <div class="profile-card-heading">
+      <lucide-icon name="user" [size]="19" [strokeWidth]="1.5"></lucide-icon>
+      <div>
+        <h3>Información de la cuenta</h3>
+        <p>El usuario de acceso no se puede modificar.</p>
+      </div>
+    </div>
+
+    <form [formGroup]="nameForm" (ngSubmit)="saveName()">
+      <div class="profile-field">
+        <label for="profile-username">Usuario de acceso</label>
+        <input id="profile-username" [value]="user?.username ?? ''" readonly disabled />
+        <small>Este identificador se mantiene igual.</small>
+      </div>
+
+      <div class="profile-field">
+        <label for="profile-name">Nombre</label>
+        <input id="profile-name" formControlName="nombre" autocomplete="name" maxlength="100" />
+        <small class="field-error" *ngIf="nameForm.controls['nombre'].touched && nameForm.controls['nombre'].hasError('required')">
+          Escribe tu nombre.
+        </small>
+        <small class="field-error" *ngIf="nameForm.controls['nombre'].touched && nameForm.controls['nombre'].hasError('maxlength')">
+          El nombre no puede superar 100 caracteres.
+        </small>
+      </div>
+
+      <div class="profile-feedback" *ngIf="nameFeedback" [class.feedback-error]="nameFeedback.type === 'error'">
+        {{ nameFeedback.message }}
+      </div>
+
+      <div class="profile-actions">
+        <button type="submit" class="btn-primary" [disabled]="nameForm.invalid || savingName">
+          {{ savingName ? 'Guardando...' : 'Guardar nombre' }}
+        </button>
+      </div>
+    </form>
+  </section>
+
+  <section class="card profile-card">
+    <div class="profile-card-heading">
+      <lucide-icon name="lock" [size]="19" [strokeWidth]="1.5"></lucide-icon>
+      <div>
+        <h3>Cambiar contraseña</h3>
+        <p>Confirma tu contraseña actual para guardar una nueva.</p>
+      </div>
+    </div>
+
+    <form [formGroup]="passwordForm" (ngSubmit)="changePassword()">
+      <div class="profile-field">
+        <label for="current-password">Contraseña actual</label>
+        <input id="current-password" type="password" formControlName="currentPassword" autocomplete="current-password" />
+        <small class="field-error" *ngIf="passwordForm.controls['currentPassword'].touched && passwordForm.controls['currentPassword'].hasError('required')">
+          Escribe tu contraseña actual.
+        </small>
+      </div>
+
+      <div class="profile-field">
+        <label for="new-password">Nueva contraseña</label>
+        <input id="new-password" type="password" formControlName="newPassword" autocomplete="new-password" />
+        <small>Debe tener al menos 8 caracteres, una mayúscula y un número.</small>
+        <small class="field-error" *ngIf="passwordForm.controls['newPassword'].touched && passwordForm.controls['newPassword'].hasError('required')">
+          Escribe una nueva contraseña.
+        </small>
+        <small class="field-error" *ngIf="passwordForm.controls['newPassword'].touched && (passwordForm.controls['newPassword'].hasError('minlength') || passwordForm.controls['newPassword'].hasError('pattern'))">
+          La contraseña debe cumplir los requisitos indicados.
+        </small>
+      </div>
+
+      <div class="profile-field">
+        <label for="confirm-password">Confirmar nueva contraseña</label>
+        <input id="confirm-password" type="password" formControlName="confirmPassword" autocomplete="new-password" />
+        <small class="field-error" *ngIf="passwordForm.controls['confirmPassword'].touched && passwordForm.controls['confirmPassword'].hasError('required')">
+          Confirma la nueva contraseña.
+        </small>
+        <small class="field-error" *ngIf="passwordForm.hasError('passwordMismatch') && passwordForm.controls['confirmPassword'].touched">
+          Las contraseñas no coinciden.
+        </small>
+      </div>
+
+      <div class="profile-feedback" *ngIf="passwordFeedback" [class.feedback-error]="passwordFeedback.type === 'error'">
+        {{ passwordFeedback.message }}
+      </div>
+
+      <div class="profile-actions">
+        <button type="submit" class="btn-primary" [disabled]="passwordForm.invalid || savingPassword">
+          {{ savingPassword ? 'Actualizando...' : 'Cambiar contraseña' }}
+        </button>
+      </div>
+    </form>
+  </section>
+</div>

@@ -172,6 +172,23 @@ nav a.active {
   gap: 7px;
   transition: background 0.15s, color 0.15s, border-color 0.15s;
 }
+.profile-link {
+  width: 100%;
+  box-sizing: border-box;
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--ruge-text-secondary);
+  border-radius: 6px;
+  padding: 7px 10px;
+  font-size: 0.8rem;
+  text-decoration: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  transition: background 0.15s, color 0.15s;
+}
+.profile-link:hover, .profile-link.active { background: var(--ruge-dark-hover); color: var(--ruge-yellow); }
 .btn-logout:hover { background: rgba(224,82,82,0.1); color: var(--ruge-danger); border-color: rgba(224,82,82,0.3); }
 
 .dev-link {

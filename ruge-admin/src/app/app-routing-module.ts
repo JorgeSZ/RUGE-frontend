@@ -32,6 +32,7 @@ import { ConsolidacionComponent } from './features/consolidacion/consolidacion.c
 import { TribeChallengesComponent } from './features/tribe-challenges/tribe-challenges.component';
 import { TerminosCondicionesComponent } from './features/public-registration/terminos-condiciones/terminos-condiciones.component';
 import { SoporteComponent } from './features/public-registration/soporte/soporte.component';
+import { ProfileComponent } from './features/profile/profile.component';
 import { AuthGuard } from './core/guards/auth.guard';
 import { RoleGuard } from './core/guards/role.guard';
 import { EventGuard } from './core/guards/event.guard';
@@ -64,6 +65,7 @@ const routes: Routes = [
     canActivate: [AuthGuard],
     children: [
       { path: '', redirectTo: 'events', pathMatch: 'full' },
+      { path: 'mi-perfil', component: ProfileComponent },
 
       // Admin only
       { path: 'events',       component: EventsComponent,      canActivate: [RoleGuard], data: ADMIN },
