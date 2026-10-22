@@ -126,7 +126,10 @@ export class InventoryComponent implements OnInit {
     if (!confirm(`¿Eliminar "${item.articulo}" del inventario?`)) return;
     this.inventoryService.delete(item.id).subscribe({
       next: () => { this.items = this.items.filter(x => x.id !== item.id); this.showToast('Artículo eliminado.', 'success'); },
-      error: () => this.showToast('No se pudo eliminar; el artículo puede tener salidas registradas.', 'error')
+      error: error => this.showToast(
+        error?.error?.error ?? 'No se pudo eliminar el artículo. Verifica que todas sus salidas estén devueltas.',
+        'error'
+      )
     });
   }
 
