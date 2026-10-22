@@ -22,6 +22,8 @@ import { LoginComponent } from './features/auth/login.component';
 import { UnauthorizedComponent } from './features/auth/unauthorized.component';
 import { UsersComponent } from './features/users/users.component';
 import { ProvisionComponent } from './features/provision/provision.component';
+import { InventoryComponent } from './features/inventory/inventory.component';
+import { EventInventoryComponent } from './features/inventory/event-inventory.component';
 import { MenusComponent } from './features/menus/menus.component';
 import { MenuDetailComponent } from './features/menus/menu-detail.component';
 import { ApprovalComponent } from './features/approval/approval.component';
@@ -40,6 +42,8 @@ const ADMIN_EVENTOS      = { roles: ['Admin', 'Eventos'] };
 const ADMIN_TIEMPOS      = { roles: ['Admin', 'Tiempos'] };
 const ADMIN_COCINA       = { roles: ['Admin', 'Cocina'] };
 const ADMIN_CALAQUERO    = { roles: ['Admin', 'Calaquero'] };
+const ADMIN_INVENTARIO   = { roles: ['Admin'] };
+const EVENT_INVENTARIO   = { roles: ['Admin', 'Logistica', 'Eventos'] };
 
 const routes: Routes = [
   // ── Public (no auth, no shell) ──────────────────────────────────────────
@@ -85,6 +89,8 @@ const routes: Routes = [
 
       // Global modules (Admin + Cocina)
       { path: 'provision',     component: ProvisionComponent,  canActivate: [RoleGuard], data: ADMIN_COCINA },
+      { path: 'inventario',    component: InventoryComponent,  canActivate: [RoleGuard], data: ADMIN_INVENTARIO },
+      { path: 'inventario-evento', component: EventInventoryComponent, canActivate: [RoleGuard, EventGuard], data: EVENT_INVENTARIO },
       { path: 'menus',         component: MenusComponent,      canActivate: [RoleGuard], data: ADMIN_COCINA },
       { path: 'menus/:menuId', component: MenuDetailComponent, canActivate: [RoleGuard], data: ADMIN_COCINA },
 

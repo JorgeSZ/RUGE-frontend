@@ -1,0 +1,102 @@
+<div class="toast" *ngIf="toast" [class.toast-error]="toast.type === 'error'">{{ toast.message }}</div>
+
+<div class="page-header">
+  <div>
+    <h2>Inventario general</h2>
+    <span class="sub">Existencias compartidas entre los retos</span>
+  </div>
+  <button class="btn-primary" (click)="openCreate()">+ Agregar artículo</button>
+</div>
+
+<div class="toolbar">
+  <label class="search-box">
+    <span>Buscar</span>
+    <input type="search" [(ngModel)]="search" placeholder="Artículo, categoría, bodega, reto..." />
+  </label>
+  <span class="count" *ngIf="!loading">{{ filteredItems.length }} de {{ items.length }} artículos</span>
+</div>
+
+<div *ngIf="loading" class="loading">Cargando inventario...</div>
+
+<div class="empty-state" *ngIf="!loading && loadError">
+  <p>No se pudo cargar el inventario.</p>
+  <button class="btn-secondary" (click)="load()">Reintentar</button>
+</div>
+
+<div class="empty-state" *ngIf="!loading && !loadError && items.length === 0">
+  <lucide-icon name="package" [size]="44" [strokeWidth]="1.5" class="empty-icon"></lucide-icon>
+  <p>El inventario está vacío.</p>
+  <p class="empty-sub">Agrega el primer artículo para comenzar.</p>
+</div>
+
+<div class="empty-state" *ngIf="!loading && !loadError && items.length > 0 && filteredItems.length === 0">
+  <p>No hay artículos que coincidan con “{{ search }}”.</p>
+</div>
+
+<div class="table-wrap" *ngIf="!loading && !loadError && filteredItems.length > 0">
+  <table class="data-table inventory-table">
+    <thead>
+      <tr>
+        <th>Prioridad</th><th>Artículo</th><th>Categoría</th><th>Stock total</th><th>Estado</th>
+        <th>En eventos</th><th>Disponible</th><th>Bodega en</th><th>Localizador</th>
+        <th>Fecha de ingreso a inventario</th><th>Notas</th><th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let item of filteredItems">
+        <td>{{ item.prioridad || '—' }}</td>
+        <td><strong>{{ item.articulo }}</strong></td>
+        <td>{{ item.categoria }}</td>
+        <td>{{ item.cantidad }}</td>
+        <td>{{ item.estado || '—' }}</td>
+        <td>
+          <span *ngIf="item.usosEnEventos.length === 0">—</span>
+          <div class="usage-list" *ngFor="let usage of item.usosEnEventos">
+            <span>{{ usage.eventName }}</span><strong>{{ usage.cantidad }}</strong>
+          </div>
+        </td>
+        <td><strong [class.low-stock]="item.cantidadDisponible <= 0">{{ item.cantidadDisponible }}</strong></td>
+        <td>{{ item.bodegaEn || '—' }}</td>
+        <td>{{ item.localizador || '—' }}</td>
+        <td>{{ formatDate(item.fechaIngresoAInventario) }}</td>
+        <td class="notes-cell">{{ item.notas || '—' }}</td>
+        <td class="actions">
+          <button class="btn-sm" (click)="openEdit(item)">Editar</button>
+          <button class="btn-sm danger" (click)="delete(item)">Eliminar</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="modal-backdrop" *ngIf="showForm" (click)="cancel()">
+  <div class="modal-box inventory-modal" role="dialog" aria-modal="true" (click)="$event.stopPropagation()">
+    <div class="modal-heading">
+      <div><h3>{{ editingId ? 'Editar artículo' : 'Agregar artículo' }}</h3><p>Información del stock general.</p></div>
+      <button type="button" class="close-button" (click)="cancel()" aria-label="Cerrar">×</button>
+    </div>
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      <div class="form-grid">
+        <label class="field"><span>Artículo *</span><input formControlName="articulo" maxlength="200" placeholder="Nombre del artículo"></label>
+        <label class="field"><span>Categoría *</span>
+          <select formControlName="categoria">
+            <option value="">Selecciona una categoría</option>
+            <option *ngFor="let category of categories" [value]="category">{{ category }}</option>
+          </select>
+        </label>
+        <label class="field"><span>Prioridad</span><input formControlName="prioridad" placeholder="Ej. P0"></label>
+        <label class="field"><span>Stock total *</span><input type="number" min="0" step="1" formControlName="cantidad"></label>
+        <label class="field"><span>Estado</span><input formControlName="estado" placeholder="Ej. Buen Estado"></label>
+        <label class="field"><span>Bodega en</span><input formControlName="bodegaEn"></label>
+        <label class="field"><span>Localizador</span><input formControlName="localizador"></label>
+        <label class="field"><span>Fecha de ingreso a inventario</span><input type="date" formControlName="fechaIngresoAInventario"></label>
+        <label class="field field-wide"><span>Notas</span><textarea formControlName="notas" rows="3"></textarea></label>
+      </div>
+      <p class="form-error" *ngIf="form.invalid && form.touched">Revisa los campos obligatorios y el stock total.</p>
+      <div class="modal-actions">
+        <button type="button" class="btn-secondary" (click)="cancel()">Cancelar</button>
+        <button type="submit" class="btn-primary" [disabled]="form.invalid || saving">{{ saving ? 'Guardando...' : (editingId ? 'Guardar cambios' : 'Agregar artículo') }}</button>
+      </div>
+    </form>
+  </div>
+</div>
