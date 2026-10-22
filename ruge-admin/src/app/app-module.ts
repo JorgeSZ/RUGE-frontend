@@ -31,6 +31,8 @@ import { LoginComponent } from './features/auth/login.component';
 import { UnauthorizedComponent } from './features/auth/unauthorized.component';
 import { UsersComponent } from './features/users/users.component';
 import { ProvisionComponent } from './features/provision/provision.component';
+import { InventoryComponent } from './features/inventory/inventory.component';
+import { EventInventoryComponent } from './features/inventory/event-inventory.component';
 import { MenusComponent } from './features/menus/menus.component';
 import { MenuDetailComponent } from './features/menus/menu-detail.component';
 import { ApprovalComponent } from './features/approval/approval.component';
@@ -70,6 +72,8 @@ import { AuthInterceptor } from './core/interceptors/auth.interceptor';
     UnauthorizedComponent,
     UsersComponent,
     ProvisionComponent,
+    InventoryComponent,
+    EventInventoryComponent,
     MenusComponent,
     MenuDetailComponent,
     ApprovalComponent,

@@ -1,0 +1,105 @@
+<div class="toast" *ngIf="toast" [class.toast-error]="toast.type === 'error'">{{ toast.message }}</div>
+
+<div class="page-header">
+  <div>
+    <h2>Inventario de reto</h2>
+    <span class="sub">{{ eventCtx.activeEvent?.name || 'Reto activo' }} · Salidas desde el inventario general</span>
+  </div>
+  <button class="btn-primary" (click)="openCreate()" [disabled]="availableItems.length === 0">+ Registrar salida</button>
+</div>
+
+<div class="summary-line" *ngIf="!loading && !loadError">
+  <span>{{ availableItems.length }} artículos con stock disponible</span>
+  <span>{{ pendingReturns }} salidas pendientes de devolución</span>
+</div>
+
+<div *ngIf="loading" class="loading">Cargando inventario del evento...</div>
+
+<div class="empty-state" *ngIf="!loading && loadError">
+  <p>No se pudo cargar el inventario del evento.</p>
+  <button class="btn-secondary" (click)="load()">Reintentar</button>
+</div>
+
+<div class="empty-state" *ngIf="!loading && !loadError && items.length === 0">
+  <lucide-icon name="package-open" [size]="44" [strokeWidth]="1.5" class="empty-icon"></lucide-icon>
+  <p>Aún no hay artículos retirados para este reto.</p>
+  <p class="empty-sub">Registra una salida para descontarla del stock general.</p>
+</div>
+
+<div class="table-wrap" *ngIf="!loading && !loadError && items.length > 0">
+  <table class="data-table movement-table">
+    <thead>
+      <tr><th>#</th><th>Material</th><th>Categoría</th><th>Cantidad</th><th>Fecha salida</th><th>Fecha de uso</th><th>Quién lo retiró</th><th>Persona responsable</th><th>Fecha devolución</th><th>Estado</th><th>Notas</th><th>Acciones</th></tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let item of items; let i = index" [class.returned-row]="!!item.fechaDevolucion">
+        <td>{{ i + 1 }}</td>
+        <td><strong>{{ item.articulo }}</strong></td>
+        <td>{{ item.categoria }}</td>
+        <td>{{ item.cantidad }}</td>
+        <td>{{ formatDate(item.fechaSalida) }}</td>
+        <td>{{ formatDate(item.fechaDeUso) }}</td>
+        <td>{{ item.quienRetira }}</td>
+        <td>{{ item.personaResponsable || '—' }}</td>
+        <td>{{ formatDate(item.fechaDevolucion) }}</td>
+        <td><span class="status-pill" [class.status-returned]="!!item.fechaDevolucion">{{ item.fechaDevolucion ? 'Devuelto' : 'En evento' }}</span></td>
+        <td class="notes-cell">{{ item.notas || '—' }}</td>
+        <td class="actions">
+          <button *ngIf="!item.fechaDevolucion" class="btn-sm" (click)="markReturned(item)">Marcar devuelto</button>
+          <span *ngIf="item.fechaDevolucion" class="muted">—</span>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="modal-backdrop" *ngIf="showForm" (click)="cancel()">
+  <div class="modal-box event-inventory-modal" role="dialog" aria-modal="true" (click)="$event.stopPropagation()">
+    <div class="modal-heading">
+      <div><h3>Registrar salida</h3><p>El stock se reservará para {{ eventCtx.activeEvent?.name }}.</p></div>
+      <button type="button" class="close-button" (click)="cancel()" aria-label="Cerrar">×</button>
+    </div>
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      <div class="form-grid">
+        <label class="field field-wide"><span>Buscar material *</span>
+          <input type="search" [value]="inventorySearch" (input)="onInventorySearch($event)" placeholder="Buscar por nombre o categoría">
+        </label>
+        <div class="material-table-wrap field-wide">
+          <table class="data-table material-table">
+            <thead>
+              <tr><th>Material</th><th>Categoría</th><th>Disponible</th><th></th></tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of filteredAvailableItems" [class.selected-row]="selectedItem?.id === item.id">
+                <td><strong>{{ item.articulo }}</strong></td>
+                <td>{{ item.categoria }}</td>
+                <td><span class="stock-count">{{ item.cantidadDisponible }}</span></td>
+                <td>
+                  <button type="button" class="choose-item-button" [class.is-selected]="selectedItem?.id === item.id"
+                    [attr.aria-pressed]="selectedItem?.id === item.id" (click)="selectItem(item)">
+                    {{ selectedItem?.id === item.id ? 'Seleccionado' : 'Elegir' }}
+                  </button>
+                </td>
+              </tr>
+              <tr *ngIf="filteredAvailableItems.length === 0">
+                <td colspan="4" class="no-items">No hay materiales que coincidan con la búsqueda.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="available-hint" *ngIf="selectedItem">Material seleccionado: <strong>{{ selectedItem.articulo }}</strong> · Stock disponible: <strong>{{ selectedItem.cantidadDisponible }}</strong></div>
+        <label class="field"><span>Cantidad *</span><input type="number" min="1" [max]="selectedItem?.cantidadDisponible || null" formControlName="cantidad"></label>
+        <label class="field"><span>Fecha salida *</span><input type="date" formControlName="fechaSalida"></label>
+        <label class="field"><span>Fecha de uso</span><input type="date" formControlName="fechaDeUso"></label>
+        <label class="field field-wide"><span>Quién retira *</span><input formControlName="quienRetira" maxlength="200" placeholder="Nombre de quien lleva el material"></label>
+        <label class="field field-wide"><span>Persona responsable</span><input formControlName="personaResponsable" maxlength="200"></label>
+        <label class="field field-wide"><span>Notas</span><textarea formControlName="notas" rows="3"></textarea></label>
+      </div>
+      <p class="form-error" *ngIf="form.invalid && form.touched">Selecciona el material, la cantidad, la fecha y quién lo retira.</p>
+      <div class="modal-actions">
+        <button type="button" class="btn-secondary" (click)="cancel()">Cancelar</button>
+        <button type="submit" class="btn-primary" [disabled]="form.invalid || saving">{{ saving ? 'Guardando...' : 'Registrar salida' }}</button>
+      </div>
+    </form>
+  </div>
+</div>

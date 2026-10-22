@@ -31,6 +31,10 @@
           <lucide-icon name="package" [size]="18" [strokeWidth]="1.5"></lucide-icon>
           <span>Provisión</span>
         </a>
+        <a routerLink="/inventario" routerLinkActive="active">
+          <lucide-icon name="package-check" [size]="18" [strokeWidth]="1.5"></lucide-icon>
+          <span>Inventario</span>
+        </a>
         <a routerLink="/menus" routerLinkActive="active">
           <lucide-icon name="utensils" [size]="18" [strokeWidth]="1.5"></lucide-icon>
           <span>Cena de restitución</span>
@@ -38,6 +42,10 @@
 
         <ng-container *ngIf="ctx.event">
           <div class="nav-section-label">Reto Activo</div>
+          <a routerLink="/inventario-evento" routerLinkActive="active">
+            <lucide-icon name="package-check" [size]="18" [strokeWidth]="1.5"></lucide-icon>
+            <span>Inventario de reto</span>
+          </a>
           <a routerLink="/participants" routerLinkActive="active">
             <lucide-icon name="users" [size]="18" [strokeWidth]="1.5"></lucide-icon>
             <span>Participantes</span>
@@ -85,18 +93,26 @@
         </ng-container>
       </ng-container>
 
-      <!-- Logistica: only logistics module -->
+      <!-- Logística: logística e inventario del evento -->
       <ng-container *ngIf="isLogistica">
         <div class="nav-section-label">Módulo</div>
+        <a *ngIf="ctx.event" routerLink="/inventario-evento" routerLinkActive="active">
+          <lucide-icon name="package-open" [size]="18" [strokeWidth]="1.5"></lucide-icon>
+          <span>Inventario de reto</span>
+        </a>
         <a routerLink="/logistics" routerLinkActive="active">
           <lucide-icon name="package-check" [size]="18" [strokeWidth]="1.5"></lucide-icon>
           <span>Logística</span>
         </a>
       </ng-container>
 
-      <!-- Eventos: only ev-tasks module -->
+      <!-- Eventos: eventos e inventario del evento -->
       <ng-container *ngIf="isEventos">
         <div class="nav-section-label">Módulo</div>
+        <a *ngIf="ctx.event" routerLink="/inventario-evento" routerLinkActive="active">
+          <lucide-icon name="package-open" [size]="18" [strokeWidth]="1.5"></lucide-icon>
+          <span>Inventario de reto</span>
+        </a>
         <a routerLink="/ev-tasks" routerLinkActive="active">
           <lucide-icon name="clipboard-list" [size]="18" [strokeWidth]="1.5"></lucide-icon>
           <span>Eventos</span>
