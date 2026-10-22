@@ -43,6 +43,7 @@ import { ConsolidacionComponent } from './features/consolidacion/consolidacion.c
 import { TribeChallengesComponent } from './features/tribe-challenges/tribe-challenges.component';
 import { TerminosCondicionesComponent } from './features/public-registration/terminos-condiciones/terminos-condiciones.component';
 import { SoporteComponent } from './features/public-registration/soporte/soporte.component';
+import { ProfileComponent } from './features/profile/profile.component';
 
 import { EventContextService } from './core/services/event-context.service';
 import { AuthInterceptor } from './core/interceptors/auth.interceptor';
@@ -84,6 +85,7 @@ import { AuthInterceptor } from './core/interceptors/auth.interceptor';
     TribeChallengesComponent,
     TerminosCondicionesComponent,
     SoporteComponent,
+    ProfileComponent,
   ],
   imports: [
     BrowserModule,

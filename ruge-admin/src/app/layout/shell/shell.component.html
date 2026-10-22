@@ -169,6 +169,10 @@
     </div>
 
     <div class="sidebar-footer">
+      <a routerLink="/mi-perfil" routerLinkActive="active" class="profile-link">
+        <lucide-icon name="user" [size]="15" [strokeWidth]="1.5"></lucide-icon>
+        Mi perfil
+      </a>
       <button class="btn-logout" (click)="logout()">
         <lucide-icon name="log-out" [size]="15" [strokeWidth]="1.5"></lucide-icon>
         Cerrar sesión
