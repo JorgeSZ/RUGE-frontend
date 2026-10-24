@@ -7,4 +7,11 @@ export interface Event {
   trackId?: string;
   trackName?: string;
   isActive?: boolean;
+  participantRegistrationEnabled?: boolean;
+  serverRegistrationEnabled?: boolean;
+}
+
+export interface PublicRegistrationStatus {
+  participantRegistrationEnabled: boolean;
+  serverRegistrationEnabled: boolean;
 }

@@ -1,7 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ParticipantService } from '../../../core/services/participant.service';
+import { EventService } from '../../../core/services/event.service';
+import { timeout } from 'rxjs';
 
 const SHIRT_SIZES = ['XS','S','M','L','XL','2XL','3XL','4XL','5XL'];
 const MARITAL_STATUSES = ['Soltero', 'Casado', 'Divorciado', 'Viudo', 'Unión libre'];
@@ -18,6 +20,9 @@ export class ParticipantRegisterComponent implements OnInit {
   form: FormGroup;
   eventId = '';
   loading = false;
+  registrationStatusLoading = true;
+  registrationOpen = false;
+  registrationStatusError = '';
   error = '';
   selectedFile: File | null = null;
   previewUrl: string | null = null;
@@ -58,12 +63,15 @@ export class ParticipantRegisterComponent implements OnInit {
   get churchValue(): string { return this.form.get('church')?.value ?? ''; }
   get showImpactFields(): boolean { return this.asistesIglesia && /impact/i.test(this.churchValue); }
   get perteneceGrupo(): boolean { return !!this.form.get('perteneceGrupo')?.value; }
+  get esCasado(): boolean { return this.form.get('maritalStatus')?.value === 'Casado'; }
 
   constructor(
     private fb: FormBuilder,
     private route: ActivatedRoute,
     private router: Router,
-    private participantService: ParticipantService
+    private participantService: ParticipantService,
+    private eventService: EventService,
+    private cdr: ChangeDetectorRef
   ) {
     this.form = this.fb.group({
       firstName:          ['', [Validators.required]],
@@ -81,7 +89,10 @@ export class ParticipantRegisterComponent implements OnInit {
       telefonoLiderGrupo: [''],
       shirtSize:          ['', [Validators.required]],
       maritalStatus:      ['', [Validators.required]],
+      nombreEsposa:       [''],
+      telefonoEsposa:     [''],
       country:            ['', [Validators.required]],
+      privacyConsentAccepted: [false, [Validators.requiredTrue]],
     });
 
     // React to asistesIglesia changes
@@ -101,6 +112,21 @@ export class ParticipantRegisterComponent implements OnInit {
         this.form.patchValue({ nombreLiderGrupo: '', telefonoLiderGrupo: '' });
       }
       this.updateConditionalValidators();
+    });
+
+    this.form.get('maritalStatus')?.valueChanges.subscribe(status => {
+      const nombreEsposa = this.form.get('nombreEsposa');
+      const telefonoEsposa = this.form.get('telefonoEsposa');
+      if (status === 'Casado') {
+        nombreEsposa?.setValidators([Validators.required]);
+        telefonoEsposa?.setValidators([Validators.required]);
+      } else {
+        nombreEsposa?.clearValidators();
+        telefonoEsposa?.clearValidators();
+        this.form.patchValue({ nombreEsposa: '', telefonoEsposa: '' }, { emitEvent: false });
+      }
+      nombreEsposa?.updateValueAndValidity({ emitEvent: false });
+      telefonoEsposa?.updateValueAndValidity({ emitEvent: false });
     });
   }
 
@@ -129,6 +155,23 @@ export class ParticipantRegisterComponent implements OnInit {
 
   ngOnInit(): void {
     this.eventId = this.route.snapshot.paramMap.get('eventId') ?? '';
+    if (!this.eventId) {
+      this.registrationStatusLoading = false;
+      this.registrationStatusError = 'No se pudo identificar el evento.';
+      return;
+    }
+    this.eventService.getPublicRegistrationStatus(this.eventId).pipe(timeout(10000)).subscribe({
+      next: status => {
+        this.registrationOpen = status.participantRegistrationEnabled;
+        this.registrationStatusLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.registrationStatusLoading = false;
+        this.registrationStatusError = 'No se pudo verificar el estado de las inscripciones. Intenta nuevamente más tarde.';
+        this.cdr.detectChanges();
+      }
+    });
   }
 
   get age(): number | null {
@@ -179,7 +222,7 @@ export class ParticipantRegisterComponent implements OnInit {
   submit(): void {
     this.submitted = true;
     this.form.markAllAsTouched();
-    if (this.form.invalid || !this.eventId || !this.medsValid || !this.selectedFile) return;
+    if (!this.registrationOpen || this.form.invalid || !this.eventId || !this.medsValid || !this.selectedFile) return;
 
     this.loading = true;
     this.error = '';
@@ -187,8 +230,8 @@ export class ParticipantRegisterComponent implements OnInit {
     const fd = new FormData();
     const val = this.form.value;
     Object.entries(val).forEach(([k, v]) => {
-      if (v !== null && v !== undefined && v !== '' && v !== false) fd.append(k, String(v));
       if (v === true) fd.append(k, 'true');
+      else if (v !== null && v !== undefined && v !== '' && v !== false) fd.append(k, String(v));
     });
     if (this.selectedFile) fd.append('comprobante', this.selectedFile);
 

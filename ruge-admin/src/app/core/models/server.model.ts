@@ -31,6 +31,8 @@ export interface Server {
   approvalStatus: 'Pendiente' | 'Aprobado' | 'Denegado';
   approvalToken?: string;
   approvalDate?: string;
+  privacyConsentAccepted?: boolean;
+  privacyConsentAt?: string;
   createdAt: string;
   updatedAt?: string;
 }

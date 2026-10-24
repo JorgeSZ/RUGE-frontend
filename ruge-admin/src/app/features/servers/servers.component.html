@@ -10,6 +10,12 @@
         <lucide-icon [name]="copied ? 'copy-check' : 'copy'" [size]="14" [strokeWidth]="1.5"></lucide-icon>
       </button>
     </div>
+    <label class="registration-control" [class.open]="serverRegistrationEnabled" [class.closed]="!serverRegistrationEnabled" [class.disabled]="updatingRegistrationStatus">
+      <span class="registration-control-title">Inscripciones</span>
+      <input type="checkbox" [(ngModel)]="serverRegistrationEnabled" (change)="updateRegistrationStatus()" [disabled]="updatingRegistrationStatus" aria-label="Activar o cerrar inscripciones de servidores" />
+      <span class="registration-switch-track"></span>
+      <span class="registration-control-state">{{ serverRegistrationEnabled ? 'Abiertas' : 'Cerradas' }}</span>
+    </label>
     <button class="btn-export" (click)="exportExcel()" [disabled]="loading || !servers.length">
       <lucide-icon name="download" [size]="15" [strokeWidth]="1.5"></lucide-icon>
       Exportar a Excel

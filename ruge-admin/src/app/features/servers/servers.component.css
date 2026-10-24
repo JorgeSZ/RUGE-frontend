@@ -43,3 +43,32 @@
 .btn-icon { display: inline-flex; align-items: center; justify-content: center; padding: 5px 7px; }
 .btn-approve { background: rgba(34,197,94,0.1); color: #22C55E; border-color: rgba(34,197,94,0.3) !important; }
 .badge-denied { background: rgba(239,68,68,0.12); color: #EF4444; border: 1px solid rgba(239,68,68,0.3); }
+.registration-control {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 34px;
+  padding: 5px 10px;
+  border: 1px solid var(--ruge-border);
+  border-radius: 6px;
+  background: var(--ruge-dark-card);
+  color: var(--ruge-text-secondary);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
+}
+.registration-control.open { border-color: rgba(76,175,110,0.45); }
+.registration-control.closed { border-color: rgba(224,82,82,0.4); }
+.registration-control:hover { background: var(--ruge-dark-hover); }
+.registration-control.disabled { opacity: 0.65; cursor: wait; }
+.registration-control-title { font-size: 0.78rem; }
+.registration-control input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.registration-switch-track { width: 34px; height: 19px; padding: 2px; border-radius: 12px; background: #60656a; transition: background 0.2s; }
+.registration-switch-track::after { content: ''; display: block; width: 15px; height: 15px; border-radius: 50%; background: white; transition: transform 0.2s; }
+.registration-control input:checked + .registration-switch-track { background: var(--ruge-success); }
+.registration-control input:checked + .registration-switch-track::after { transform: translateX(15px); }
+.registration-control input:focus-visible + .registration-switch-track { outline: 2px solid var(--ruge-yellow); outline-offset: 2px; }
+.registration-control-state { min-width: 55px; font-size: 0.78rem; }
+.registration-control.open .registration-control-state { color: var(--ruge-success); }
+.registration-control.closed .registration-control-state { color: var(--ruge-danger); }

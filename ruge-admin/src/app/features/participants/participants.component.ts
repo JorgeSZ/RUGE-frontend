@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ParticipantService } from '../../core/services/participant.service';
 import { TribeService } from '../../core/services/tribe.service';
 import { EventContextService } from '../../core/services/event-context.service';
+import { EventService } from '../../core/services/event.service';
 import { Participant } from '../../core/models/participant.model';
 import { Tribe } from '../../core/models/tribe.model';
 import { preserveDocumentPaths } from '../../core/utils/document-paths';
@@ -37,6 +38,8 @@ export class ParticipantsComponent implements OnInit {
   searchTerm = '';
   apiUrl = environment.apiUrl;
   copied = false;
+  participantRegistrationEnabled = true;
+  updatingRegistrationStatus = false;
 
   // Drawer
   drawerOpen = false;
@@ -70,6 +73,7 @@ export class ParticipantsComponent implements OnInit {
     private fb: FormBuilder,
     private participantService: ParticipantService,
     private tribeService: TribeService,
+    private eventService: EventService,
     public eventCtx: EventContextService,
     private cdr: ChangeDetectorRef
   ) {
@@ -94,7 +98,10 @@ export class ParticipantsComponent implements OnInit {
     });
   }
 
-  ngOnInit(): void { this.load(); }
+  ngOnInit(): void {
+    this.participantRegistrationEnabled = this.eventCtx.activeEvent?.participantRegistrationEnabled ?? true;
+    this.load();
+  }
 
   get eventId(): string { return this.eventCtx.activeEvent!.id; }
 
@@ -109,6 +116,25 @@ export class ParticipantsComponent implements OnInit {
       error: () => { this.loading = false; this.cdr.detectChanges(); }
     });
     this.tribeService.getByEvent(this.eventId).subscribe(t => { this.tribes = t; this.cdr.detectChanges(); });
+  }
+
+  updateRegistrationStatus(): void {
+    if (this.updatingRegistrationStatus) return;
+    const enabled = this.participantRegistrationEnabled;
+    this.updatingRegistrationStatus = true;
+    this.eventService.updateRegistrationSettings(this.eventId, { participantRegistrationEnabled: enabled }).subscribe({
+      next: event => {
+        this.eventCtx.setEvent(event);
+        this.updatingRegistrationStatus = false;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.participantRegistrationEnabled = !enabled;
+        this.updatingRegistrationStatus = false;
+        this.cdr.detectChanges();
+        alert('No se pudo actualizar el estado del formulario de senderistas.');
+      }
+    });
   }
 
   get sinTribuCount(): number {
@@ -234,7 +260,8 @@ export class ParticipantsComponent implements OnInit {
   exportExcel(): void {
     const headers = [
       'ID', 'ID evento', 'Nombre', 'Primer apellido', 'Segundo apellido', 'Nombre preferido',
-      'Cédula', 'Fecha de nacimiento', 'Edad', 'Estado civil', 'Correo', 'Teléfono',
+      'Cédula', 'Fecha de nacimiento', 'Edad', 'Estado civil', 'Nombre esposa', 'Teléfono esposa',
+      'Consentimiento de datos aceptado', 'Fecha de consentimiento', 'Correo', 'Teléfono',
       'Iglesia', 'Asiste a iglesia', 'Pertenece a grupo', 'Nombre del líder', 'Teléfono del líder',
       'País', 'Talla de camisa', 'ID tribu', 'Tribu', 'URL comprobante', 'Código QR',
       'URL acuerdo de participación', 'Check-in completado', 'Fecha de check-in',
@@ -242,7 +269,8 @@ export class ParticipantsComponent implements OnInit {
     ];
     const rows = this.participants.map(p => [
       p.id, p.eventId, p.firstName, p.firstLastName, p.secondLastName, p.nombrePreferido,
-      p.cedula, p.birthDate, p.age, p.maritalStatus, p.email, p.phone, p.church,
+      p.cedula, p.birthDate, p.age, p.maritalStatus, p.nombreEsposa, p.telefonoEsposa,
+      p.privacyConsentAccepted ? 'Sí' : 'No', p.privacyConsentAt, p.email, p.phone, p.church,
       p.asistesIglesia ? 'Sí' : 'No', p.perteneceGrupo ? 'Sí' : 'No',
       p.nombreLiderGrupo, p.telefonoLiderGrupo, p.country, p.shirtSize, p.tribeId,
       p.tribeName, this.getComprobanteUrl(p), p.qrCode, this.getAgreementUrl(p),

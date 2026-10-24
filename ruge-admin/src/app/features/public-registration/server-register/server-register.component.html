@@ -3,9 +3,17 @@
     <div class="public-header">
       <img src="assets/ruge-logo.png" alt="RUGE" class="public-logo" />
       <h1>Registro de Servidor</h1>
-      <p>Completa el formulario para registrarte como servidor del evento</p>
+      <p>Completa el formulario para registrarte como servidor del reto</p>
     </div>
 
+    <div class="registration-status" *ngIf="registrationStatusLoading">Verificando si las inscripciones están abiertas...</div>
+    <div class="error-msg" *ngIf="registrationStatusError">{{ registrationStatusError }}</div>
+    <div class="registration-closed" *ngIf="!registrationStatusLoading && !registrationStatusError && !registrationOpen">
+      <h2>Inscripciones cerradas</h2>
+      <p>El registro de servidores para este reto no está disponible en este momento.</p>
+    </div>
+
+    <ng-container *ngIf="registrationOpen">
     <div class="disclaimer-banner">
       <div class="disclaimer-icon">⚠️</div>
       <div class="disclaimer-content">
@@ -246,11 +254,25 @@
         </div>
       </div>
 
+      <section class="privacy-notice" aria-labelledby="privacy-title-server">
+        <h2 id="privacy-title-server">Protección de datos personales</h2>
+        <p>En cumplimiento a lo dispuesto en la Ley No. 8968 del 7/7/2011, Ley de Protección de la Persona frente al tratamiento de sus datos personales ("la Ley"), se le informa al usuario, en relación con la información que suministre, lo siguiente: que todos sus datos serán recopilados en una base de datos de carácter personal propiedad de Reto Ruge, cédula Jurídica 3-101-965184, que los datos serán utilizados únicamente con el fin de enviarle información sobre actividades diversas de Reto Ruge y como medio de contacto, que Reto Ruge será el destinatario de la información y solamente sus funcionarios podrán consultarla, que proporcionar la información solicitada es completamente facultativo, que tiene la posibilidad de ejercer los derechos que le asisten con base en la Ley.</p>
+        <p>La información suministrada es de carácter confidencial, y será utilizada única y exclusivamente con fines informativos para Reto Ruge. Al suministrar sus datos, el usuario otorga su consentimiento expreso e informado para que Reto Ruge utilice la información de conformidad con lo indicado.</p>
+        <label class="privacy-consent">
+          <input type="checkbox" formControlName="privacyConsentAccepted" />
+          <span>He leído y acepto el tratamiento de mis datos personales según la información anterior. *</span>
+        </label>
+        <span class="field-error" *ngIf="form.get('privacyConsentAccepted')?.invalid && form.get('privacyConsentAccepted')?.touched">
+          Debes aceptar la cláusula para completar el registro
+        </span>
+      </section>
+
       <div class="pub-actions">
         <button type="submit" class="btn-register" [disabled]="form.invalid || loading || !selectedFile">
           {{ loading ? 'Registrando...' : 'Completar Registro' }}
         </button>
       </div>
     </form>
+    </ng-container>
   </div>
 </div>
