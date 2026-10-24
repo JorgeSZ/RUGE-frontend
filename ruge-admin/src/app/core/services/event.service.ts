@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiService } from './api.service';
-import { Event } from '../models/event.model';
+import { Event, PublicRegistrationStatus } from '../models/event.model';
 
 @Injectable({ providedIn: 'root' })
 export class EventService {
@@ -33,5 +33,13 @@ export class EventService {
 
   activate(id: string): Observable<Event> {
     return this.api.patch<Event>(`/events/${id}/activate`, {});
+  }
+
+  updateRegistrationSettings(id: string, settings: Partial<Pick<Event, 'participantRegistrationEnabled' | 'serverRegistrationEnabled'>>): Observable<Event> {
+    return this.api.patch<Event>(`/events/${id}/registration-settings`, settings);
+  }
+
+  getPublicRegistrationStatus(id: string): Observable<PublicRegistrationStatus> {
+    return this.api.get<PublicRegistrationStatus>(`/public/events/${id}/registration-status`);
   }
 }

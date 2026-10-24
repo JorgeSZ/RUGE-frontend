@@ -1,7 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ServerService } from '../../../core/services/server.service';
+import { EventService } from '../../../core/services/event.service';
+import { timeout } from 'rxjs';
 import { CommissionService } from '../../../core/services/commission.service';
 import { Commission } from '../../../core/models/commission.model';
 
@@ -17,6 +19,9 @@ export class ServerRegisterComponent implements OnInit {
   form: FormGroup;
   eventId = '';
   loading = false;
+  registrationStatusLoading = true;
+  registrationOpen = false;
+  registrationStatusError = '';
   error = '';
   selectedFile: File | null = null;
   previewUrl: string | null = null;
@@ -53,7 +58,9 @@ export class ServerRegisterComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private serverService: ServerService,
-    private commissionService: CommissionService
+    private commissionService: CommissionService,
+    private eventService: EventService,
+    private cdr: ChangeDetectorRef
   ) {
     this.form = this.fb.group({
       firstName: ['', [Validators.required]],
@@ -76,6 +83,7 @@ export class ServerRegisterComponent implements OnInit {
       telefonoLider: ['', [Validators.required]],
       emailLider: ['', [Validators.required, Validators.email]],
       confirmacionVeracidad: [false, [Validators.requiredTrue]],
+      privacyConsentAccepted: [false, [Validators.requiredTrue]],
     });
 
     this.form.get('estaEnNewLife')?.valueChanges.subscribe(val => {
@@ -94,6 +102,23 @@ export class ServerRegisterComponent implements OnInit {
 
   ngOnInit(): void {
     this.eventId = this.route.snapshot.paramMap.get('eventId') ?? '';
+    if (!this.eventId) {
+      this.registrationStatusLoading = false;
+      this.registrationStatusError = 'No se pudo identificar el evento.';
+      return;
+    }
+    this.eventService.getPublicRegistrationStatus(this.eventId).pipe(timeout(10000)).subscribe({
+      next: status => {
+        this.registrationOpen = status.serverRegistrationEnabled;
+        this.registrationStatusLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.registrationStatusLoading = false;
+        this.registrationStatusError = 'No se pudo verificar el estado de las inscripciones. Intenta nuevamente más tarde.';
+        this.cdr.detectChanges();
+      }
+    });
     this.commissionService.getAll().subscribe(c => this.commissions = c);
   }
 
@@ -119,7 +144,7 @@ export class ServerRegisterComponent implements OnInit {
   submit(): void {
     this.submitted = true;
     this.form.markAllAsTouched();
-    if (this.form.invalid || !this.eventId || !this.selectedFile) return;
+    if (!this.registrationOpen || this.form.invalid || !this.eventId || !this.selectedFile) return;
 
     this.loading = true;
     this.error = '';

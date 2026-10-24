@@ -23,6 +23,12 @@
 .birth-selects select { flex: 1; min-width: 0; }
 .error-msg { background: rgba(224,82,82,0.1); border: 1px solid rgba(224,82,82,0.3); color: var(--ruge-danger); border-radius: 6px; padding: 12px 16px; margin-bottom: 16px; font-size: 0.88rem; }
 .field-hint { color: var(--ruge-text-muted); font-size: 0.78rem; margin: 4px 0 0; line-height: 1.5; font-style: italic; }
+.spouse-hint { margin: -8px 0 18px; }
+.privacy-notice { margin: 24px 0; padding: 18px; border: 1px solid var(--ruge-border, #344039); border-radius: 12px; background: var(--ruge-surface, #18201b); color: var(--ruge-text-secondary); line-height: 1.6; }
+.privacy-notice h2 { margin: 0 0 10px; color: var(--ruge-text-primary); font-size: 1rem; }
+.privacy-notice p { margin: 0 0 10px; font-size: 0.86rem; }
+.privacy-consent { display: flex; align-items: flex-start; gap: 10px; margin-top: 14px; color: var(--ruge-text-primary); font-size: 0.9rem; cursor: pointer; }
+.privacy-consent input { margin-top: 4px; accent-color: var(--ruge-yellow); }
 .field-error { color: var(--ruge-danger); font-size: 0.78rem; }
 
 /* Toggle switch */
@@ -57,3 +63,8 @@
 /* Impact section */
 .impact-section { background: rgba(240,180,41,0.04); border-left: 3px solid var(--ruge-yellow); border-radius: 0 6px 6px 0; padding: 16px; margin-bottom: 16px; animation: slideIn 0.2s ease; }
 @keyframes slideIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+.registration-status, .registration-closed { margin: 16px 0; padding: 18px 20px; border-radius: 8px; }
+.registration-status { background: rgba(240,180,41,0.1); border: 1px solid rgba(240,180,41,0.35); color: var(--ruge-text-secondary); }
+.registration-closed { background: rgba(224,82,82,0.1); border: 1px solid rgba(224,82,82,0.35); color: var(--ruge-text-primary); text-align: center; }
+.registration-closed h2 { margin: 0 0 8px; }
+.registration-closed p { margin: 0; color: var(--ruge-text-secondary); }

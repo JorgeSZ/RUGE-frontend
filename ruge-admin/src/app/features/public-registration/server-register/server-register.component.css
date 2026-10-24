@@ -51,3 +51,13 @@
 .radio-option { display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.9rem; color: var(--ruge-text-primary); }
 .radio-option input[type="radio"] { accent-color: var(--ruge-yellow); width: 16px; height: 16px; cursor: pointer; }
 .field-error { font-size: 0.75rem; color: var(--ruge-danger); margin-top: 2px; }
+.registration-status, .registration-closed { margin: 16px 0; padding: 18px 20px; border-radius: 8px; }
+.registration-status { background: rgba(240,180,41,0.1); border: 1px solid rgba(240,180,41,0.35); color: var(--ruge-text-secondary); }
+.registration-closed { background: rgba(224,82,82,0.1); border: 1px solid rgba(224,82,82,0.35); color: var(--ruge-text-primary); text-align: center; }
+.registration-closed h2 { margin: 0 0 8px; }
+.registration-closed p { margin: 0; color: var(--ruge-text-secondary); }
+.privacy-notice { margin: 24px 0; padding: 18px; border: 1px solid var(--ruge-border, #344039); border-radius: 12px; background: var(--ruge-surface, #18201b); color: var(--ruge-text-secondary); line-height: 1.6; }
+.privacy-notice h2 { margin: 0 0 10px; color: var(--ruge-text-primary); font-size: 1rem; }
+.privacy-notice p { margin: 0 0 10px; font-size: 0.86rem; }
+.privacy-consent { display: flex; align-items: flex-start; gap: 10px; margin-top: 14px; color: var(--ruge-text-primary); font-size: 0.9rem; cursor: pointer; }
+.privacy-consent input { margin-top: 4px; accent-color: var(--ruge-yellow); }

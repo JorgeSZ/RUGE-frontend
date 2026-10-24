@@ -30,6 +30,10 @@ export interface Participant {
   church?: string;
   shirtSize?: string;
   maritalStatus?: string;
+  nombreEsposa?: string;
+  telefonoEsposa?: string;
+  privacyConsentAccepted?: boolean;
+  privacyConsentAt?: string;
   country?: string;
   tribeId?: string;
   tribeName?: string;

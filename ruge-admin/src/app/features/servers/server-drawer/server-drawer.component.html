@@ -20,6 +20,7 @@
         <div class="drawer-row"><span class="drawer-label">Cédula</span><span>{{ server.cedula || '—' }}</span></div>
         <div class="drawer-row"><span class="drawer-label">Teléfono</span><span>{{ server.phone || '—' }}</span></div>
         <div class="drawer-row"><span class="drawer-label">Correo</span><span>{{ server.email || '—' }}</span></div>
+        <div class="drawer-row"><span class="drawer-label">Consentimiento de datos</span><span>{{ server.privacyConsentAccepted ? 'Aceptado' : 'No registrado' }}{{ server.privacyConsentAt ? ' · ' + formatDateTime(server.privacyConsentAt) : '' }}</span></div>
         <div class="drawer-row">
           <span class="drawer-label">Nacimiento</span>
           <span>{{ formatDate(server.birthDate) }}{{ server.age ? ' (' + server.age + ' años)' : '' }}</span>

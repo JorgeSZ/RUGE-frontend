@@ -4,6 +4,7 @@ import { ServerService } from '../../core/services/server.service';
 import { CommissionService } from '../../core/services/commission.service';
 import { TribeService } from '../../core/services/tribe.service';
 import { EventContextService } from '../../core/services/event-context.service';
+import { EventService } from '../../core/services/event.service';
 import { ApprovalService } from '../../core/services/approval.service';
 import { Server } from '../../core/models/server.model';
 import { Commission } from '../../core/models/commission.model';
@@ -37,6 +38,8 @@ export class ServersComponent implements OnInit {
   searchTerm = '';
   apiUrl = environment.apiUrl;
   copied = false;
+  serverRegistrationEnabled = true;
+  updatingRegistrationStatus = false;
 
   // Drawer
   drawerOpen = false;
@@ -76,6 +79,7 @@ export class ServersComponent implements OnInit {
     private commissionService: CommissionService,
     private tribeService: TribeService,
     public eventCtx: EventContextService,
+    private eventService: EventService,
     private approvalService: ApprovalService,
     private cdr: ChangeDetectorRef
   ) {
@@ -106,7 +110,10 @@ export class ServersComponent implements OnInit {
     });
   }
 
-  ngOnInit(): void { this.load(); }
+  ngOnInit(): void {
+    this.serverRegistrationEnabled = this.eventCtx.activeEvent?.serverRegistrationEnabled ?? true;
+    this.load();
+  }
 
   get eventId(): string { return this.eventCtx.activeEvent!.id; }
 
@@ -122,6 +129,25 @@ export class ServersComponent implements OnInit {
     });
     this.commissionService.getAll().subscribe(c => { this.commissions = c; this.cdr.detectChanges(); });
     this.tribeService.getByEvent(this.eventId).subscribe(t => { this.tribes = t; this.cdr.detectChanges(); });
+  }
+
+  updateRegistrationStatus(): void {
+    if (this.updatingRegistrationStatus) return;
+    const enabled = this.serverRegistrationEnabled;
+    this.updatingRegistrationStatus = true;
+    this.eventService.updateRegistrationSettings(this.eventId, { serverRegistrationEnabled: enabled }).subscribe({
+      next: event => {
+        this.eventCtx.setEvent(event);
+        this.updatingRegistrationStatus = false;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.serverRegistrationEnabled = !enabled;
+        this.updatingRegistrationStatus = false;
+        this.cdr.detectChanges();
+        alert('No se pudo actualizar el estado del formulario de servidores.');
+      }
+    });
   }
 
   get filtered(): Server[] {
@@ -293,7 +319,8 @@ export class ServersComponent implements OnInit {
       'País', 'ID equipo', 'Equipo', 'ID tribu', 'Tribu', 'Tiene discipulado',
       'Tiene parche de discipulado', 'Tiene grupo', 'Está en New Life', 'Módulo',
       'Nombre del líder', 'Teléfono del líder', 'Correo del líder', 'URL comprobante',
-      'Código QR', 'URL acuerdo de participación', 'Check-in completado', 'Fecha de check-in',
+      'Código QR', 'URL acuerdo de participación', 'Consentimiento de datos aceptado', 'Fecha de consentimiento',
+      'Check-in completado', 'Fecha de check-in',
       'Estado de aprobación', 'Fecha de aprobación', 'Creado', 'Actualizado'
     ];
     const rows = this.servers.map(s => [
@@ -303,7 +330,8 @@ export class ServersComponent implements OnInit {
       s.hasDiscipleship ? 'Sí' : 'No', s.hasDiscipleshipPatch ? 'Sí' : 'No',
       s.hasGroup ? 'Sí' : 'No', s.estaEnNewLife ? 'Sí' : 'No', s.modulo,
       s.nombreLider, s.telefonoLider, s.emailLider, this.getComprobanteUrl(s),
-      s.qrCode, this.getAgreementUrl(s), s.checkInCompleted ? 'Sí' : 'No',
+      s.qrCode, this.getAgreementUrl(s), s.privacyConsentAccepted ? 'Sí' : 'No', s.privacyConsentAt,
+      s.checkInCompleted ? 'Sí' : 'No',
       s.checkInDate, s.approvalStatus, s.approvalDate, s.createdAt, s.updatedAt
     ]);
     const date = new Date().toISOString().slice(0, 10);

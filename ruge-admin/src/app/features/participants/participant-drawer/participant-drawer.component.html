@@ -26,6 +26,9 @@
           <span>{{ formatDate(participant.birthDate) }}{{ participant.age ? ' (' + participant.age + ' años)' : '' }}</span>
         </div>
         <div class="drawer-row"><span class="drawer-label">Estado civil</span><span>{{ participant.maritalStatus || '—' }}</span></div>
+        <div class="drawer-row" *ngIf="participant.maritalStatus === 'Casado'"><span class="drawer-label">Esposa</span><span>{{ participant.nombreEsposa || '—' }}</span></div>
+        <div class="drawer-row" *ngIf="participant.maritalStatus === 'Casado'"><span class="drawer-label">Tel. esposa</span><span>{{ participant.telefonoEsposa || '—' }}</span></div>
+        <div class="drawer-row"><span class="drawer-label">Consentimiento de datos</span><span>{{ participant.privacyConsentAccepted ? 'Aceptado' : 'No registrado' }}{{ participant.privacyConsentAt ? ' · ' + formatDateTime(participant.privacyConsentAt) : '' }}</span></div>
       </div>
 
       <div class="drawer-section">
