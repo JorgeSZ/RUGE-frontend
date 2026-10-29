@@ -33,7 +33,7 @@
         </a>
         <a routerLink="/inventario" routerLinkActive="active">
           <lucide-icon name="package-check" [size]="18" [strokeWidth]="1.5"></lucide-icon>
-          <span>Inventario</span>
+          <span>Inventario general</span>
         </a>
         <a routerLink="/menus" routerLinkActive="active">
           <lucide-icon name="utensils" [size]="18" [strokeWidth]="1.5"></lucide-icon>
@@ -119,9 +119,13 @@
         </a>
       </ng-container>
 
-      <!-- Inventario: solo inventario del reto -->
+      <!-- Inventario: inventario general y del reto -->
       <ng-container *ngIf="isInventario">
         <div class="nav-section-label">Módulo</div>
+        <a routerLink="/inventario" routerLinkActive="active">
+          <lucide-icon name="package-check" [size]="18" [strokeWidth]="1.5"></lucide-icon>
+          <span>Inventario general</span>
+        </a>
         <a routerLink="/inventario-evento" routerLinkActive="active">
           <lucide-icon name="package-open" [size]="18" [strokeWidth]="1.5"></lucide-icon>
           <span>Inventario de reto</span>

@@ -43,7 +43,7 @@ const ADMIN_EVENTOS      = { roles: ['Admin', 'Eventos'] };
 const ADMIN_TIEMPOS      = { roles: ['Admin', 'Tiempos'] };
 const ADMIN_COCINA       = { roles: ['Admin', 'Cocina'] };
 const ADMIN_CALAQUERO    = { roles: ['Admin', 'Calaquero'] };
-const ADMIN_INVENTARIO   = { roles: ['Admin'] };
+const INVENTARIO_GENERAL = { roles: ['Admin', 'Inventario'] };
 const EVENT_INVENTARIO   = { roles: ['Admin', 'Logistica', 'Eventos', 'Inventario'] };
 
 const routes: Routes = [
@@ -91,7 +91,7 @@ const routes: Routes = [
 
       // Global modules (Admin + Cocina)
       { path: 'provision',     component: ProvisionComponent,  canActivate: [RoleGuard], data: ADMIN_COCINA },
-      { path: 'inventario',    component: InventoryComponent,  canActivate: [RoleGuard], data: ADMIN_INVENTARIO },
+      { path: 'inventario',    component: InventoryComponent,  canActivate: [RoleGuard], data: INVENTARIO_GENERAL },
       { path: 'inventario-evento', component: EventInventoryComponent, canActivate: [RoleGuard, EventGuard], data: EVENT_INVENTARIO },
       { path: 'menus',         component: MenusComponent,      canActivate: [RoleGuard], data: ADMIN_COCINA },
       { path: 'menus/:menuId', component: MenuDetailComponent, canActivate: [RoleGuard], data: ADMIN_COCINA },
