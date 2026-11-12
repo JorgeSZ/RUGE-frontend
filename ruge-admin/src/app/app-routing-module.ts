@@ -33,18 +33,25 @@ import { TribeChallengesComponent } from './features/tribe-challenges/tribe-chal
 import { TerminosCondicionesComponent } from './features/public-registration/terminos-condiciones/terminos-condiciones.component';
 import { SoporteComponent } from './features/public-registration/soporte/soporte.component';
 import { ProfileComponent } from './features/profile/profile.component';
+import { ChurchesComponent } from './features/churches/churches.component';
+import { HomeRedirectComponent } from './features/auth/home-redirect.component';
+import { EventHistoryComponent } from './features/event-history/event-history.component';
+import { StorePaymentsComponent } from './features/store-payments/store-payments.component';
+import { TeachingsAdminComponent } from './features/teachings/teachings-admin.component';
+import { EventTeachingsComponent } from './features/teachings/event-teachings.component';
 import { AuthGuard } from './core/guards/auth.guard';
 import { RoleGuard } from './core/guards/role.guard';
 import { EventGuard } from './core/guards/event.guard';
 
-const ADMIN              = { roles: ['Admin'] };
-const ADMIN_LOGISTICA    = { roles: ['Admin', 'Logistica'] };
-const ADMIN_EVENTOS      = { roles: ['Admin', 'Eventos'] };
-const ADMIN_TIEMPOS      = { roles: ['Admin', 'Tiempos'] };
-const ADMIN_COCINA       = { roles: ['Admin', 'Cocina'] };
-const ADMIN_CALAQUERO    = { roles: ['Admin', 'Calaquero'] };
-const INVENTARIO_GENERAL = { roles: ['Admin', 'Inventario'] };
-const EVENT_INVENTARIO   = { roles: ['Admin', 'Logistica', 'Eventos', 'Inventario'] };
+const ADMIN              = { roles: ['Admin', 'Coordinador', 'GlobalAdmin'] };
+const ADMIN_LOGISTICA    = { roles: ['Admin', 'Coordinador', 'GlobalAdmin', 'Logistica'] };
+const ADMIN_EVENTOS      = { roles: ['Admin', 'Coordinador', 'GlobalAdmin', 'Eventos'] };
+const ADMIN_TIEMPOS      = { roles: ['Admin', 'Coordinador', 'GlobalAdmin', 'Tiempos'] };
+const ADMIN_COCINA       = { roles: ['Admin', 'Coordinador', 'GlobalAdmin', 'Cocina'] };
+const ADMIN_CALAQUERO    = { roles: ['Admin', 'Coordinador', 'GlobalAdmin', 'Calaquero'] };
+const INVENTARIO_GENERAL = { roles: ['Admin', 'Coordinador', 'GlobalAdmin', 'Inventario'] };
+const EVENT_INVENTARIO   = { roles: ['Admin', 'Coordinador', 'GlobalAdmin', 'Logistica', 'Eventos', 'Inventario'] };
+const STORE_PAYMENTS = { roles: ['Admin', 'Coordinador', 'GlobalAdmin', 'Registrador'] };
 
 const routes: Routes = [
   // ── Public (no auth, no shell) ──────────────────────────────────────────
@@ -64,11 +71,19 @@ const routes: Routes = [
     component: ShellComponent,
     canActivate: [AuthGuard],
     children: [
-      { path: '', redirectTo: 'events', pathMatch: 'full' },
+      { path: '', component: HomeRedirectComponent },
+      { path: 'churches', component: ChurchesComponent, canActivate: [RoleGuard], data: { roles: ['GlobalAdmin'] } },
+      { path: 'global-admins', loadComponent: () => import('./features/global-admins/global-admins.component').then(m => m.GlobalAdminsComponent), canActivate: [RoleGuard], data: { roles: ['GlobalAdmin'] } },
+      { path: 'enseñanzas-globales', component: TeachingsAdminComponent, canActivate: [RoleGuard], data: { roles: ['GlobalAdmin'] } },
       { path: 'mi-perfil', component: ProfileComponent },
+      { path: 'impact-store', component: StorePaymentsComponent, canActivate: [RoleGuard], data: STORE_PAYMENTS },
 
       // Admin only
       { path: 'events',       component: EventsComponent,      canActivate: [RoleGuard], data: ADMIN },
+      { path: 'event-history/:eventId', component: EventHistoryComponent, canActivate: [RoleGuard], data: ADMIN },
+      { path: 'enseñanzas/:eventId', component: EventTeachingsComponent, canActivate: [RoleGuard], data: { roles: ['Admin', 'Coordinador', 'GlobalAdmin'] } },
+      { path: 'enseñanzas', component: EventTeachingsComponent, canActivate: [RoleGuard, EventGuard], data: { roles: ['Admin', 'Coordinador', 'GlobalAdmin'] } },
+      { path: 'tracks/:trackId', component: TracksComponent, canActivate: [RoleGuard], data: ADMIN_TIEMPOS },
       { path: 'tracks',       component: TracksComponent,      canActivate: [RoleGuard], data: ADMIN_TIEMPOS },
       { path: 'users',        component: UsersComponent,       canActivate: [RoleGuard], data: ADMIN },
       { path: 'participants', component: ParticipantsComponent, canActivate: [RoleGuard, EventGuard], data: ADMIN },
@@ -78,7 +93,7 @@ const routes: Routes = [
       { path: 'checkin-admin',component: CheckinAdminComponent,canActivate: [RoleGuard, EventGuard], data: ADMIN },
       { path: 'reports',        component: ReportsComponent,      canActivate: [RoleGuard, EventGuard], data: ADMIN_COCINA },
       { path: 'calaquero',      component: CalaqueroComponent,    canActivate: [RoleGuard, EventGuard], data: ADMIN_CALAQUERO },
-      { path: 'consolidacion',  component: ConsolidacionComponent, canActivate: [RoleGuard, EventGuard], data: ADMIN },
+      { path: 'consolidacion',  component: ConsolidacionComponent, canActivate: [RoleGuard], data: ADMIN },
       { path: 'retos',        component: TribeChallengesComponent, canActivate: [RoleGuard, EventGuard], data: ADMIN },
 
       // Admin + Logistica

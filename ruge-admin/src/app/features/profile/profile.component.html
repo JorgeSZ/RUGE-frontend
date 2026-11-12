@@ -1,12 +1,17 @@
 <div class="page-header profile-header">
   <div>
     <h2>Mi perfil</h2>
-    <p>Actualiza tu nombre y contraseña. Tu usuario de acceso permanece fijo.</p>
+      <p *ngIf="!user?.mustChangePassword">Actualiza tu nombre, correo y contraseña. Tu usuario de acceso permanece fijo.</p>
+      <p *ngIf="user?.mustChangePassword">Cambia la contraseña temporal para poder usar el sistema.</p>
   </div>
 </div>
 
+<div class="profile-feedback" *ngIf="user?.mustChangePassword">
+  Por seguridad, debes cambiar la contraseña temporal antes de continuar.
+</div>
+
 <div class="profile-grid">
-  <section class="card profile-card">
+  <section class="card profile-card" *ngIf="!user?.mustChangePassword">
     <div class="profile-card-heading">
       <lucide-icon name="user" [size]="19" [strokeWidth]="1.5"></lucide-icon>
       <div>
@@ -30,6 +35,15 @@
         </small>
         <small class="field-error" *ngIf="nameForm.controls['nombre'].touched && nameForm.controls['nombre'].hasError('maxlength')">
           El nombre no puede superar 100 caracteres.
+        </small>
+      </div>
+
+      <div class="profile-field">
+        <label for="profile-email">Correo de contacto</label>
+        <input id="profile-email" type="email" formControlName="email" autocomplete="email" maxlength="254" />
+        <small>Recibirás avisos de vencimiento de la licencia en este correo.</small>
+        <small class="field-error" *ngIf="nameForm.controls['email'].touched && nameForm.controls['email'].hasError('email')">
+          Escribe un correo válido.
         </small>
       </div>
 

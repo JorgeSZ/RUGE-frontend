@@ -108,6 +108,22 @@ nav a {
   border-left: 3px solid transparent;
 }
 
+nav a lucide-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  flex: 0 0 18px;
+  visibility: visible;
+}
+
+nav a lucide-icon svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
 nav a:hover {
   background: var(--ruge-dark-hover);
   color: var(--ruge-text-primary);
@@ -223,3 +239,29 @@ nav a.active {
 }
 
 .no-event-banner a { color: var(--ruge-yellow); }
+
+/* Global management retains the existing RUGE palette. */
+.global-shell .sidebar { width:244px; }
+.global-shell .brand { padding:14px 20px; flex-direction:column; position:relative; align-items:flex-start; min-height:100px; }
+.global-shell .sidebar-logo { width:108px; height:54px; object-fit:contain; }
+.global-brand-caption { color:var(--ruge-text-secondary); text-transform:uppercase; letter-spacing:2px; font-size:9px; margin-top:4px; }
+.global-shell nav { padding:12px; gap:5px; }
+.global-shell nav a { border:1px solid transparent; border-radius:9px; padding:12px; font-size:12px; line-height:1.5; }
+.global-shell nav a.active { border-color:var(--ruge-olive-light); background:var(--ruge-dark-hover); }
+.global-shell .nav-section-label { padding:10px 12px; font:500 9px 'Inter',sans-serif; letter-spacing:1px; }
+.global-shell .content { min-width:0; padding:0 32px 32px; }
+.global-topbar { display:flex; align-items:center; justify-content:space-between; gap:16px; min-height:66px; border-bottom:1px solid var(--ruge-border); margin:0 -32px 30px; padding:16px 32px; }
+.global-breadcrumb { display:flex; align-items:center; gap:10px; color:var(--ruge-text-secondary); font-size:11px; }.global-breadcrumb a { color:var(--ruge-text-secondary); text-decoration:none; }.global-breadcrumb span { color:var(--ruge-text-primary); }
+.global-access-label { display:inline-flex; align-items:center; gap:7px; font-size:10px; color:var(--ruge-yellow); white-space:nowrap; }
+.return-church { display:flex; align-items:center; gap:5px; font-size:11px; margin-top:8px; text-decoration:none; }
+.mobile-nav-toggle,.mobile-nav-close { display:none; border:0; background:transparent; color:var(--ruge-text-primary); cursor:pointer; padding:4px; }
+.mobile-scrim { display:none; }
+@media(max-width:1000px) { .global-shell .sidebar { width:214px; }.global-shell .content { padding:0 22px 24px; }.global-topbar { margin:0 -22px 24px; padding:16px 22px; }.global-access-label { display:none; } }
+@media(max-width:760px) {
+  .global-shell .sidebar { position:fixed; top:0; left:0; bottom:0; width:250px; z-index:1400; transform:translateX(-100%); visibility:hidden; transition:transform .18s, visibility .18s; }
+  .global-shell .sidebar.mobile-open { transform:translateX(0); visibility:visible; }
+  .mobile-scrim { display:block; position:fixed; inset:0; z-index:1300; border:0; background:color-mix(in srgb,var(--ruge-black) 75%,transparent); }
+  .mobile-nav-toggle,.mobile-nav-close { display:inline-flex; }.mobile-nav-close { position:absolute; right:14px; top:20px; }
+  .global-topbar { justify-content:flex-start; }.global-breadcrumb { gap:7px; font-size:10px; }
+  .global-shell .content { width:100%; padding:0 16px 24px; }.global-topbar { padding:14px 16px; margin:0 -16px 24px; }
+}

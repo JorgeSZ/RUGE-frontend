@@ -7,6 +7,8 @@ export interface Event {
   trackId?: string;
   trackName?: string;
   isActive?: boolean;
+  isArchived?: boolean;
+  archivedAt?: string | null;
   participantRegistrationEnabled?: boolean;
   serverRegistrationEnabled?: boolean;
 }

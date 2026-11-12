@@ -2,6 +2,7 @@ import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { CheckInService, CheckInListItem, CheckInSummaryResponse } from '../../core/services/checkin.service';
 import { EventContextService } from '../../core/services/event-context.service';
 import { environment } from '../../../environments/environment';
+import { compareFullNames } from '../../core/utils/person-sort';
 
 @Component({
   selector: 'app-checkin-admin',
@@ -69,15 +70,15 @@ export class CheckinAdminComponent implements OnInit, OnDestroy {
                (item.cedula ?? '').toLowerCase().includes(q);
       }
       return true;
-    });
+    }).sort((a, b) => compareFullNames(a.fullName, b.fullName));
   }
 
   get senderistas(): CheckInListItem[] {
-    return this.allItems.filter(i => i.tipo === 'Senderista');
+    return this.allItems.filter(i => i.tipo === 'Senderista').sort((a, b) => compareFullNames(a.fullName, b.fullName));
   }
 
   get servidores(): CheckInListItem[] {
-    return this.allItems.filter(i => i.tipo === 'Servidor');
+    return this.allItems.filter(i => i.tipo === 'Servidor').sort((a, b) => compareFullNames(a.fullName, b.fullName));
   }
 
   loadAll(): void {

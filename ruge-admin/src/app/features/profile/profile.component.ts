@@ -27,6 +27,7 @@ export class ProfileComponent {
     this.user = this.auth.currentUser;
     this.nameForm = this.fb.group({
       nombre: [this.user?.nombre ?? '', [Validators.required, Validators.maxLength(100)]],
+      email: [this.user?.email ?? '', [Validators.email, Validators.maxLength(254)]],
     });
     this.passwordForm = this.fb.group({
       currentPassword: ['', Validators.required],
@@ -46,6 +47,7 @@ export class ProfileComponent {
     }
 
     const nombre = String(this.nameForm.controls['nombre'].value ?? '').trim();
+    const email = String(this.nameForm.controls['email'].value ?? '').trim();
     if (!nombre) {
       this.nameForm.controls['nombre'].setErrors({ required: true });
       return;
@@ -53,7 +55,7 @@ export class ProfileComponent {
 
     this.nameFeedback = null;
     this.savingName = true;
-    this.auth.updateProfile(nombre).pipe(
+    this.auth.updateProfile(nombre, email).pipe(
       finalize(() => {
         this.savingName = false;
         this.cdr.detectChanges();
@@ -61,7 +63,7 @@ export class ProfileComponent {
     ).subscribe({
       next: user => {
         this.user = user;
-        this.nameForm.patchValue({ nombre: user.nombre });
+        this.nameForm.patchValue({ nombre: user.nombre, email: user.email ?? '' });
         this.nameFeedback = { message: 'Tu nombre se actualizó.', type: 'success' };
       },
       error: error => {
@@ -90,6 +92,7 @@ export class ProfileComponent {
     ).subscribe({
       next: response => {
         this.passwordForm.reset();
+        this.user = this.auth.currentUser;
         this.passwordFeedback = { message: response.message || 'Tu contraseña se actualizó.', type: 'success' };
       },
       error: error => {

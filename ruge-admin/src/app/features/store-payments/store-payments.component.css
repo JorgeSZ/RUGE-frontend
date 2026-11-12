@@ -1,0 +1,8 @@
+.upload { margin: 18px 0; padding: 20px; }
+.upload form { display: flex; align-items: end; flex-wrap: wrap; gap: 14px; }
+.upload label { display: grid; gap: 6px; color: var(--ruge-text-secondary); font-size: .84rem; }
+.upload input { min-width: 200px; padding: 9px; background: var(--ruge-dark-card); color: var(--ruge-text-primary); border: 1px solid var(--ruge-border); border-radius: 6px; }
+.notice { margin: 12px 0; color: var(--ruge-text-secondary); }
+.title-with-icon { display: flex; align-items: center; gap: 12px; }
+.title-with-icon lucide-icon { color: var(--ruge-yellow); }
+.table-wrap { overflow-x: auto; }

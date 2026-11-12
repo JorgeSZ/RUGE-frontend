@@ -1,0 +1,113 @@
+<header class="management-header">
+  <div><span class="eyebrow">{{ archived ? 'Reto en historial' : 'Reto activo' }}</span><h1>Enseñanzas del reto</h1><p>{{ response?.eventName || 'Consulta el material y asigna quién lo impartirá.' }}</p></div>
+</header>
+<div class="archive-banner" *ngIf="archived"><lucide-icon name="lock" [size]="18"></lucide-icon>Este reto está finalizado. Puedes consultar las copias y el historial de asignaciones; la información es de solo lectura.</div>
+<div class="notice success" *ngIf="success" role="status">{{ success }}</div>
+<div class="notice error" *ngIf="error" role="alert">{{ error }} <button class="text-button" (click)="load()">Reintentar</button></div>
+<div class="loading" *ngIf="loading" role="status"><lucide-icon name="loader-2" class="spinning" [size]="20"></lucide-icon>Cargando enseñanzas…</div>
+<ng-container *ngIf="!loading">
+  <section class="metrics" aria-label="Resumen de asignaciones">
+    <article class="metric"><div class="metric-label">Enseñanzas del reto<lucide-icon name="file-text" [size]="20"></lucide-icon></div><strong>{{ teachings.length }}</strong><p>Material disponible y copias asignadas</p></article>
+    <article class="metric"><div class="metric-label">Asignadas<lucide-icon name="user-check" [size]="20"></lucide-icon></div><strong>{{ assignedCount }}</strong><p>Con un servidor responsable</p></article>
+    <article class="metric"><div class="metric-label">Por asignar<lucide-icon name="clock" [size]="20"></lucide-icon></div><strong>{{ pendingCount }}</strong><p>Enseñanzas activas sin responsable</p></article>
+  </section>
+  <div class="list-toolbar"><h2>Material y asignaciones <span>{{ filteredTeachings.length }} de {{ teachings.length }}</span></h2><div class="filters">
+    <label class="search-box"><lucide-icon name="search" [size]="17"></lucide-icon><input type="search" aria-label="Buscar enseñanza o servidor asignado" placeholder="Buscar enseñanza o servidor..." [(ngModel)]="search" (ngModelChange)="page = 1" /></label>
+    <select aria-label="Filtrar por asignación" [(ngModel)]="status" (ngModelChange)="page = 1"><option value="all">Todas las enseñanzas</option><option value="assigned">Asignadas</option><option value="pending">Por asignar</option></select>
+  </div></div>
+  <section class="event-teaching-table" aria-label="Enseñanzas y servidores asignados">
+    <div class="table-scroll" tabindex="0" aria-label="Tabla de enseñanzas; desplaza horizontalmente para ver todas las acciones">
+      <table><thead><tr><th scope="col">Enseñanza</th><th scope="col">Servidor asignado</th><th scope="col">Asignación</th><th scope="col">Estado</th><th scope="col" class="actions-heading">Acciones</th></tr></thead><tbody>
+        <ng-container *ngFor="let item of visibleTeachings">
+          <tr>
+            <td class="teaching-title-cell"><button type="button" class="teaching-title" (click)="toggleDetails(item)" [attr.aria-expanded]="expandedTeachingId === item.id" [attr.aria-controls]="'event-teaching-details-' + item.id"><span class="avatar"><lucide-icon name="file-text" [size]="19"></lucide-icon></span><span class="teaching-name">{{ item.name }}</span></button><span class="version">{{ item.currentAssignment ? 'Copia asignada · v' + item.currentAssignment.teachingVersion : 'Catálogo · v' + item.version }}</span></td>
+            <td class="server-cell"><ng-container *ngIf="item.currentAssignment as assignment; else pending"><strong>{{ assignment.serverName }}</strong></ng-container><ng-template #pending><span>Sin asignar</span></ng-template></td>
+            <td class="date-cell">{{ item.currentAssignment ? (item.currentAssignment.assignedAt | date:'dd/MM/yyyy HH:mm') : '—' }}</td>
+            <td><span class="badge" [class.active-status]="item.isActive" [class.muted]="!item.isActive">{{ item.isActive ? 'Disponible' : 'Desactivada' }}</span><small class="missing-pdf" *ngIf="!item.hasPdf && !item.currentAssignment">Falta PDF</small></td>
+            <td><div class="table-actions"><button class="btn-secondary" type="button" [disabled]="(!item.hasPdf && !item.currentAssignment) || !!pdfLoadingId" (click)="openPdf(item)"><lucide-icon name="eye" [size]="15"></lucide-icon>{{ pdfLoadingId === item.id ? 'Abriendo…' : item.currentAssignment ? 'Copia asignada' : 'Leer PDF' }}</button><button class="btn-secondary" type="button" data-action="details" (click)="toggleDetails(item)" [disabled]="!!busyTeachingId" [attr.aria-expanded]="expandedTeachingId === item.id">{{ expandedTeachingId === item.id ? 'Cerrar' : !archived && item.isActive && item.hasPdf ? (item.currentAssignment ? 'Gestionar' : 'Asignar') : 'Ver detalles' }}<lucide-icon [name]="expandedTeachingId === item.id ? 'chevron-up' : 'chevron-down'" [size]="14"></lucide-icon></button></div></td>
+          </tr>
+          <tr *ngIf="expandedTeachingId === item.id" [id]="'event-teaching-details-' + item.id" class="detail-row"><td colspan="5"><div class="teaching-detail">
+      <div class="teaching-info">
+        <section *ngIf="item.generalMessage">
+          <h3>Mensaje general</h3>
+          <p>{{ item.generalMessage }}</p>
+        </section>
+        <section *ngIf="item.objectives">
+          <h3>Objetivos</h3>
+          <p class="objectives">{{ item.objectives }}</p>
+        </section>
+      </div>
+
+      <div class="archive-banner" *ngIf="!item.hasPdf && !item.currentAssignment">
+        El PDF de esta enseñanza todavía no está cargado. GlobalAdmin debe adjuntarlo en el catálogo global antes de asignarlo.
+      </div>
+
+      <div class="assignment-current" *ngIf="item.currentAssignment as assignment">
+        <div class="assigned-icon">✓</div>
+        <div class="assigned-copy">
+          <strong>Asignada a {{ assignment.serverName }}</strong>
+          <span>{{ assignment.serverEmail || 'Sin correo registrado' }} · {{ assignment.assignedAt | date:'dd/MM/yyyy HH:mm' }}</span>
+          <small>PDF de la versión {{ assignment.teachingVersion }} guardado para este reto.</small>
+        </div>
+      </div>
+
+      <div class="reassign-row" *ngIf="!archived && item.isActive && item.hasPdf">
+        <label [for]="'server-' + item.id">{{ item.currentAssignment ? 'Cambiar servidor' : 'Servidor que impartirá la enseñanza' }}</label>
+        <div class="assign-controls">
+          <div class="server-picker">
+            <input class="server-search" type="search" autocomplete="off" role="combobox"
+              [id]="'server-' + item.id" aria-autocomplete="list" aria-haspopup="listbox"
+              [attr.aria-expanded]="openServerTeachingId === item.id"
+              [attr.aria-controls]="'server-options-' + item.id"
+              [attr.aria-activedescendant]="openServerTeachingId === item.id && activeServerIndex >= 0 ? 'server-option-' + item.id + '-' + activeServerIndex : null"
+              placeholder="Busca y selecciona un servidor…"
+              [ngModel]="serverInputValue(item.id)" (ngModelChange)="searchServers(item.id, $event)"
+              (focus)="openServerPicker(item.id, $event)" (click)="openServerPicker(item.id)"
+              (blur)="closeServerPicker(item.id)" (keydown)="serverKeydown(item.id, $event)"
+              [disabled]="!!busyTeachingId" />
+            <div class="server-dropdown" *ngIf="openServerTeachingId === item.id">
+              <p class="server-results" role="status" aria-live="polite">
+                {{ serverOptions[item.id]?.length || 0 }} de {{ servers.length }} servidores
+              </p>
+              <div class="server-options" role="listbox" [id]="'server-options-' + item.id"
+                [attr.aria-label]="'Servidores para ' + item.name">
+                <div class="server-option" role="option"
+                  *ngFor="let server of serverOptions[item.id]; let index = index"
+                  [id]="'server-option-' + item.id + '-' + index"
+                  [class.highlighted]="activeServerIndex === index"
+                  [class.unavailable]="!server.email"
+                  [attr.aria-selected]="selectedServerIds[item.id] === server.id"
+                  [attr.aria-disabled]="!server.email"
+                  (pointerdown)="$event.preventDefault()" (click)="selectServer(item.id, server)">
+                  <strong>{{ server.name }}</strong>
+                  <small>{{ server.email || 'Sin correo registrado' }}</small>
+                </div>
+              </div>
+              <p class="server-empty" *ngIf="!serverOptions[item.id]?.length">No hay coincidencias. Prueba con otro nombre o apellido.</p>
+            </div>
+          </div>
+          <button class="assign-btn" type="button"
+            [disabled]="!selectedServerIds[item.id] || selectedServerIds[item.id] === item.currentAssignment?.serverId || !!busyTeachingId"
+            (click)="assign(item, selectedServerIds[item.id])">
+            {{ busyTeachingId === item.id ? 'Enviando…' : (item.currentAssignment ? 'Reasignar y enviar' : 'Asignar y enviar') }}
+          </button>
+        </div>
+        <small>Se enviará al servidor un correo con un mensaje de bienvenida y el PDF adjunto.</small>
+      </div>
+
+      <details class="assignment-history" *ngIf="previousAssignments(item).length">
+        <summary>Ver asignaciones anteriores ({{ previousAssignments(item).length }})</summary>
+        <div class="history-row" *ngFor="let old of previousAssignments(item)">
+          <span>{{ old.serverName }} · {{ old.assignedAt | date:'dd/MM/yyyy HH:mm' }}</span>
+          <button class="text-btn" type="button" (click)="openSavedAssignment(old)">Abrir PDF guardado</button>
+        </div>
+      </details>
+
+          </div></td></tr>
+        </ng-container>
+      </tbody></table>
+    </div>
+    <div class="empty-state" *ngIf="!filteredTeachings.length"><lucide-icon name="file-text" [size]="30"></lucide-icon><h3>{{ teachings.length ? 'No hay coincidencias' : 'No hay enseñanzas disponibles' }}</h3><p>{{ teachings.length ? 'Prueba con otro nombre o cambia el filtro.' : 'Cuando se habilite una enseñanza en el catálogo global, aparecerá aquí para este reto.' }}</p><button *ngIf="teachings.length" class="btn-secondary" (click)="resetFilters()">Limpiar filtros</button></div>
+    <footer class="pagination" *ngIf="filteredTeachings.length"><span>{{ filteredTeachings.length }} enseñanzas · Página {{ page }} de {{ pageCount }}</span><div><button class="btn-secondary" [disabled]="page === 1" (click)="page = page - 1" aria-label="Página anterior"><lucide-icon name="chevron-left" [size]="16"></lucide-icon></button><button class="btn-secondary" [disabled]="page === pageCount" (click)="page = page + 1" aria-label="Página siguiente"><lucide-icon name="chevron-right" [size]="16"></lucide-icon></button></div></footer>
+  </section>
+</ng-container>

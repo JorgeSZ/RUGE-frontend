@@ -1,0 +1,19 @@
+<div class="page-header"><div class="title-with-icon"><lucide-icon name="receipt" [size]="26" [strokeWidth]="1.7"></lucide-icon><div><h2>Registrar Pagos</h2><p>Registro de envíos y seguimiento de atención.</p></div></div></div>
+<p class="notice" *ngIf="message">{{ message }}</p>
+<section class="upload card" *ngIf="isRegistrar"><h3>Enviar comprobante de pago</h3>
+  <form [formGroup]="form" (ngSubmit)="submit()">
+    <label>Nombre<input formControlName="payerFirstName" maxlength="100"></label>
+    <label>Apellidos<input formControlName="payerLastName" maxlength="150"></label>
+    <label>Teléfono<input type="tel" formControlName="payerPhone" maxlength="30"></label>
+    <label>Correo electrónico<input type="email" formControlName="payerEmail" maxlength="254"></label>
+    <label>Monto pagado (₡)<input type="number" formControlName="amount" min="0.01" step="0.01"></label>
+    <label>Número de referencia<input formControlName="reference" maxlength="100"></label>
+    <label>Comprobante (PDF, JPG o PNG; máximo 10 MB)<input type="file" accept="application/pdf,image/jpeg,image/png" (change)="onFile($event)"></label>
+    <button class="btn-primary" [disabled]="saving">{{ saving ? 'Enviando…' : 'Enviar comprobante' }}</button>
+  </form>
+</section>
+<div *ngIf="loading" class="loading">Cargando…</div>
+<div class="table-wrap" *ngIf="!loading"><table class="data-table"><thead><tr><th>Fecha enviado</th><th *ngIf="!isRegistrar">Iglesia</th><th>Registrador</th><th>Persona que pagó</th><th>Contacto</th><th>Monto</th><th>Referencia</th><th>Archivo</th><th>Estado</th><th *ngIf="!isRegistrar">Acción</th></tr></thead><tbody>
+  <tr *ngFor="let row of rows"><td>{{ row.submittedAt | date:'dd/MM/yyyy HH:mm' }}</td><td *ngIf="!isRegistrar">{{ row.churchName }}</td><td>{{ row.uploader || 'Mi cuenta' }}</td><td>{{ row.payerFirstName }} {{ row.payerLastName }}</td><td>{{ row.payerPhone }}<br>{{ row.payerEmail }}</td><td>{{ row.amount | currency:'CRC':'symbol':'1.0-2' }}</td><td>{{ row.reference }}</td><td><a [href]="row.fileUrl" target="_blank" rel="noopener">{{ row.fileName || 'Ver comprobante' }}</a></td><td>{{ row.status }}</td><td *ngIf="!isRegistrar"><select [value]="row.status" (change)="changeStatus(row, $any($event.target).value)"><option>Recibido</option><option>En revisión</option><option>Procesado</option><option>Rechazado</option></select></td></tr>
+  <tr *ngIf="!rows.length"><td [attr.colspan]="isRegistrar ? 9 : 10">Todavía no hay comprobantes registrados.</td></tr>
+</tbody></table></div>

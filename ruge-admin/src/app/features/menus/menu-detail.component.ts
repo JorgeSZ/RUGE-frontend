@@ -1,4 +1,5 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { DialogService } from '../../core/services/dialog.service';
+import { inject, ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MenuService } from '../../core/services/menu.service';
@@ -14,6 +15,7 @@ import { UNIDADES_MEDIDA as UNIDADES } from '../../core/models/provision.model';
   standalone: false
 })
 export class MenuDetailComponent implements OnInit {
+  private readonly dialogs = inject(DialogService);
   menu: Menu | null = null;
   loading = false;
   showForm = false;
@@ -144,8 +146,9 @@ export class MenuDetailComponent implements OnInit {
     }
   }
 
-  delete(ing: MenuIngrediente): void {
-    if (!this.menu || !confirm(`¿Eliminar "${ing.nombre}"?`)) return;
+  async delete(ing: MenuIngrediente): Promise<void> {
+    if (!this.menu || !(await this.dialogs.confirm(`¿Eliminar "${ing.nombre}"?`, { title: 'Eliminar registro', confirmText: 'Eliminar', destructive: true }))) return;
+    this.cdr.markForCheck();
     this.menuService.deleteIngrediente(this.menu.id, ing.id).subscribe({
       next: () => { this.load(); this.showToast('Ingrediente eliminado.', 'success'); },
       error: () => this.showToast('Error al eliminar.', 'error')

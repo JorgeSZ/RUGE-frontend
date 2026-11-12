@@ -105,7 +105,7 @@
 <div class="table-controls">
   <div class="search-wrap">
     <lucide-icon name="search" [size]="15" [strokeWidth]="1.5" class="search-icon"></lucide-icon>
-    <input class="search-input" [(ngModel)]="searchTerm" placeholder="Buscar por nombre o cédula..." />
+    <input class="search-input" [(ngModel)]="searchTerm" (ngModelChange)="applyFilters()" placeholder="Buscar por nombre o cédula..." />
   </div>
   <div class="filter-chips">
     <button class="chip" [class.active]="filterApprovalStatus === 'Aprobado'"  (click)="setApprovalFilter('Aprobado')">✅ Aprobados</button>
@@ -113,12 +113,12 @@
     <button class="chip" [class.active]="filterApprovalStatus === 'Denegado'"  (click)="setApprovalFilter('Denegado')">❌ Denegados</button>
     <button class="chip" [class.active]="filterCheckin === 'done'"             (click)="setCheckinFilter('done')">Con Check-in</button>
     <button class="chip" [class.active]="filterCheckin === 'pending'"          (click)="setCheckinFilter('pending')">Sin Check-in</button>
-    <select class="chip-select" [(ngModel)]="filterCommissionId">
+    <select class="chip-select" [(ngModel)]="filterCommissionId" (ngModelChange)="applyFilters()">
       <option value="">Todos los Equipos</option>
       <option *ngFor="let c of commissions" [value]="c.id">{{ c.name }}</option>
     </select>
   </div>
-  <span class="count">Mostrando {{ filtered.length }} de {{ servers.length }}</span>
+  <span class="count">{{ filtered.length }} de {{ servers.length }} servidores</span>
 </div>
 
 <div *ngIf="loading" class="loading">Cargando...</div>
@@ -135,7 +135,7 @@
     </tr>
   </thead>
   <tbody>
-    <tr *ngFor="let s of filtered" (click)="openDrawer(s)" class="row-clickable">
+    <tr *ngFor="let s of paged; trackBy: trackPerson" (click)="openDrawer(s)" class="row-clickable">
       <td class="name-cell">{{ s.firstName }} {{ s.firstLastName }} {{ s.secondLastName || '' }}</td>
       <td>{{ s.cedula || '—' }}</td>
       <td>{{ s.commissionName || '—' }}</td>
@@ -169,6 +169,15 @@
     </tr>
   </tbody>
 </table>
+
+<nav class="list-pagination" *ngIf="!loading && filtered.length" aria-label="Paginación de servidores">
+  <span>Mostrando {{ firstResult }}–{{ lastResult }} de {{ filtered.length }} servidores</span>
+  <div class="list-page-controls">
+    <label>Filas por página <select aria-label="Servidores por página" [(ngModel)]="pageSize" (ngModelChange)="applyFilters()"><option [ngValue]="10">10</option><option [ngValue]="25">25</option><option [ngValue]="50">50</option><option [ngValue]="100">100</option></select></label>
+    <button class="btn-secondary" [disabled]="page === 1" (click)="setPage(page - 1)">Anterior</button><span>Página {{ page }} de {{ pageCount }}</span><button class="btn-secondary" [disabled]="page >= pageCount" (click)="setPage(page + 1)">Siguiente</button>
+  </div>
+</nav>
+
 
 <app-server-drawer
   [server]="drawerServer"

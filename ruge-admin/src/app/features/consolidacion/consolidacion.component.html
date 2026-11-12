@@ -1,49 +1,92 @@
 <div class="page-header">
   <div>
     <h2>Consolidación</h2>
-    <span class="sub">{{ eventCtx.activeEvent?.name }}</span>
+    <span class="sub">Seguimiento de personas de todos los retos de la iglesia</span>
   </div>
-  <span class="count-badge" *ngIf="!loading">{{ filtered.length }} sin iglesia</span>
+  <span class="count-badge" *ngIf="!loading">{{ filtered.length }} por consolidar</span>
 </div>
 
-<div *ngIf="!eventCtx.activeEvent" class="empty-state">
-  <p>No hay ningún reto activo seleccionado.</p>
+<div *ngIf="loadError" class="notes-error" role="alert">
+  {{ loadError }}
+  <button class="btn-secondary" (click)="load()" [disabled]="loading">Reintentar</button>
 </div>
-
-<ng-container *ngIf="eventCtx.activeEvent">
+<ng-container>
   <div class="filters-bar">
     <div class="search-wrap">
       <lucide-icon name="search" [size]="15" [strokeWidth]="1.5" class="search-icon"></lucide-icon>
-      <input class="search-input" [(ngModel)]="searchTerm" placeholder="Buscar por nombre..." />
+      <input
+        class="search-input"
+        [(ngModel)]="searchTerm"
+        (ngModelChange)="applyFilters()"
+        placeholder="Buscar por nombre o cédula..."
+        aria-label="Buscar persona"
+      />
     </div>
     <div class="filter-row">
       <div class="filter-group">
+        <label for="consolidation-event">Reto</label
+        ><select
+          id="consolidation-event"
+          [(ngModel)]="filterEventId"
+          (ngModelChange)="onEventFilterChange()"
+          class="filter-select"
+        >
+          <option value="">Todos los retos</option>
+          <option *ngFor="let event of events" [value]="event.id">
+            {{ event.name }} · {{ event.startDate | date: 'yyyy' }}
+          </option>
+        </select>
+      </div>
+      <div class="filter-group">
         <label>Edad</label>
         <div class="age-inputs">
-          <input type="number" [(ngModel)]="filterEdadMin" placeholder="Desde" class="age-input" />
+          <input
+            type="number"
+            [(ngModel)]="filterEdadMin"
+            (ngModelChange)="applyFilters()"
+            placeholder="Desde"
+            class="age-input"
+          />
           <span>—</span>
-          <input type="number" [(ngModel)]="filterEdadMax" placeholder="Hasta" class="age-input" />
+          <input
+            type="number"
+            [(ngModel)]="filterEdadMax"
+            (ngModelChange)="applyFilters()"
+            placeholder="Hasta"
+            class="age-input"
+          />
         </div>
       </div>
       <div class="filter-group">
         <label>Estado Civil</label>
-        <select [(ngModel)]="filterEstadoCivil" class="filter-select">
+        <select
+          [(ngModel)]="filterEstadoCivil"
+          (ngModelChange)="applyFilters()"
+          class="filter-select"
+        >
           <option value="">Todos</option>
           <option *ngFor="let m of maritalStatuses" [value]="m">{{ m }}</option>
         </select>
       </div>
       <div class="filter-group">
         <label>País</label>
-        <select [(ngModel)]="filterPais" class="filter-select">
+        <select [(ngModel)]="filterPais" (ngModelChange)="applyFilters()" class="filter-select">
           <option value="">Todos</option>
           <option *ngFor="let p of paises" [value]="p">{{ p }}</option>
         </select>
       </div>
       <div class="filter-group">
-        <label>Tribu</label>
-        <select [(ngModel)]="filterTribeId" class="filter-select">
+        <label for="consolidation-tribe">Tribu</label>
+        <select
+          id="consolidation-tribe"
+          [(ngModel)]="filterTribeId"
+          (ngModelChange)="applyFilters()"
+          class="filter-select"
+        >
           <option value="">Todas</option>
-          <option *ngFor="let t of tribes" [value]="t.id">{{ t.name }}</option>
+          <option *ngFor="let t of tribes" [value]="t.id">
+            {{ t.name }}{{ !filterEventId ? ' · ' + t.eventName : '' }}
+          </option>
         </select>
       </div>
     </div>
@@ -51,44 +94,187 @@
 
   <div *ngIf="loading" class="loading">Cargando...</div>
 
-  <div *ngIf="!loading && filtered.length === 0" class="empty-state">
-    <p *ngIf="participants.length === 0">Todos los senderistas asisten a una iglesia ✅</p>
+  <div *ngIf="!loading && !loadError && filtered.length === 0" class="empty-state">
+    <p *ngIf="participants.length === 0">
+      No hay personas pendientes de consolidación en los retos de esta iglesia.
+    </p>
     <p *ngIf="participants.length > 0">No hay resultados para los filtros seleccionados.</p>
   </div>
 
-  <table *ngIf="!loading && filtered.length > 0" class="data-table compact-table">
-    <thead>
-      <tr>
-        <th>Nombre</th>
-        <th>Edad</th>
-        <th>Estado Civil</th>
-        <th>País</th>
-        <th>Teléfono</th>
-        <th>Correo</th>
-        <th>Tribu</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let p of filtered" (click)="openDrawer(p)" class="row-clickable">
-        <td class="name-cell">{{ p.firstName }} {{ p.firstLastName }} {{ p.secondLastName || '' }}</td>
-        <td>{{ p.age ?? '—' }}</td>
-        <td>{{ p.maritalStatus || '—' }}</td>
-        <td>{{ p.country || '—' }}</td>
-        <td>{{ p.phone || '—' }}</td>
-        <td>{{ p.email || '—' }}</td>
-        <td>
-          <span *ngIf="p.tribeName">{{ p.tribeName }}</span>
-          <span *ngIf="!p.tribeName" style="color:var(--ruge-text-muted);font-size:0.78rem;">Sin tribu</span>
-        </td>
-      </tr>
-    </tbody>
-  </table>
+  <div class="consolidation-table-scroll">
+    <table *ngIf="!loading && filtered.length > 0" class="data-table compact-table">
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Edad</th>
+          <th>Estado Civil</th>
+          <th>País</th>
+          <th>Teléfono</th>
+          <th>Correo</th>
+          <th>Reto</th>
+          <th>Tribu</th>
+          <th>Seguimiento</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr
+          *ngFor="let p of paged; trackBy: trackParticipant"
+          (click)="openDrawer(p)"
+          class="row-clickable"
+        >
+          <td class="name-cell">
+            {{ p.firstName }} {{ p.firstLastName }} {{ p.secondLastName || '' }}
+          </td>
+          <td>{{ p.age ?? '—' }}</td>
+          <td>{{ p.maritalStatus || '—' }}</td>
+          <td>{{ p.country || '—' }}</td>
+          <td>{{ p.phone || '—' }}</td>
+          <td>{{ p.email || '—' }}</td>
+          <td class="event-cell">
+            <strong>{{ p.eventName }}</strong
+            ><small
+              >{{ p.eventStartDate | date: 'dd/MM/yyyy'
+              }}{{ p.eventIsArchived ? ' · Finalizado' : '' }}</small
+            >
+          </td>
+          <td>
+            <span *ngIf="p.tribeName">{{ p.tribeName }}</span>
+            <span *ngIf="!p.tribeName" style="color: var(--ruge-text-muted); font-size: 0.78rem"
+              >Sin tribu</span
+            >
+          </td>
+          <td (click)="$event.stopPropagation()">
+            <button
+              class="btn-sm notes-button"
+              (click)="openNotes(p)"
+              [attr.aria-label]="'Notas de ' + p.firstName + ' ' + p.firstLastName"
+            >
+              <lucide-icon name="message-circle" [size]="15"></lucide-icon>Notas
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <nav
+    class="list-pagination"
+    *ngIf="!loading && filtered.length"
+    aria-label="Paginación de consolidación"
+  >
+    <span>Mostrando {{ firstResult }}–{{ lastResult }} de {{ filtered.length }} personas</span>
+    <div class="list-page-controls">
+      <label
+        >Filas por página
+        <select
+          aria-label="Personas por página"
+          [(ngModel)]="pageSize"
+          (ngModelChange)="applyFilters()"
+        >
+          <option [ngValue]="10">10</option>
+          <option [ngValue]="25">25</option>
+          <option [ngValue]="50">50</option>
+          <option [ngValue]="100">100</option>
+        </select></label
+      ><button class="btn-secondary" [disabled]="page === 1" (click)="setPage(page - 1)">
+        Anterior</button
+      ><span>Página {{ page }} de {{ pageCount }}</span
+      ><button class="btn-secondary" [disabled]="page >= pageCount" (click)="setPage(page + 1)">
+        Siguiente
+      </button>
+    </div>
+  </nav>
 
   <app-participant-drawer
     [participant]="drawerParticipant"
     [isOpen]="drawerOpen"
+    [readOnly]="true"
     (closed)="closeDrawer()"
-    (editRequested)="onDrawerEdit($event)"
-    (deleteRequested)="onDrawerDelete($event)">
+  >
   </app-participant-drawer>
 </ng-container>
+
+<div class="notes-backdrop" *ngIf="notesParticipant as person">
+  <section
+    class="notes-panel"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="notes-title"
+    (keydown)="trapNotesFocus($event)"
+  >
+    <header class="notes-header">
+      <div>
+        <span class="notes-eyebrow">Seguimiento de consolidación</span>
+        <h3 id="notes-title">
+          {{ person.firstName }} {{ person.firstLastName }} {{ person.secondLastName || '' }}
+        </h3>
+        <p>{{ person.eventName }} · {{ person.tribeName || 'Sin tribu' }}</p>
+        <p>El seguimiento continúa aunque el reto haya finalizado.</p>
+      </div>
+      <button
+        class="notes-close"
+        [disabled]="notesSaving"
+        (click)="closeNotes()"
+        aria-label="Cerrar notas"
+      >
+        <lucide-icon name="x" [size]="22"></lucide-icon>
+      </button>
+    </header>
+    <div class="notes-body">
+      <form (ngSubmit)="saveNote()" class="note-form">
+        <label for="consolidation-note">Nueva nota</label>
+        <textarea
+          id="consolidation-note"
+          name="note"
+          rows="4"
+          maxlength="4000"
+          [(ngModel)]="noteDraft"
+          [disabled]="notesSaving"
+        ></textarea>
+        <div class="note-form-footer">
+          <span>{{ noteDraft.length }} / 4000 caracteres</span
+          ><button
+            class="btn-primary"
+            type="submit"
+            [disabled]="
+              notesSaving ||
+              notesLoading ||
+              !!notesError ||
+              !noteDraft.trim() ||
+              noteDraft.length > 4000
+            "
+          >
+            {{ notesSaving ? 'Guardando…' : 'Agregar nota' }}
+          </button>
+        </div>
+        <p class="notes-error" *ngIf="noteSaveError" role="alert">{{ noteSaveError }}</p>
+        <p class="notes-success" *ngIf="noteSuccess" role="status">{{ noteSuccess }}</p>
+      </form>
+      <div class="notes-history-heading">
+        <h4>Historial de notas</h4>
+        <span *ngIf="!notesLoading && !notesError">{{ notes.length }}</span>
+      </div>
+      <p *ngIf="notesLoading" class="notes-empty" role="status">Cargando notas…</p>
+      <div *ngIf="notesError" class="notes-error" role="alert">
+        {{ notesError }}
+        <button class="btn-secondary" type="button" (click)="loadNotes()">Reintentar</button>
+      </div>
+      <p *ngIf="!notesLoading && !notesError && !notes.length" class="notes-empty">
+        Todavía no hay notas de seguimiento para esta persona.
+      </p>
+      <ol *ngIf="!notesLoading && !notesError" class="notes-timeline">
+        <li *ngFor="let note of notes; trackBy: trackNote">
+          <div class="note-meta">
+            <strong>{{ note.createdByName }}</strong
+            ><time [attr.datetime]="note.createdAt">{{
+              note.createdAt | date: 'dd/MM/yyyy HH:mm'
+            }}</time>
+          </div>
+          <p class="note-content">{{ note.content }}</p>
+        </li>
+      </ol>
+    </div>
+    <footer class="notes-footer">
+      <button class="btn-secondary" [disabled]="notesSaving" (click)="closeNotes()">Cerrar</button>
+    </footer>
+  </section>
+</div>

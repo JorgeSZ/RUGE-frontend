@@ -1,0 +1,9 @@
+.admin-table-panel { border:1px solid var(--ruge-border-light); border-radius:14px; overflow:hidden; background:var(--ruge-dark-card); }
+.table-scroll { overflow-x:auto; }table { width:100%; border-collapse:collapse; text-align:left; min-width:850px; }
+th { padding:18px; background:var(--ruge-black); color:var(--ruge-text-secondary); font-size:10px; font-weight:600; letter-spacing:1px; text-transform:uppercase; }
+td { padding:20px 18px; border-top:1px solid var(--ruge-border); font-size:12px; }.admin-identity { display:flex; align-items:center; gap:12px; min-width:180px; }
+.admin-name { display:flex; align-items:center; gap:7px; }.admin-name strong { max-width:210px; overflow-wrap:anywhere; }.username { display:block; color:var(--ruge-text-secondary); margin-top:5px; font-size:11px; }
+.email-cell { overflow-wrap:anywhere; max-width:250px; color:var(--ruge-text-secondary); }.role-badge { display:inline-flex; gap:6px; align-items:center; color:var(--ruge-yellow); font-size:10px; }
+.admin-actions { display:flex; align-items:center; gap:6px; justify-content:flex-end; }.icon-button { padding:7px; min-height:32px; }.icon-button.danger { color:var(--ruge-danger); }.actions-heading { text-align:right; }
+.admin-table-panel .pagination { padding:16px 18px; border-top:1px solid var(--ruge-border); }.admin-table-panel .empty-state { border:0; }.inactive-row .avatar { color:var(--ruge-text-secondary); }
+.access-note { display:flex; gap:12px; align-items:center; margin-top:20px; padding:18px; border:1px solid var(--ruge-border); border-radius:12px; color:var(--ruge-text-secondary); }.access-note lucide-icon { flex-shrink:0; color:var(--ruge-yellow); }.access-note p { font-size:12px; margin:0; line-height:1.6; }

@@ -1,0 +1,127 @@
+<div class="history-page">
+  <button class="back-link" type="button" (click)="goBack()">← Volver a Retos</button>
+
+  <div *ngIf="loading" class="history-state">Cargando el historial del reto…</div>
+  <div *ngIf="error && !loading" class="history-error">{{ error }}</div>
+
+  <ng-container *ngIf="data && !loading">
+    <header class="history-header">
+      <div>
+        <span class="archive-label">HISTÓRICO · SOLO LECTURA</span>
+        <h2>{{ data.event.name }}</h2>
+        <p>{{ data.event.location || 'Ubicación no indicada' }} · {{ data.event.startDate | date:'longDate' }} – {{ data.event.endDate | date:'longDate' }}</p>
+      </div>
+      <div class="history-header-actions">
+        <a class="readonly-chip teaching-link" [routerLink]="['/enseñanzas', data.event.id]">Ver enseñanzas asignadas</a>
+        <span class="readonly-chip">Finalizado {{ data.event.archivedAt | date:'dd/MM/yyyy' }}</span>
+      </div>
+    </header>
+
+    <nav class="history-tabs" aria-label="Información histórica del reto">
+      <button *ngFor="let tab of tabs" type="button" [class.selected]="activeTab === tab.id" (click)="activeTab = tab.id">
+        {{ tab.label }}
+      </button>
+    </nav>
+
+    <section *ngIf="activeTab === 'summary'">
+      <div class="summary-grid">
+        <article class="summary-card"><span>Senderistas</span><strong>{{ data.summary.participants }}</strong></article>
+        <article class="summary-card"><span>Servidores</span><strong>{{ data.summary.servers }}</strong></article>
+        <article class="summary-card"><span>Tribus</span><strong>{{ data.summary.tribes }}</strong></article>
+        <article class="summary-card"><span>Segmentos</span><strong>{{ data.summary.segments }}</strong></article>
+        <article class="summary-card"><span>Retos registrados</span><strong>{{ data.summary.challenges }}</strong></article>
+        <article class="summary-card"><span>Movimientos de inventario</span><strong>{{ data.summary.inventoryItems }}</strong></article>
+      </div>
+      <article class="panel event-details">
+        <h3>Datos del reto</h3>
+        <dl>
+          <div><dt>Nombre</dt><dd>{{ data.event.name }}</dd></div>
+          <div><dt>Descripción</dt><dd>{{ data.event.description || '—' }}</dd></div>
+          <div><dt>Ubicación</dt><dd>{{ data.event.location || '—' }}</dd></div>
+          <div><dt>Inicio</dt><dd>{{ data.event.startDate | date:'dd/MM/yyyy' }}</dd></div>
+          <div><dt>Finalización</dt><dd>{{ data.event.endDate | date:'dd/MM/yyyy' }}</dd></div>
+          <div><dt>Archivado</dt><dd>{{ data.event.archivedAt | date:'dd/MM/yyyy HH:mm' }}</dd></div>
+        </dl>
+      </article>
+      <article class="panel ranking-panel" *ngIf="rankedTribes.length">
+        <h3>Ranking final de tribus</h3>
+        <div class="ranking-row" *ngFor="let tribe of rankedTribes; let i = index">
+          <span class="rank-number">{{ i + 1 }}.</span><span class="tribe-dot" [style.background]="tribe.color || '#f0b429'"></span>
+          <strong>{{ tribe.name }}</strong><span class="rank-points">{{ tribe.totalPoints }} pts</span>
+        </div>
+      </article>
+    </section>
+
+    <section *ngIf="activeTab === 'participants'" class="panel">
+      <h3>Senderistas <span class="count">{{ data.participants.length }}</span></h3>
+      <div class="table-scroll">
+        <table><thead><tr><th>Nombre</th><th>Cédula</th><th>Edad</th><th>Correo</th><th>Celular</th><th>Estado civil</th><th>Talla</th><th>Tribu</th><th>Check-in</th><th>Comprobante</th></tr></thead>
+          <tbody><tr *ngFor="let person of data.participants">
+            <td>{{ fullName(person) }}<details class="person-details"><summary>Ficha</summary><small>Nombre preferido: {{ person.nombrePreferido || '—' }}</small><small>Iglesia: {{ person.church || '—' }} · País: {{ person.country || '—' }}</small><small>Esposa: {{ person.nombreEsposa || '—' }} · {{ person.telefonoEsposa || '—' }}</small><small>Líder de grupo: {{ person.nombreLiderGrupo || '—' }} · {{ person.telefonoLiderGrupo || '—' }}</small><small>Asiste a iglesia: {{ person.asistesIglesia ? 'Sí' : 'No' }} · Pertenece a grupo: {{ person.perteneceGrupo ? 'Sí' : 'No' }}</small><small>Consentimiento de datos: {{ person.privacyConsentAccepted ? 'Aceptado' : 'No registrado' }}<span *ngIf="person.privacyConsentAt"> · {{ person.privacyConsentAt | date:'dd/MM/yyyy' }}</span></small><small *ngIf="person.qrCode">Código QR: {{ person.qrCode }}</small><small *ngIf="person.checkInDate">Check-in: {{ person.checkInDate | date:'dd/MM/yyyy HH:mm' }}</small></details></td><td>{{ person.cedula || '—' }}</td><td>{{ age(person.birthDate) }}</td><td>{{ person.email || '—' }}</td><td>{{ person.phone || '—' }}</td><td>{{ person.maritalStatus || '—' }}</td><td>{{ person.shirtSize || '—' }}</td><td>{{ person.tribeName || '—' }}</td>
+            <td><span class="status" [class.done]="person.checkInCompleted">{{ person.checkInCompleted ? 'Completado' : 'Pendiente' }}</span></td>
+            <td><a *ngIf="person.comprobantePagoPath" [href]="person.comprobantePagoPath" target="_blank" rel="noopener">Abrir</a><span *ngIf="!person.comprobantePagoPath">—</span></td>
+          </tr><tr *ngIf="!data.participants.length"><td colspan="10" class="empty">No hay senderistas registrados.</td></tr></tbody>
+        </table>
+      </div>
+      <h3 class="subsection-title">Medicamentos registrados</h3>
+      <div class="table-scroll"><table><thead><tr><th>Senderista</th><th>Medicamento</th><th>Dosis</th><th>Horario</th><th>Notas</th></tr></thead>
+        <tbody><ng-container *ngFor="let person of data.participants"><tr *ngFor="let medication of person.medications"><td>{{ fullName(person) }}</td><td>{{ medication.nombreMedicamento }}</td><td>{{ medication.dosis || '—' }}</td><td>{{ medication.horarios || medication.horario || '—' }}</td><td>{{ medication.notas || '—' }}</td></tr></ng-container>
+          <tr *ngIf="!hasParticipantMedications"><td colspan="5" class="empty">Sin medicamentos registrados.</td></tr></tbody>
+      </table></div>
+      <h3 class="subsection-title">Aplicación de dosis</h3>
+      <div class="table-scroll"><table><thead><tr><th>Senderista</th><th>Medicamento</th><th>Fecha</th><th>Hora</th><th>Estado</th><th>Aplicado por</th></tr></thead>
+        <tbody><tr *ngFor="let dose of data.medicationDoses"><td>{{ dose.participantName }}</td><td>{{ dose.medicationName }}</td><td>{{ dose.fecha | date:'dd/MM/yyyy' }}</td><td>{{ dose.horario }}</td><td>{{ dose.aplicado ? 'Aplicado' : 'Pendiente' }}</td><td>{{ dose.aplicadoPor || '—' }}</td></tr>
+          <tr *ngIf="!data.medicationDoses.length"><td colspan="6" class="empty">Sin aplicaciones registradas.</td></tr></tbody>
+      </table></div>
+    </section>
+
+    <section *ngIf="activeTab === 'servers'" class="panel">
+      <h3>Servidores <span class="count">{{ data.servers.length }}</span></h3>
+      <div class="table-scroll"><table><thead><tr><th>Nombre</th><th>Cédula</th><th>Edad</th><th>Correo</th><th>Celular</th><th>Comisión</th><th>Tribu</th><th>Aprobación</th><th>Check-in</th><th>Comprobante</th></tr></thead>
+        <tbody><tr *ngFor="let person of data.servers"><td>{{ fullName(person) }}<details class="person-details"><summary>Ficha</summary><small>Iglesia: {{ person.church || '—' }} · País: {{ person.country || '—' }} · Estado civil: {{ person.maritalStatus || '—' }}</small><small>Discipulado: {{ person.hasDiscipleship ? 'Sí' : 'No' }} · Parche: {{ person.hasDiscipleshipPatch ? 'Sí' : 'No' }} · Tiene grupo: {{ person.hasGroup ? 'Sí' : 'No' }}</small><small>New Life: {{ person.estaEnNewLife ? 'Sí' : 'No' }} · Módulo: {{ person.modulo || '—' }}</small><small>Líder: {{ person.nombreLider || '—' }} · {{ person.telefonoLider || '—' }} · {{ person.emailLider || '—' }}</small><small>Consentimiento de datos: {{ person.privacyConsentAccepted ? 'Aceptado' : 'No registrado' }}<span *ngIf="person.privacyConsentAt"> · {{ person.privacyConsentAt | date:'dd/MM/yyyy' }}</span></small><small *ngIf="person.qrCode">Código QR: {{ person.qrCode }}</small><small *ngIf="person.approvalDate">Aprobado: {{ person.approvalDate | date:'dd/MM/yyyy HH:mm' }}</small><small *ngIf="person.checkInDate">Check-in: {{ person.checkInDate | date:'dd/MM/yyyy HH:mm' }}</small></details></td><td>{{ person.cedula || '—' }}</td><td>{{ age(person.birthDate) }}</td><td>{{ person.email || '—' }}</td><td>{{ person.phone || '—' }}</td><td>{{ person.commissionName || '—' }}</td><td>{{ person.tribeName || '—' }}</td><td>{{ person.approvalStatus }}</td><td>{{ person.checkInCompleted ? 'Completado' : 'Pendiente' }}</td><td><a *ngIf="person.comprobantePagoPath" [href]="person.comprobantePagoPath" target="_blank" rel="noopener">Abrir</a><span *ngIf="!person.comprobantePagoPath">—</span></td></tr>
+          <tr *ngIf="!data.servers.length"><td colspan="10" class="empty">No hay servidores registrados.</td></tr></tbody>
+      </table></div>
+    </section>
+
+    <section *ngIf="activeTab === 'tribes'" class="tribe-grid">
+      <article class="panel tribe-card" *ngFor="let tribe of rankedTribes">
+        <div class="tribe-heading"><span class="tribe-dot" [style.background]="tribe.color || '#f0b429'"></span><h3>{{ tribe.name }}</h3><strong>{{ tribe.totalPoints }} pts</strong></div>
+        <p>{{ tribe.participants.length }} senderistas · {{ tribe.servers.length }} servidores</p>
+        <details><summary>Ver integrantes</summary><ul><li *ngFor="let member of tribe.participants">{{ fullName(member) }} <small>Senderista</small></li><li *ngFor="let member of tribe.servers">{{ fullName(member) }} <small>Servidor</small></li></ul></details>
+      </article>
+      <div class="panel empty" *ngIf="!data.tribes.length">No hay tribus registradas.</div>
+    </section>
+
+    <section *ngIf="activeTab === 'route'">
+      <article class="panel" *ngIf="data.track as track; else noTrack">
+        <div class="section-heading"><div><h3>{{ track.name }}</h3><p>{{ track.description || 'Ruta archivada' }}</p></div><span>{{ track.distanceKm || '—' }} km · {{ track.estimatedTimeMinutes || '—' }} min estimados</span></div>
+        <div class="segment-list"><article class="segment-row" *ngFor="let segment of trackSegments"><span class="segment-order">{{ segment.order }}</span><div><strong>{{ segment.name }}</strong><p>{{ segment.dia || 'Día no indicado' }} · {{ segment.lugar || 'Lugar no indicado' }}<span *ngIf="segment.scheduledTime"> · {{ segment.scheduledTime }}</span></p><small>{{ segment.description || 'Sin descripción' }}</small></div><span class="segment-estimate">{{ segment.estimatedTimeMinutes || '—' }} min</span></article></div>
+      </article>
+      <ng-template #noTrack><article class="panel empty">Este reto no tenía un track asignado.</article></ng-template>
+      <article class="panel execution-panel"><h3>Ejecución real de segmentos</h3><p *ngIf="data.execution">Estado: {{ data.execution.status }} · Inicio {{ data.execution.startedAt | date:'dd/MM/yyyy HH:mm' }} · Final {{ data.execution.finishedAt ? (data.execution.finishedAt | date:'dd/MM/yyyy HH:mm') : '—' }}</p>
+        <div class="table-scroll"><table><thead><tr><th>Segmento</th><th>Inicio</th><th>Fin</th><th>Duración real</th><th>Estado de tiempo</th><th>Notas</th></tr></thead><tbody><tr *ngFor="let segment of executionSegments"><td>{{ segment.segmentName }}</td><td>{{ segment.startedAt | date:'dd/MM/yyyy HH:mm' }}</td><td>{{ segment.finishedAt | date:'dd/MM/yyyy HH:mm' }}</td><td>{{ segment.durationMinutes != null ? (segment.durationMinutes | number:'1.0-1') + ' min' : '—' }}</td><td>{{ timingLabel(segment.timingStatus, segment.status) }}</td><td>{{ segment.notes || '—' }}</td></tr><tr *ngIf="!executionSegments.length"><td colspan="6" class="empty">Sin tiempos registrados.</td></tr></tbody></table></div>
+      </article>
+    </section>
+
+    <section *ngIf="activeTab === 'operations'" class="two-column">
+      <article class="panel"><h3>Tareas del evento</h3><div class="history-list"><div class="history-list-row" *ngFor="let task of data.tasks"><div><strong>{{ task.nombre }}</strong><small>{{ task.segmentName }} · {{ task.responsable || 'Sin responsable' }}</small></div><span class="status" [class.done]="task.status?.completado">{{ task.status?.completado ? 'Completada' : 'Pendiente' }}</span></div><div class="empty" *ngIf="!data.tasks.length">Sin tareas registradas.</div></div></article>
+      <article class="panel"><h3>Logística por evento</h3><div class="history-list"><div class="history-list-row" *ngFor="let item of data.logistics"><div><strong>{{ item.item.nombre }}</strong><small>{{ item.item.segmentName }} · {{ item.item.tipo }} · {{ item.item.cantidad }} {{ item.item.unidad || '' }}</small><small>Responsable: {{ item.item.responsable || '—' }} · {{ item.status?.completadoPor || 'sin completar por' }}</small><small *ngIf="item.status?.notas">Notas: {{ item.status.notas }}</small></div><span class="status" [class.done]="item.status?.completado">{{ item.status?.completado ? 'Completado' : 'Pendiente' }}</span></div><div class="empty" *ngIf="!data.logistics.length">Sin elementos de logística para el track.</div></div></article>
+    </section>
+
+    <section *ngIf="activeTab === 'inventory'" class="panel">
+      <h3>Movimientos de inventario de este reto</h3>
+      <div class="table-scroll"><table><thead><tr><th>Artículo</th><th>Categoría</th><th>Cantidad</th><th>Fecha de salida</th><th>Retiró</th><th>Responsable</th><th>Fecha de uso</th><th>Devolución</th><th>Notas</th></tr></thead>
+        <tbody><tr *ngFor="let item of data.inventory"><td>{{ item.itemName }}</td><td>{{ item.category }}</td><td>{{ item.cantidad }}</td><td>{{ item.fechaSalida | date:'dd/MM/yyyy' }}</td><td>{{ item.quienRetira }}</td><td>{{ item.personaResponsable || '—' }}</td><td>{{ item.fechaDeUso ? (item.fechaDeUso | date:'dd/MM/yyyy') : '—' }}</td><td>{{ item.fechaDevolucion ? (item.fechaDevolucion | date:'dd/MM/yyyy') : 'Pendiente' }}</td><td>{{ item.notas || '—' }}</td></tr>
+          <tr *ngIf="!data.inventory.length"><td colspan="9" class="empty">No hay movimientos de inventario.</td></tr></tbody>
+      </table></div>
+    </section>
+
+    <section *ngIf="activeTab === 'challenges'">
+      <article class="panel challenge-card" *ngFor="let challenge of data.challenges">
+        <div class="section-heading"><div><h3>{{ challenge.name }}</h3><p>{{ challenge.description || 'Sin descripción' }}</p></div><small>{{ challenge.createdAt | date:'dd/MM/yyyy HH:mm' }}</small></div>
+        <div class="score-grid"><div class="score-row" *ngFor="let score of challenge.scores"><span class="tribe-dot" [style.background]="tribeColor(score.tribeId)"></span><strong>{{ score.tribeName }}</strong><span>{{ score.points }} pts</span></div><div class="empty" *ngIf="!challenge.scores.length">Sin puntajes.</div></div>
+      </article>
+      <article class="panel empty" *ngIf="!data.challenges.length">No hay retos o actividades puntuadas.</article>
+    </section>
+  </ng-container>
+</div>

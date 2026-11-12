@@ -1,4 +1,5 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { DialogService } from '../../core/services/dialog.service';
+import { inject, ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { EvTaskService } from '../../core/services/ev-task.service';
@@ -12,6 +13,7 @@ import { EvTaskDto, EvTaskSegmentDetailResponse } from '../../core/models/ev-tas
   standalone: false
 })
 export class EvTasksDetailComponent implements OnInit {
+  private readonly dialogs = inject(DialogService);
   segmentId = '';
   detail: EvTaskSegmentDetailResponse | null = null;
   loading = true;
@@ -97,8 +99,9 @@ export class EvTasksDetailComponent implements OnInit {
     });
   }
 
-  deleteTask(task: EvTaskDto): void {
-    if (!confirm(`¿Eliminar "${task.nombre}"?`)) return;
+  async deleteTask(task: EvTaskDto): Promise<void> {
+    if (!(await this.dialogs.confirm(`¿Eliminar "${task.nombre}"?`, { title: 'Eliminar registro', confirmText: 'Eliminar', destructive: true }))) return;
+    this.cdr.markForCheck();
     this.evTaskService.delete(this.eventId, task.id).subscribe({
       next: () => { this.load(); this.showToast('Eliminada', 'success'); },
       error: () => this.showToast('Error al eliminar', 'error')

@@ -46,6 +46,7 @@
                 <span class="cal-nombre-preferido" *ngIf="entry.nombrePreferido">({{ entry.nombrePreferido }})</span>
               </div>
               <div class="cal-meta">{{ entry.edad ? entry.edad + ' años' : '' }}</div>
+              <div class="cal-meta" *ngIf="entry.contactoEmergenciaNombre || entry.contactoEmergenciaTelefono"><strong>Emergencia:</strong> {{ entry.contactoEmergenciaNombre || '—' }} · {{ entry.contactoEmergenciaTelefono || '—' }}</div>
             </div>
           </div>
           <div class="cal-meds-title">MEDICAMENTOS:</div>

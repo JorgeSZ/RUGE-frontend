@@ -3,6 +3,7 @@ export interface ProvisionItem {
   nombre: string;
   cantidadPorPersona: number;
   unidad: string;
+  precioUnitario: number | null;
   orden: number;
   createdAt: string;
 }

@@ -440,3 +440,27 @@ a { color: var(--ruge-yellow); }
 .toolbar select:disabled { opacity: 0.45; cursor: not-allowed; }
 
 .count { margin-left: auto; color: var(--ruge-text-muted); font-size: 0.82rem; }
+
+/* Shared SweetAlert2 dialogs, above drawers and editor windows. */
+div.swal2-container.ruge-dialog-container { z-index: 20000; }
+div.swal2-popup.ruge-dialog {
+  border: 1px solid var(--ruge-border-light); border-radius: 18px;
+  box-shadow: 0 24px 80px #0008; font-family: inherit;
+}
+h2.swal2-title.ruge-dialog-title { color: var(--ruge-text-primary); font-size: 1.5rem; line-height: 1.3; }
+div.swal2-html-container.ruge-dialog-text { color: var(--ruge-text-secondary); font-size: .95rem; line-height: 1.6; white-space: pre-line; overflow-wrap: anywhere; }
+div.swal2-actions.ruge-dialog-actions { gap: 12px; }
+.ruge-dialog .ruge-dialog-button { border: 1px solid transparent; border-radius: 9px; padding: 11px 20px; font: inherit; font-weight: 700; cursor: pointer; min-height: 44px; }
+.ruge-dialog .ruge-dialog-primary { background: var(--ruge-yellow); color: var(--ruge-black); }
+.ruge-dialog .ruge-dialog-danger { background: #B83232; color: #fff; }
+.ruge-dialog .ruge-dialog-secondary { background: var(--ruge-dark-hover); border-color: var(--ruge-border-light); color: var(--ruge-text-primary); }
+.ruge-dialog .ruge-dialog-button:hover { filter: brightness(1.12); }
+.ruge-dialog .ruge-dialog-button:focus-visible { outline: 3px solid var(--ruge-yellow-light); outline-offset: 3px; }
+.ruge-dialog .ruge-dialog-button:disabled { opacity: .55; cursor: wait; }
+.ruge-dialog .swal2-validation-message { background: #432725; color: #ffd1cc; }
+.ruge-dialog.swal2-toast h2.swal2-title { font-size: .95rem; }
+.ruge-dialog .swal2-timer-progress-bar { background: var(--ruge-yellow); }
+.ruge-dialog .swal2-close { color: var(--ruge-text-secondary); }
+@media (prefers-reduced-motion: reduce) {
+  .ruge-dialog, .ruge-dialog * { animation: none !important; transition: none !important; }
+}

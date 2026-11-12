@@ -1,4 +1,5 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { DialogService } from '../../core/services/dialog.service';
+import { inject, ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { TimeoutError, finalize, timeout } from 'rxjs';
 import { InventoryItem, InventoryItemInput } from '../../core/models/inventory.model';
@@ -11,6 +12,7 @@ import { InventoryService } from '../../core/services/inventory.service';
   standalone: false
 })
 export class InventoryComponent implements OnInit {
+  private readonly dialogs = inject(DialogService);
   readonly categories = ['Herramientas', 'Insumos', 'Eventos', 'Cocina', 'MRE'];
   items: InventoryItem[] = [];
   loading = false;
@@ -122,8 +124,9 @@ export class InventoryComponent implements OnInit {
     });
   }
 
-  delete(item: InventoryItem): void {
-    if (!confirm(`¿Eliminar "${item.articulo}" del inventario?`)) return;
+  async delete(item: InventoryItem): Promise<void> {
+    if (!(await this.dialogs.confirm(`¿Eliminar "${item.articulo}" del inventario?`, { title: 'Eliminar registro', confirmText: 'Eliminar', destructive: true }))) return;
+    this.cdr.markForCheck();
     this.inventoryService.delete(item.id).subscribe({
       next: () => { this.items = this.items.filter(x => x.id !== item.id); this.showToast('Artículo eliminado.', 'success'); },
       error: error => this.showToast(

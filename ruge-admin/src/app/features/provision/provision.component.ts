@@ -1,4 +1,5 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { DialogService } from '../../core/services/dialog.service';
+import { inject, ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ProvisionService } from '../../core/services/provision.service';
 import { EventContextService } from '../../core/services/event-context.service';
@@ -11,6 +12,7 @@ import { ProvisionItem, UNIDADES_MEDIDA } from '../../core/models/provision.mode
   standalone: false
 })
 export class ProvisionComponent implements OnInit {
+  private readonly dialogs = inject(DialogService);
   items: ProvisionItem[] = [];
   loading = false;
   showForm = false;
@@ -30,6 +32,7 @@ export class ProvisionComponent implements OnInit {
       nombre: ['', [Validators.required, Validators.minLength(1)]],
       cantidadPorPersona: [1, [Validators.required, Validators.min(0.0001)]],
       unidad: ['Unidades', Validators.required],
+      precioUnitario: [null, Validators.min(0)],
     });
   }
 
@@ -54,13 +57,13 @@ export class ProvisionComponent implements OnInit {
 
   openCreate(): void {
     this.editingId = null;
-    this.form.reset({ nombre: '', cantidadPorPersona: 1, unidad: 'Unidades' });
+    this.form.reset({ nombre: '', cantidadPorPersona: 1, unidad: 'Unidades', precioUnitario: null });
     this.showForm = true;
   }
 
   openEdit(item: ProvisionItem): void {
     this.editingId = item.id;
-    this.form.patchValue({ nombre: item.nombre, cantidadPorPersona: item.cantidadPorPersona, unidad: item.unidad });
+    this.form.patchValue({ nombre: item.nombre, cantidadPorPersona: item.cantidadPorPersona, unidad: item.unidad, precioUnitario: item.precioUnitario });
     this.showForm = true;
   }
 
@@ -82,8 +85,9 @@ export class ProvisionComponent implements OnInit {
     }
   }
 
-  delete(item: ProvisionItem): void {
-    if (!confirm(`¿Eliminar "${item.nombre}"?`)) return;
+  async delete(item: ProvisionItem): Promise<void> {
+    if (!(await this.dialogs.confirm(`¿Eliminar "${item.nombre}"?`, { title: 'Eliminar registro', confirmText: 'Eliminar', destructive: true }))) return;
+    this.cdr.markForCheck();
     this.provisionService.delete(item.id).subscribe({
       next: () => { this.load(); this.showToast('Ítem eliminado.', 'success'); },
       error: () => this.showToast('Error al eliminar.', 'error')

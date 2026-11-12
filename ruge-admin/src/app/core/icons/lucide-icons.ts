@@ -10,4 +10,6 @@ export {
   RefreshCw, PackageOpen, CalendarX, TriangleAlert, Info, Menu,
   KeyRound, UserMinus, XCircle, Utensils, Cross,
   Mail, Phone, FileText, MessageCircle,
+  Building2,
+  Receipt,
 } from 'lucide-angular';

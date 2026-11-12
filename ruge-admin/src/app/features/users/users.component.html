@@ -1,100 +1,261 @@
-<div class="page-header">
-  <h2>Usuarios</h2>
-  <button class="btn-primary" (click)="openCreate()">
-    <lucide-icon name="user-plus" [size]="15" [strokeWidth]="1.5"></lucide-icon>
-    Nuevo Usuario
+<header class="management-header users-header">
+  <div>
+    <span class="eyebrow">Administración de la iglesia</span>
+    <h1>Usuarios y roles</h1>
+    <p>Administra tu equipo, sus roles y sus credenciales de acceso.</p>
+  </div>
+  <button class="btn-primary" [disabled]="saving || !!actionId" (click)="openCreate()">
+    <lucide-icon name="user-plus" [size]="18"></lucide-icon>Nuevo usuario
   </button>
+</header>
+<div
+  class="notice"
+  *ngIf="toast"
+  [class.success]="toast.type === 'success'"
+  [class.error]="toast.type === 'error'"
+  [attr.role]="toast.type === 'error' ? 'alert' : 'status'"
+>
+  {{ toast.message
+  }}<button class="text-button dismiss" (click)="toast = null" aria-label="Cerrar aviso">×</button>
 </div>
-
-<div *ngIf="loading" class="loading">Cargando...</div>
-
-<table *ngIf="!loading" class="data-table">
-  <thead>
-    <tr>
-      <th>Nombre</th>
-      <th>Usuario</th>
-      <th>Rol</th>
-      <th>Estado</th>
-      <th>Último acceso</th>
-      <th>Acciones</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr *ngFor="let u of users" [class.row-inactive]="!u.activo">
-      <td class="user-name">{{ u.nombre }}</td>
-      <td class="user-username">@{{ u.username }}</td>
-      <td><span class="role-badge" [ngClass]="roleBadgeClass(u.rol)">{{ u.rol }}</span></td>
-      <td>
-        <span class="badge-ok" *ngIf="u.activo">Activo</span>
-        <span class="badge-danger" *ngIf="!u.activo">Inactivo</span>
-      </td>
-      <td class="muted-col">{{ u.ultimoAcceso ? (u.ultimoAcceso | date:'dd/MM/yyyy HH:mm') : '—' }}</td>
-      <td class="actions">
-        <button class="btn-sm" title="Editar"
-          [disabled]="u.id === currentUserId"
-          (click)="openEdit(u)">
-          <lucide-icon name="pencil" [size]="13" [strokeWidth]="1.5"></lucide-icon>
+<div class="notice error" *ngIf="loadError" role="alert">
+  {{ loadError }}<button class="text-button" (click)="load()" [disabled]="loading">Reintentar</button>
+</div>
+<div class="loading" *ngIf="loading" role="status">
+  <lucide-icon name="loader-2" [size]="20"></lucide-icon>Cargando usuarios…
+</div>
+<ng-container *ngIf="!loading">
+  <section class="metrics" aria-label="Resumen de usuarios">
+    <article class="metric">
+      <div class="metric-label">Total usuarios<lucide-icon name="users" [size]="20"></lucide-icon></div>
+      <strong>{{ users.length }}</strong>
+      <p>Cuentas registradas en la iglesia</p>
+    </article>
+    <article class="metric">
+      <div class="metric-label">
+        Usuarios activos<lucide-icon name="user-check" [size]="20"></lucide-icon>
+      </div>
+      <strong>{{ activeCount }}</strong>
+      <p>{{ users.length - activeCount }} usuarios inactivos</p>
+    </article>
+    <article class="metric">
+      <div class="metric-label">
+        Roles utilizados<lucide-icon name="shield-check" [size]="20"></lucide-icon>
+      </div>
+      <strong>{{ roleFilters.length }}</strong>
+      <p>Roles asignados a tu equipo</p>
+    </article>
+  </section>
+  <section class="users-filters" aria-label="Filtros de usuarios">
+    <div class="filters">
+      <label class="search-box"
+        ><lucide-icon name="search" [size]="17"></lucide-icon
+        ><input
+          type="search"
+          aria-label="Buscar usuario"
+          placeholder="Buscar por nombre, usuario o correo…"
+          [(ngModel)]="search"
+          (ngModelChange)="applyFilters()"
+      /></label>
+      <select aria-label="Filtrar por estado" [(ngModel)]="status" (ngModelChange)="applyFilters()">
+        <option value="all">Todos los estados</option>
+        <option value="active">Activos</option>
+        <option value="inactive">Inactivos</option>
+      </select>
+    </div>
+    <div class="role-filters" role="group" aria-label="Filtrar por rol">
+      <span>Rol</span
+      ><button [class.selected]="!selectedRole" [attr.aria-pressed]="!selectedRole" (click)="setRole('')">
+        Todos <span>{{ users.length }}</span></button
+      ><button
+        *ngFor="let item of roleFilters"
+        [class.selected]="selectedRole === item.role"
+        [attr.aria-pressed]="selectedRole === item.role"
+        (click)="setRole(item.role)"
+      >
+        {{ item.role }} <span>{{ item.count }}</span>
+      </button>
+    </div>
+  </section>
+  <section class="users-table-panel" aria-label="Usuarios registrados">
+    <div class="table-scroll" tabindex="0" role="region" aria-label="Tabla de usuarios">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Usuario / nombre</th>
+            <th scope="col">Rol asignado</th>
+            <th scope="col">Correo electrónico</th>
+            <th scope="col">Estado</th>
+            <th scope="col">Último acceso</th>
+            <th scope="col" class="actions-heading">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <ng-container *ngTemplateOutlet="userRows; context: { $implicit: visibleUsers }"></ng-container>
+        </tbody>
+      </table>
+    </div>
+    <div class="empty-state" *ngIf="!filteredUsers.length && !loadError">
+      <lucide-icon name="users" [size]="30"></lucide-icon>
+      <h3>{{ users.length ? 'No hay coincidencias' : 'No hay usuarios registrados' }}</h3>
+      <p>
+        {{
+          users.length ? 'Prueba con otro nombre o cambia los filtros.' : 'Agrega un usuario para comenzar.'
+        }}
+      </p>
+      <button *ngIf="users.length" class="btn-secondary" (click)="resetFilters()">Limpiar filtros</button>
+    </div>
+    <footer class="pagination" *ngIf="filteredUsers.length">
+      <span>Mostrando {{ firstResult }}–{{ lastResult }} de {{ filteredUsers.length }} usuarios</span>
+      <div class="page-controls">
+        <label
+          >Filas
+          <select aria-label="Usuarios por página" [(ngModel)]="pageSize" (ngModelChange)="applyFilters()">
+            <option [ngValue]="10">10</option>
+            <option [ngValue]="25">25</option>
+            <option [ngValue]="50">50</option>
+          </select></label
+        ><button class="btn-secondary" [disabled]="page === 1" (click)="setPage(page - 1)">Anterior</button
+        ><span>{{ page }} / {{ pageCount }}</span
+        ><button class="btn-secondary" [disabled]="page >= pageCount" (click)="setPage(page + 1)">
+          Siguiente
         </button>
-        <button class="btn-sm" title="Resetear contraseña"
-          [disabled]="u.id === currentUserId"
-          (click)="resetPassword(u)">
-          <lucide-icon name="key-round" [size]="13" [strokeWidth]="1.5"></lucide-icon>
-        </button>
-        <button class="btn-sm danger" title="Desactivar"
+      </div>
+    </footer>
+  </section>
+</ng-container>
+
+<ng-template #userRows let-rows>
+  <tr *ngFor="let u of rows; trackBy: trackUser" [class.row-inactive]="!u.activo" [attr.data-user-id]="u.id">
+    <td>
+      <div class="user-identity">
+        <div class="avatar" aria-hidden="true">{{ initials(u.nombre) }}</div>
+        <div>
+          <div class="user-name">
+            {{ u.nombre }} <span class="badge" *ngIf="u.id === currentUserId">Tú</span>
+          </div>
+          <span class="user-username">@{{ u.username }}</span>
+        </div>
+      </div>
+    </td>
+    <td>
+      <span class="role-badge" [ngClass]="roleBadgeClass(u.rol)">{{ u.rol }}</span>
+    </td>
+    <td class="email-cell">{{ u.email || 'Sin correo registrado' }}</td>
+    <td>
+      <span class="badge" [class.active-status]="u.activo" [class.muted]="!u.activo">{{
+        u.activo ? 'Activo' : 'Inactivo'
+      }}</span
+      ><small class="temporary-password-badge" *ngIf="u.mustChangePassword"
+        >Cambio de contraseña pendiente</small
+      >
+    </td>
+    <td class="last-access">
+      {{ u.ultimoAcceso ? (u.ultimoAcceso | date: 'dd/MM/yyyy HH:mm') : 'Sin registros' }}
+    </td>
+    <td>
+      <div class="user-actions">
+        <button
+          class="icon-button"
+          [disabled]="u.id === currentUserId || !!actionId"
+          [attr.aria-label]="'Editar a ' + u.nombre"
+          title="Editar"
+          (click)="openEdit(u)"
+        >
+          <lucide-icon name="pencil" [size]="16"></lucide-icon></button
+        ><button
+          class="icon-button"
+          [disabled]="u.id === currentUserId || !!actionId"
+          [attr.aria-label]="'Restablecer contraseña de ' + u.nombre"
+          title="Restablecer contraseña"
+          (click)="resetPassword(u)"
+        >
+          <lucide-icon name="key-round" [size]="16"></lucide-icon></button
+        ><button
+          class="icon-button danger"
           *ngIf="u.activo"
-          [disabled]="u.id === currentUserId"
-          (click)="deactivate(u)">
-          <lucide-icon name="user-minus" [size]="13" [strokeWidth]="1.5"></lucide-icon>
-        </button>
-      </td>
-    </tr>
-    <tr *ngIf="users.length === 0">
-      <td colspan="6" class="empty">No hay usuarios.</td>
-    </tr>
-  </tbody>
-</table>
+          [disabled]="u.id === currentUserId || !!actionId"
+          [attr.aria-label]="'Desactivar a ' + u.nombre"
+          title="Desactivar"
+          (click)="deactivate(u)"
+        >
+          <lucide-icon name="user-minus" [size]="16"></lucide-icon></button
+        ><lucide-icon
+          name="loader-2"
+          *ngIf="actionId === u.id"
+          [size]="16"
+          aria-label="Procesando"
+        ></lucide-icon>
+      </div>
+    </td>
+  </tr>
+</ng-template>
 
-<!-- Modal -->
-<div class="modal-backdrop" *ngIf="showForm" (click)="showForm = false">
-  <div class="modal-card" (click)="$event.stopPropagation()">
-    <h3>{{ editTarget ? 'Editar usuario' : 'Nuevo usuario' }}</h3>
+<div class="modal-backdrop" *ngIf="showForm">
+  <section
+    class="modal-card"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="user-form-title"
+    (keydown)="trapFocus($event)"
+  >
+    <div class="modal-heading">
+      <div>
+        <h3 id="user-form-title">{{ editTarget ? 'Editar usuario' : 'Nuevo usuario' }}</h3>
+        <p>
+          {{
+            editTarget
+              ? 'Actualiza los datos y permisos de esta cuenta.'
+              : 'Agrega una cuenta para un miembro de tu equipo.'
+          }}
+        </p>
+      </div>
+      <button class="close-button" [disabled]="saving" (click)="closeForm()" aria-label="Cerrar formulario">
+        ×
+      </button>
+    </div>
     <form [formGroup]="form" (ngSubmit)="save()">
-      <div class="form-row">
-        <label>Nombre *</label>
-        <input formControlName="nombre" placeholder="Nombre completo" />
+      <label for="user-name"
+        >Nombre completo *<input id="user-name" formControlName="nombre" placeholder="Nombre y apellidos"
+      /></label>
+      <label *ngIf="!editTarget" for="user-username"
+        >Usuario *<input
+          id="user-username"
+          formControlName="username"
+          placeholder="nombre.usuario"
+          autocomplete="off"
+        /><small>Debe ser único en toda la plataforma.</small></label
+      >
+      <div class="readonly-field" *ngIf="editTarget">
+        <span>Usuario de acceso (no se puede cambiar)</span><strong>@{{ editTarget.username }}</strong>
       </div>
-      <ng-container *ngIf="!editTarget">
-        <div class="form-row">
-          <label>Username *</label>
-          <input formControlName="username" placeholder="nombre.usuario" />
-        </div>
-        <div class="form-row">
-          <label>Contraseña inicial *</label>
-          <input type="password" formControlName="password" placeholder="Mínimo 8 caracteres" />
-        </div>
-      </ng-container>
-      <div class="form-row">
-        <label>Rol *</label>
-        <select formControlName="rol">
-          <option *ngFor="let r of roles" [value]="r">{{ r }}</option>
-        </select>
-      </div>
-      <div class="form-row form-check" *ngIf="editTarget">
-        <label>
-          <input type="checkbox" formControlName="activo" />
-          Usuario activo
-        </label>
-      </div>
+      <label for="user-email"
+        >Correo {{ !editTarget ? '*' : ''
+        }}<input id="user-email" type="email" formControlName="email" placeholder="usuario@iglesia.org"
+      /></label>
+      <p class="form-hint" *ngIf="!editTarget">
+        Enviaremos una contraseña temporal a este correo. El usuario deberá cambiarla al iniciar sesión.
+      </p>
+      <label for="user-role"
+        >Rol *<select id="user-role" formControlName="rol">
+          <option *ngFor="let r of roles" [value]="r" [disabled]="r === 'Admin' && !editTarget">
+            {{ r }}
+          </option>
+        </select></label
+      >
+      <p class="form-hint" *ngIf="!editTarget">
+        El Admin se define al registrar la iglesia. Usa Coordinador para dar permisos administrativos.
+      </p>
+      <label class="form-check" *ngIf="editTarget"
+        ><input type="checkbox" formControlName="activo" />Usuario activo</label
+      >
+      <div class="notice error" *ngIf="formError" role="alert">{{ formError }}</div>
       <div class="form-actions">
-        <button type="button" class="btn-secondary" (click)="showForm = false">Cancelar</button>
-        <button type="submit" class="btn-primary" [disabled]="form.invalid || saving">
-          {{ saving ? 'Guardando...' : 'Guardar' }}
+        <button class="btn-secondary" type="button" [disabled]="saving" (click)="closeForm()">Cancelar</button
+        ><button class="btn-primary" type="submit" [disabled]="form.invalid || saving">
+          {{ saving ? 'Guardando…' : 'Guardar' }}
         </button>
       </div>
     </form>
-  </div>
-</div>
-
-<div class="toast" *ngIf="toast" [class.toast-error]="toast.type === 'error'">
-  {{ toast.message }}
+  </section>
 </div>
