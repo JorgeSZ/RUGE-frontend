@@ -61,6 +61,26 @@ describe('Church principal administrator', () => {
     expect(component.filteredAdministratorCandidates.length).toBe(1);
     expect(fixture.nativeElement.textContent).toContain('El anterior conservará su rol Admin');
   });
+  it('edits only church information and leaves administrator management separate', async () => {
+    const fixture = await render();
+    const component = fixture.componentInstance;
+    const edit = Array.from(fixture.nativeElement.querySelectorAll('button') as NodeListOf<HTMLButtonElement>)
+      .find(button => button.textContent?.trim() === 'Editar iglesia')!;
+    edit.click();
+    await fixture.whenStable();
+    expect(fixture.nativeElement.querySelector('[formControlName="name"]')).not.toBeNull();
+    expect(fixture.nativeElement.querySelector('[formControlName="adminName"]')).toBeNull();
+    expect(fixture.nativeElement.querySelector('[formControlName="adminEmail"]')).toBeNull();
+    component.editForm.setValue({ name: 'Nuevo nombre' });
+    component.saveChurchDetails();
+    const req = http.expectOne({ url: `${base}/ruge`, method: 'PUT' });
+    expect(req.request.body).toEqual({ name: 'Nuevo nombre' });
+    req.flush({ id: church.id, name: 'Nuevo nombre' });
+    http.expectOne(base).flush([{ ...church, name: 'Nuevo nombre' }]);
+    await fixture.whenStable();
+    expect(component.editingChurch).toBeNull();
+    expect(component.savingEdit).toBe(false);
+  });
   it('updates the visible administrator and closes the dialog after saving', async () => {
     const fixture = await open();
     const component = fixture.componentInstance;
