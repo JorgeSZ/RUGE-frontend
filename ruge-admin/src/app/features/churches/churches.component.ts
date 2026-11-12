@@ -82,8 +82,6 @@ export class ChurchesComponent implements OnInit {
     });
     this.editForm = this.fb.group({
       name: ['', [Validators.required, Validators.maxLength(120)]],
-      adminName: ['', [Validators.required, Validators.maxLength(100)]],
-      adminEmail: ['', [Validators.required, Validators.email, Validators.maxLength(254)]],
     });
 
   }
@@ -123,16 +121,10 @@ export class ChurchesComponent implements OnInit {
   }
 
   openEdit(church: ChurchRow): void {
-    if (!church.administrator) {
-      this.error = 'Esta iglesia no tiene un administrador configurado para editar.';
-      return;
-    }
     this.editError = '';
     this.editingChurch = church;
     this.editForm.reset({
       name: church.name,
-      adminName: church.administrator.nombre,
-      adminEmail: church.administrator.email ?? '',
     });
   }
 

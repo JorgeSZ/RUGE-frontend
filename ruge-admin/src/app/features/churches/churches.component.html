@@ -38,7 +38,7 @@
         </div>
         <div class="church-actions">
           <button class="btn-primary" [disabled]="!canOpen(church) || !!openingChurchId" (click)="openChurch(church)">{{ openingChurchId === church.id ? 'Abriendo...' : 'Abrir iglesia' }}<lucide-icon name="chevron-right" [size]="15"></lucide-icon></button>
-          <button class="btn-secondary" (click)="openEdit(church)" [disabled]="!church.administrator">Editar info</button>
+          <button class="btn-secondary" (click)="openEdit(church)">Editar iglesia</button>
           <button class="btn-secondary change-administrator" *ngIf="auth.currentUser?.rol === 'GlobalAdmin'" (click)="openAdministrator(church)"><lucide-icon name="user" [size]="14"></lucide-icon>Cambiar administrador</button>
           <button class="btn-secondary" (click)="openLicense(church)">Asignar licencia<lucide-icon name="chevron-down" [size]="14"></lucide-icon></button>
           <button class="text-button" (click)="toggleActive(church)" [disabled]="!!statusActionId">{{ statusActionId === church.id ? 'Actualizando...' : church.isActive ? 'Desactivar' : 'Activar' }}</button>
@@ -80,18 +80,11 @@
 <div class="modal-backdrop" *ngIf="editingChurch as church" (click)="closeEdit()">
   <section class="modal-card" role="dialog" aria-modal="true" aria-label="Formulario de administración" (click)="$event.stopPropagation()">
     <div class="modal-heading">
-      <div><h3>Editar iglesia</h3><p>Actualiza los datos de la iglesia y su administrador.</p></div>
+      <div><h3>Editar iglesia</h3><p>Actualiza los datos de la iglesia.</p></div>
       <button class="close-button" type="button" aria-label="Cerrar" (click)="closeEdit()">×</button>
     </div>
     <form [formGroup]="editForm" (ngSubmit)="saveChurchDetails()">
       <label>Nombre de la iglesia<input formControlName="name" placeholder="Iglesia RUGE" /></label>
-      <label>Nombre del administrador<input formControlName="adminName" placeholder="Nombre completo" /></label>
-      <label>Correo del administrador<input type="email" formControlName="adminEmail" placeholder="admin@iglesia.org" /></label>
-      <div class="readonly-field">
-        <span>Usuario de acceso</span>
-        <strong>@{{ church.administrator?.username }}</strong>
-        <small>El nombre de usuario no se puede cambiar.</small>
-      </div>
       <div class="notice error modal-error" *ngIf="editError">{{ editError }}</div>
       <div class="form-actions">
         <button type="button" class="btn-secondary" [disabled]="savingEdit" (click)="closeEdit()">Cancelar</button>
