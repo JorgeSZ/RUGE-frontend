@@ -107,9 +107,12 @@ describe('Separate global management pages', () => {
     const f = TestBed.createComponent(GlobalAdminsComponent); f.detectChanges();
     http.expectOne(`${base}/global-admins`).flush(admins);
     f.componentInstance.openGlobalAdminForm();
-    f.componentInstance.globalAdminForm.setValue({ name: 'Nueva Cuenta', username: 'nueva', email: 'nueva@example.com' });
+    f.componentInstance.globalAdminForm.setValue({ name: 'Nueva Cuenta', email: 'nueva@example.com' });
     f.componentInstance.createGlobalAdmin();
-    http.expectOne({ url: `${base}/global-admins`, method: 'POST' }).flush({});
+    const request = http.expectOne({ url: `${base}/global-admins`, method: 'POST' });
+    expect(request.request.body.username).toBeUndefined();
+    expect(request.request.body.email).toBe('nueva@example.com');
+    request.flush({});
     http.expectOne(`${base}/global-admins`).flush(admins);
     await f.whenStable();
     expect(f.componentInstance.showGlobalAdminForm).toBe(false);

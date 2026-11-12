@@ -46,9 +46,8 @@
     </div>
     <form [formGroup]="globalAdminForm" (ngSubmit)="createGlobalAdmin()">
       <label>Nombre completo<input formControlName="name" placeholder="Nombre del administrador" /></label>
-      <label>Usuario<input formControlName="username" placeholder="usuario.global" /></label>
       <label>Correo<input type="email" formControlName="email" placeholder="admin@ruge.org" /></label>
-      <p class="form-hint">Enviaremos al correo una contraseña temporal que deberá cambiar al iniciar sesión.</p>
+      <p class="form-hint">El correo será su usuario de acceso. Enviaremos al correo una contraseña temporal que deberá cambiar al iniciar sesión.</p>
       <div class="notice error modal-error" *ngIf="globalAdminError">{{ globalAdminError }}</div>
       <div class="form-actions">
         <button type="button" class="btn-secondary" [disabled]="savingGlobalAdmin" (click)="closeGlobalAdminForm()">Cancelar</button>

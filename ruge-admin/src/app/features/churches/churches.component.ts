@@ -1,14 +1,19 @@
 import { initials, searchText } from '../global-management/global-management.utils';
 import { DialogService } from '../../core/services/dialog.service';
-import { inject, ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { inject, ChangeDetectorRef, Component, DestroyRef, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { finalize } from 'rxjs';
+import { finalize, Subscription } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { environment } from '../../../environments/environment';
 import { AuthService } from '../../core/services/auth.service';
 import { ChurchContextService } from '../../core/services/church-context.service';
 import { EventContextService } from '../../core/services/event-context.service';
+
+interface AdministratorCandidate {
+  id: string; username: string; nombre: string; email: string; role: string;
+}
 
 interface ChurchRow {
   id: string;
@@ -27,6 +32,17 @@ interface ChurchRow {
 })
 export class ChurchesComponent implements OnInit {
   private readonly dialogs = inject(DialogService);
+  private readonly destroyRef = inject(DestroyRef);
+  private candidateRequest?: Subscription;
+  administratorChurch: ChurchRow | null = null;
+  administratorCandidates: AdministratorCandidate[] = [];
+  administratorSearch = '';
+  selectedAdministratorId = '';
+  administratorLoading = false;
+  administratorSaving = false;
+  administratorError = '';
+  administratorLoadError = '';
+
   churches: ChurchRow[] = [];
   loading = false;
   saving = false;
@@ -61,7 +77,6 @@ export class ChurchesComponent implements OnInit {
     this.form = this.fb.group({
       name: ['', [Validators.required, Validators.maxLength(120)]],
       adminName: ['', [Validators.required, Validators.maxLength(100)]],
-      adminUsername: ['', [Validators.required, Validators.maxLength(50)]],
       adminEmail: ['', [Validators.required, Validators.email, Validators.maxLength(254)]],
       licenseType: ['OneYear', Validators.required],
     });
@@ -148,6 +163,75 @@ export class ChurchesComponent implements OnInit {
         this.load();
       },
       error: err => { this.editError = err?.error?.error ?? 'No se pudo actualizar la iglesia.'; }
+    });
+  }
+
+  openAdministrator(church: ChurchRow): void {
+    if (this.auth.currentUser?.rol !== 'GlobalAdmin' || this.administratorSaving) return;
+    this.candidateRequest?.unsubscribe();
+    this.administratorChurch = church;
+    this.administratorCandidates = [];
+    this.administratorSearch = '';
+    this.selectedAdministratorId = '';
+    this.administratorError = '';
+    this.loadAdministratorCandidates();
+  }
+
+  closeAdministrator(): void {
+    if (this.administratorSaving) return;
+    this.candidateRequest?.unsubscribe();
+    this.administratorChurch = null;
+  }
+
+  loadAdministratorCandidates(): void {
+    if (!this.administratorChurch) return;
+    this.candidateRequest?.unsubscribe();
+    this.administratorLoading = true;
+    this.administratorLoadError = '';
+    const church = this.administratorChurch;
+    this.candidateRequest = this.http.get<AdministratorCandidate[]>(
+      `${environment.apiUrl}/churches/${church.id}/administrator-candidates`
+    ).pipe(takeUntilDestroyed(this.destroyRef), finalize(() => {
+      this.administratorLoading = false; this.cdr.markForCheck();
+    })).subscribe({
+      next: candidates => { this.administratorCandidates = candidates.filter(u => u.id !== church.administrator?.id); },
+      error: () => { this.administratorLoadError = 'No se pudieron cargar los usuarios de la iglesia.'; }
+    });
+  }
+
+  get filteredAdministratorCandidates(): AdministratorCandidate[] {
+    const terms = searchText(this.administratorSearch).split(/\s+/).filter(Boolean);
+    return this.administratorCandidates.filter(u => terms.every(term =>
+      searchText(`${u.nombre} ${u.username} ${u.email}`).includes(term)));
+  }
+
+  async changeAdministrator(): Promise<void> {
+    const church = this.administratorChurch;
+    const selected = this.administratorCandidates.find(u => u.id === this.selectedAdministratorId);
+    if (!church || !selected || this.administratorSaving || this.administratorLoading || this.administratorLoadError ||
+        this.auth.currentUser?.rol !== 'GlobalAdmin') return;
+    this.administratorSaving = true;
+    this.administratorError = '';
+    const confirmed = await this.dialogs.confirm(
+      `${selected.nombre} (@${selected.username}) será el administrador principal de ${church.name} y recibirá los avisos dirigidos al administrador. El anterior conservará su rol Admin y su acceso.`,
+      { title: 'Cambiar administrador principal', confirmText: 'Confirmar cambio' });
+    if (this.destroyRef.destroyed) return;
+    if (!confirmed) { this.administratorSaving = false; this.cdr.markForCheck(); return; }
+    this.http.put<{ administrator: ChurchRow['administrator'] }>(
+      `${environment.apiUrl}/churches/${church.id}/administrator`,
+      { userId: selected.id, expectedAdministratorUserId: church.administrator?.id ?? null }
+    ).pipe(takeUntilDestroyed(this.destroyRef), finalize(() => {
+      this.administratorSaving = false; this.cdr.markForCheck();
+    })).subscribe({
+      next: result => {
+        this.churches = this.churches.map(item => item.id === church.id ? { ...item, administrator: result.administrator } : item);
+        this.administratorChurch = null;
+        this.success = `Administrador principal de ${church.name} actualizado. El nuevo responsable debe iniciar sesión nuevamente para cargar sus permisos.`;
+      },
+      error: err => {
+        this.administratorError = err?.error?.error ?? 'No se pudo cambiar el administrador. Intenta nuevamente.';
+        if (err.status === 409) this.load();
+      }
     });
   }
 

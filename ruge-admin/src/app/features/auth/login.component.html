@@ -7,12 +7,12 @@
 
     <form [formGroup]="form" (ngSubmit)="submit()" class="login-form">
       <div class="login-field">
-        <label>Usuario</label>
+        <label>Correo o usuario</label>
         <div class="input-wrap">
           <lucide-icon name="user" [size]="16" [strokeWidth]="1.5" class="input-icon"></lucide-icon>
           <input
             formControlName="username"
-            placeholder="nombre de usuario"
+            placeholder="Correo o usuario existente"
             autocomplete="username"
             (keydown.enter)="submit()"
           />

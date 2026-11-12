@@ -76,7 +76,6 @@ export class UsersComponent implements OnInit {
     this.form = this.fb.group({
       nombre: ['', [Validators.required, Validators.maxLength(100)]],
       email: ['', [Validators.email, Validators.maxLength(254)]],
-      username: [''],
       rol: ['Coordinador', Validators.required],
       activo: [true],
     });
@@ -156,8 +155,7 @@ export class UsersComponent implements OnInit {
   openCreate(): void {
     if (this.saving || this.actionId) return;
     this.editTarget = null;
-    this.form.reset({ rol: 'Coordinador', activo: true, email: '', nombre: '', username: '' });
-    this.form.get('username')!.setValidators([Validators.required, Validators.maxLength(50)]);
+    this.form.reset({ rol: 'Coordinador', activo: true, email: '', nombre: '' });
     this.form.get('email')!.setValidators([Validators.required, Validators.email, Validators.maxLength(254)]);
     this.openForm();
   }
@@ -165,11 +163,9 @@ export class UsersComponent implements OnInit {
   openEdit(user: UserDto): void {
     if (user.id === this.currentUserId || this.saving || this.actionId) return;
     this.editTarget = user;
-    this.form.get('username')!.clearValidators();
     this.form.get('email')!.setValidators([Validators.email, Validators.maxLength(254)]);
     this.form.reset({
       nombre: user.nombre,
-      username: user.username,
       email: user.email ?? '',
       rol: user.rol,
       activo: user.activo,
@@ -178,7 +174,6 @@ export class UsersComponent implements OnInit {
   }
 
   private openForm(): void {
-    this.form.get('username')!.updateValueAndValidity();
     this.form.get('email')!.updateValueAndValidity();
     this.formError = '';
     this.returnFocus = document.activeElement as HTMLElement;
@@ -225,7 +220,7 @@ export class UsersComponent implements OnInit {
           rol: v.rol,
           activo: v.activo,
         })
-      : this.userSvc.create({ nombre: v.nombre, username: v.username, email: v.email, rol: v.rol });
+      : this.userSvc.create({ nombre: v.nombre, email: v.email, rol: v.rol });
     obs
       .pipe(
         finalize(() => {

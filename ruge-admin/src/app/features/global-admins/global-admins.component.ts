@@ -38,7 +38,6 @@ export class GlobalAdminsComponent implements OnInit {
   constructor(private http: HttpClient, private fb: FormBuilder, public auth: AuthService, private cdr: ChangeDetectorRef) {
     this.globalAdminForm = this.fb.group({
       name: ['', [Validators.required, Validators.maxLength(100)]],
-      username: ['', [Validators.required, Validators.maxLength(50)]],
       email: ['', [Validators.required, Validators.email, Validators.maxLength(254)]],
     });
     this.globalAdminEditForm = this.fb.group({

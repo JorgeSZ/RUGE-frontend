@@ -15,3 +15,12 @@
 .inactive-card .church-avatar { border-color:var(--ruge-text-muted); color:var(--ruge-text-secondary); }
 @media(max-width:1200px) { .church-card { grid-template-columns:minmax(180px,1fr) 200px; gap:18px; }.church-actions { grid-column:1/-1; display:flex; flex-wrap:wrap; padding-top:14px; border-top:1px solid var(--ruge-border); } }
 @media(max-width:650px) { .church-card { grid-template-columns:1fr; padding:18px; }.license-summary { margin-left:58px; }.church-actions { display:grid; grid-template-columns:1fr 1fr; }.church-identity { gap:16px; } }
+
+.change-administrator { grid-column: 1 / -1; }
+.administrator-options { max-height: 280px; overflow-y: auto; margin: 12px 0; display: grid; gap: 8px; }
+.modal-card .administrator-option { display: flex; align-items: center; gap: 12px; padding: 12px; border: 1px solid var(--ruge-border); border-radius: 8px; cursor: pointer; }
+.administrator-option.selected { border-color: var(--ruge-yellow); }
+.administrator-option input[type="radio"] { width: 18px; height: 18px; min-height: 18px; padding: 0; flex-shrink: 0; accent-color: var(--ruge-yellow); }
+.administrator-option span { display: grid; gap: 4px; min-width: 0; }
+.administrator-option small { color: var(--ruge-text-secondary); overflow-wrap: anywhere; }
+.administrator-modal { max-height: 90vh; overflow-y: auto; }

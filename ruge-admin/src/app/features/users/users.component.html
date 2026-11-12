@@ -218,14 +218,6 @@
       <label for="user-name"
         >Nombre completo *<input id="user-name" formControlName="nombre" placeholder="Nombre y apellidos"
       /></label>
-      <label *ngIf="!editTarget" for="user-username"
-        >Usuario *<input
-          id="user-username"
-          formControlName="username"
-          placeholder="nombre.usuario"
-          autocomplete="off"
-        /><small>Debe ser único en toda la plataforma.</small></label
-      >
       <div class="readonly-field" *ngIf="editTarget">
         <span>Usuario de acceso (no se puede cambiar)</span><strong>@{{ editTarget.username }}</strong>
       </div>
@@ -234,7 +226,7 @@
         }}<input id="user-email" type="email" formControlName="email" placeholder="usuario@iglesia.org"
       /></label>
       <p class="form-hint" *ngIf="!editTarget">
-        Enviaremos una contraseña temporal a este correo. El usuario deberá cambiarla al iniciar sesión.
+        El correo será su usuario de acceso. Enviaremos una contraseña temporal a este correo. El usuario deberá cambiarla al iniciar sesión.
       </p>
       <label for="user-role"
         >Rol *<select id="user-role" formControlName="rol">
@@ -244,7 +236,7 @@
         </select></label
       >
       <p class="form-hint" *ngIf="!editTarget">
-        El Admin se define al registrar la iglesia. Usa Coordinador para dar permisos administrativos.
+        Usa Coordinador para dar permisos administrativos. Un administrador global puede configurar al administrador principal desde Iglesias y licencias.
       </p>
       <label class="form-check" *ngIf="editTarget"
         ><input type="checkbox" formControlName="activo" />Usuario activo</label
