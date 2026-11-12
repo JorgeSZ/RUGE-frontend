@@ -1,6 +1,8 @@
+import { ConsolidationNote, CreateConsolidationNote } from '../models/consolidation-note.model';
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, map } from 'rxjs';
+import { ConsolidationParticipant, ConsolidationParticipantResponse } from '../models/consolidation-participant.model';
 import { ApiService } from './api.service';
 import { Participant, CreateParticipantRequest, UpdateParticipantRequest, Medication, CreateMedicationRequest, CalaqueroEntry } from '../models/participant.model';
 import { environment } from '../../../environments/environment';
@@ -52,6 +54,21 @@ export class ParticipantService {
 
   getCalaquero(eventId: string): Observable<CalaqueroEntry[]> {
     return this.api.get<CalaqueroEntry[]>(`/events/${eventId}/calaquero`);
+  }
+
+  getConsolidationNotes(participantId: string): Observable<ConsolidationNote[]> {
+    return this.api.get<ConsolidationNote[]>(`/consolidacion/${participantId}/notes`);
+  }
+
+  addConsolidationNote(participantId: string, request: CreateConsolidationNote): Observable<ConsolidationNote> {
+    return this.api.post<ConsolidationNote>(`/consolidacion/${participantId}/notes`, request);
+  }
+
+  getChurchConsolidacion(): Observable<ConsolidationParticipant[]> {
+    return this.api.get<ConsolidationParticipantResponse[]>('/consolidacion').pipe(
+      map(rows => rows.map(row => ({ ...row.participant, eventName: row.eventName,
+        eventStartDate: row.eventStartDate, eventIsArchived: row.eventIsArchived })))
+    );
   }
 
   getConsolidacion(eventId: string): Observable<Participant[]> {

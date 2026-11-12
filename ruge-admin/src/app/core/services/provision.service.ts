@@ -13,11 +13,11 @@ export class ProvisionService {
     return this.api.get<ProvisionItem[]>('/provision');
   }
 
-  create(data: { nombre: string; cantidadPorPersona: number; unidad: string }): Observable<ProvisionItem> {
+  create(data: { nombre: string; cantidadPorPersona: number; unidad: string; precioUnitario: number | null }): Observable<ProvisionItem> {
     return this.api.post<ProvisionItem>('/provision', data);
   }
 
-  update(id: string, data: { nombre: string; cantidadPorPersona: number; unidad: string }): Observable<ProvisionItem> {
+  update(id: string, data: { nombre: string; cantidadPorPersona: number; unidad: string; precioUnitario: number | null }): Observable<ProvisionItem> {
     return this.api.put<ProvisionItem>(`/provision/${id}`, data);
   }
 

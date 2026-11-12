@@ -2,7 +2,10 @@ export interface AuthUser {
   id: string;
   username: string;
   nombre: string;
-  rol: 'Admin' | 'Logistica' | 'Eventos' | 'Tiempos' | 'Cocina' | 'Calaquero' | 'Guia';
+  rol: 'Admin' | 'Coordinador' | 'GlobalAdmin' | 'Logistica' | 'Eventos' | 'Tiempos' | 'Cocina' | 'Calaquero' | 'Guia' | 'Inventario' | 'Registrador';
+  churchId?: string | null;
+  email?: string | null;
+  mustChangePassword?: boolean;
 }
 
 export interface LoginResponse {
@@ -24,4 +27,6 @@ export interface UserDto {
   activo: boolean;
   creadoEn: string;
   ultimoAcceso?: string;
+  email?: string | null;
+  mustChangePassword?: boolean;
 }

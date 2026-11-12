@@ -32,6 +32,8 @@ export interface Participant {
   maritalStatus?: string;
   nombreEsposa?: string;
   telefonoEsposa?: string;
+  emergencyContactName?: string;
+  emergencyContactPhone?: string;
   privacyConsentAccepted?: boolean;
   privacyConsentAt?: string;
   country?: string;
@@ -71,6 +73,8 @@ export interface CreateParticipantRequest {
   perteneceGrupo?: boolean;
   nombreLiderGrupo?: string;
   telefonoLiderGrupo?: string;
+  emergencyContactName?: string;
+  emergencyContactPhone?: string;
 }
 
 export interface UpdateParticipantRequest {
@@ -92,6 +96,8 @@ export interface UpdateParticipantRequest {
   perteneceGrupo?: boolean;
   nombreLiderGrupo?: string;
   telefonoLiderGrupo?: string;
+  emergencyContactName?: string;
+  emergencyContactPhone?: string;
 }
 
 export interface CalaqueroEntry {
@@ -100,5 +106,7 @@ export interface CalaqueroEntry {
   nombrePreferido?: string;
   edad?: number;
   tribu?: string;
+  contactoEmergenciaNombre?: string;
+  contactoEmergenciaTelefono?: string;
   medicamentos: { nombre: string; dosis?: string; horario?: string; horarios?: string[]; notas?: string }[];
 }

@@ -1,4 +1,5 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { DialogService } from '../../core/services/dialog.service';
+import { inject, ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { LogisticsService } from '../../core/services/logistics.service';
@@ -17,6 +18,7 @@ import {
   standalone: false
 })
 export class LogisticsDetailComponent implements OnInit {
+  private readonly dialogs = inject(DialogService);
   segmentId = '';
   detail: LogisticSegmentDetailResponse | null = null;
   loading = true;
@@ -123,8 +125,9 @@ export class LogisticsDetailComponent implements OnInit {
     });
   }
 
-  deleteItem(item: LogisticItemDto): void {
-    if (!confirm(`¿Eliminar "${item.nombre}"?`)) return;
+  async deleteItem(item: LogisticItemDto): Promise<void> {
+    if (!(await this.dialogs.confirm(`¿Eliminar "${item.nombre}"?`, { title: 'Eliminar registro', confirmText: 'Eliminar', destructive: true }))) return;
+    this.cdr.markForCheck();
     this.logisticsService.delete(item.id).subscribe({
       next: () => { this.load(); this.showToast('Eliminado', 'success'); },
       error: () => this.showToast('Error al eliminar', 'error')

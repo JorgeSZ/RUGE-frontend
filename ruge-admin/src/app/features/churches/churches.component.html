@@ -1,0 +1,116 @@
+<header class="management-header">
+  <div><span class="eyebrow">Administración global</span><h1>Iglesias y licencias</h1><p>Gestiona las iglesias de RUGE, sus administradores y la vigencia de sus licencias.</p></div>
+  <button class="btn-primary" (click)="openCreate()"><lucide-icon name="plus" [size]="18"></lucide-icon>Nueva iglesia</button>
+</header>
+<div class="notice success" *ngIf="success" role="status">{{ success }}</div>
+<div class="notice error" *ngIf="error" role="alert">{{ error }} <button class="text-button" (click)="load()">Reintentar</button></div>
+<div class="loading" *ngIf="loading" role="status"><lucide-icon name="loader-2" class="spinning" [size]="20"></lucide-icon>Cargando iglesias...</div>
+<ng-container *ngIf="!loading">
+  <section class="metrics" aria-label="Resumen de iglesias">
+    <article class="metric"><div class="metric-label">Iglesias registradas<lucide-icon name="building-2" [size]="20"></lucide-icon></div><strong>{{ churches.length }}</strong><p>{{ activeCount }} activas · {{ churches.length - activeCount }} inactivas</p></article>
+    <article class="metric"><div class="metric-label">Licencias vigentes<lucide-icon name="badge-check" [size]="20"></lucide-icon></div><strong>{{ licensedCount }}</strong><p>{{ expiringCount }} vencen en los próximos 30 días</p></article>
+    <article class="metric"><div class="metric-label">Requieren atención<lucide-icon name="clock" [size]="20"></lucide-icon></div><strong>{{ attentionCount }}</strong><p>Iglesias activas sin licencia vigente</p></article>
+  </section>
+  <section aria-labelledby="church-list-title">
+    <div class="list-toolbar">
+      <h2 id="church-list-title">Iglesias registradas <span>{{ filteredChurches.length }} de {{ churches.length }}</span></h2>
+      <div class="filters">
+        <label class="search-box"><lucide-icon name="search" [size]="17"></lucide-icon><input type="search" aria-label="Buscar iglesia o administrador" placeholder="Buscar iglesia, administrador o correo..." [(ngModel)]="search" (ngModelChange)="page = 1" /></label>
+        <select aria-label="Filtrar iglesias por estado" [(ngModel)]="status" (ngModelChange)="page = 1"><option value="all">Todos los estados</option><option value="active">Con acceso habilitado</option><option value="attention">Sin licencia vigente</option><option value="inactive">Iglesias inactivas</option></select>
+      </div>
+    </div>
+    <div class="church-list">
+      <article class="church-card" *ngFor="let church of visibleChurches" [class.inactive-card]="!church.isActive">
+        <div class="church-identity">
+          <div class="avatar church-avatar" aria-hidden="true">{{ initials(church.name) }}</div>
+          <div class="church-info"><div class="name-line"><h3>{{ church.name }}</h3><span class="badge muted" *ngIf="!church.isActive">Inactiva</span></div>
+            <ng-container *ngIf="church.administrator as admin; else noAdmin">
+              <p class="admin-name"><lucide-icon name="user" [size]="14"></lucide-icon>{{ admin.nombre }}</p>
+              <p class="contact">@{{ admin.username }}</p><p class="contact">{{ admin.email || 'Sin correo registrado' }}</p>
+            </ng-container>
+            <ng-template #noAdmin><p class="contact">Sin administrador configurado</p></ng-template>
+          </div>
+        </div>
+        <div class="license-summary">
+          <div class="license-heading"><span>{{ licenseTypeLabel(church) }}</span><span class="license-status" [class.warning]="!church.license || church.license.isExpired">{{ !church.license ? 'Sin licencia' : church.license.isExpired ? 'Vencida' : 'Vigente' }}</span></div>
+          <div class="license-meter" aria-hidden="true"><span [style.width.%]="remainingPercent(church)"></span></div>
+          <div class="license-dates"><div><span>Inicio</span><strong>{{ church.license ? (church.license.startsAt | date:'dd/MM/yyyy') : '—' }}</strong></div><div><span>Vencimiento</span><strong>{{ church.license?.expiresAt ? (church.license!.expiresAt | date:'dd/MM/yyyy') : church.license ? 'Sin vencimiento' : '—' }}</strong></div></div>
+        </div>
+        <div class="church-actions">
+          <button class="btn-primary" [disabled]="!canOpen(church) || !!openingChurchId" (click)="openChurch(church)">{{ openingChurchId === church.id ? 'Abriendo...' : 'Abrir iglesia' }}<lucide-icon name="chevron-right" [size]="15"></lucide-icon></button>
+          <button class="btn-secondary" (click)="openEdit(church)" [disabled]="!church.administrator">Editar info</button>
+          <button class="btn-secondary" (click)="openLicense(church)">Asignar licencia<lucide-icon name="chevron-down" [size]="14"></lucide-icon></button>
+          <button class="text-button" (click)="toggleActive(church)" [disabled]="!!statusActionId">{{ statusActionId === church.id ? 'Actualizando...' : church.isActive ? 'Desactivar' : 'Activar' }}</button>
+        </div>
+      </article>
+    </div>
+    <div class="empty-state" *ngIf="!filteredChurches.length"><lucide-icon name="building-2" [size]="30"></lucide-icon><h3>{{ churches.length ? 'No hay coincidencias' : 'Tu primera iglesia empieza aquí' }}</h3><p>{{ churches.length ? 'Prueba con otro nombre o cambia el filtro.' : 'Registra una iglesia para configurar su administrador y licencia.' }}</p><button *ngIf="churches.length" class="btn-secondary" (click)="resetFilters()">Limpiar filtros</button><button *ngIf="!churches.length && !error" class="btn-primary" (click)="openCreate()">Nueva iglesia</button></div>
+    <footer class="pagination" *ngIf="filteredChurches.length"><span>{{ filteredChurches.length }} iglesias · Página {{ page }} de {{ pageCount }}</span><div><button class="btn-secondary" [disabled]="page === 1" (click)="page = page - 1" aria-label="Página anterior"><lucide-icon name="chevron-left" [size]="16"></lucide-icon></button><button class="btn-secondary" [disabled]="page === pageCount" (click)="page = page + 1" aria-label="Página siguiente"><lucide-icon name="chevron-right" [size]="16"></lucide-icon></button></div></footer>
+  </section>
+</ng-container>
+
+<div class="modal-backdrop" *ngIf="showCreate" (click)="closeCreate()">
+  <section class="modal-card" role="dialog" aria-modal="true" aria-label="Formulario de administración" (click)="$event.stopPropagation()">
+    <div class="modal-heading">
+      <div><h3>Registrar iglesia</h3><p>Se creará un usuario Admin inicial y su licencia.</p></div>
+      <button class="close-button" type="button" aria-label="Cerrar" (click)="closeCreate()">×</button>
+    </div>
+    <form [formGroup]="form" (ngSubmit)="create()">
+      <label>Nombre de la iglesia<input formControlName="name" placeholder="Iglesia RUGE" /></label>
+      <div class="form-grid">
+        <label>Nombre del administrador<input formControlName="adminName" placeholder="Nombre completo" /></label>
+        <label>Usuario<input formControlName="adminUsername" placeholder="usuario.iglesia" /></label>
+        <label>Correo del administrador<input type="email" formControlName="adminEmail" placeholder="admin@iglesia.org" /></label>
+      </div>
+      <label>Licencia inicial
+        <select formControlName="licenseType">
+          <option *ngFor="let license of licenseTypes" [value]="license.value">{{ license.label }}</option>
+        </select>
+      </label>
+      <p class="form-hint">El usuario debe ser único. Enviaremos al correo del administrador una contraseña temporal que deberá cambiar al iniciar sesión.</p>
+      <div class="notice error" *ngIf="createError" role="alert">{{ createError }}</div>
+      <div class="form-actions">
+        <button type="button" class="btn-secondary" (click)="closeCreate()">Cancelar</button>
+        <button type="submit" class="btn-primary" [disabled]="form.invalid || saving">{{ saving ? 'Creando...' : 'Crear iglesia' }}</button>
+      </div>
+    </form>
+  </section>
+</div>
+
+<div class="modal-backdrop" *ngIf="editingChurch as church" (click)="closeEdit()">
+  <section class="modal-card" role="dialog" aria-modal="true" aria-label="Formulario de administración" (click)="$event.stopPropagation()">
+    <div class="modal-heading">
+      <div><h3>Editar iglesia</h3><p>Actualiza los datos de la iglesia y su administrador.</p></div>
+      <button class="close-button" type="button" aria-label="Cerrar" (click)="closeEdit()">×</button>
+    </div>
+    <form [formGroup]="editForm" (ngSubmit)="saveChurchDetails()">
+      <label>Nombre de la iglesia<input formControlName="name" placeholder="Iglesia RUGE" /></label>
+      <label>Nombre del administrador<input formControlName="adminName" placeholder="Nombre completo" /></label>
+      <label>Correo del administrador<input type="email" formControlName="adminEmail" placeholder="admin@iglesia.org" /></label>
+      <div class="readonly-field">
+        <span>Usuario de acceso</span>
+        <strong>@{{ church.administrator?.username }}</strong>
+        <small>El nombre de usuario no se puede cambiar.</small>
+      </div>
+      <div class="notice error modal-error" *ngIf="editError">{{ editError }}</div>
+      <div class="form-actions">
+        <button type="button" class="btn-secondary" [disabled]="savingEdit" (click)="closeEdit()">Cancelar</button>
+        <button type="submit" class="btn-primary" [disabled]="editForm.invalid || savingEdit">{{ savingEdit ? 'Guardando...' : 'Guardar cambios' }}</button>
+      </div>
+    </form>
+  </section>
+</div>
+
+
+<div class="modal-backdrop" *ngIf="licenseChurch as church" (click)="closeLicense()" (keydown.escape)="closeLicense()">
+  <section class="modal-card license-modal" role="dialog" aria-modal="true" aria-labelledby="license-title" (click)="$event.stopPropagation()">
+    <div class="modal-heading"><div><span class="eyebrow">Licenciamiento</span><h3 id="license-title">Asignar licencia</h3><p>{{ church.name }}</p></div><button type="button" class="close-button" [disabled]="licenseSaving" (click)="closeLicense()" aria-label="Cerrar">×</button></div>
+    <form (ngSubmit)="grantLicense()">
+      <div class="readonly-field"><span>Licencia actual</span><strong>{{ licenseLabel(church) }}</strong></div>
+      <label>Tipo de licencia<select name="licenseType" [(ngModel)]="licenseType"><option *ngFor="let license of licenseTypes" [value]="license.value">{{ license.label }}</option></select></label>
+      <p class="form-hint">La licencia seleccionada reemplazará la vigencia actual a partir de hoy.</p>
+      <div class="notice error" *ngIf="licenseError" role="alert">{{ licenseError }}</div>
+      <div class="form-actions"><button type="button" class="btn-secondary" [disabled]="licenseSaving" (click)="closeLicense()">Cancelar</button><button type="submit" class="btn-primary" [disabled]="licenseSaving">{{ licenseSaving ? 'Guardando...' : 'Asignar licencia' }}</button></div>
+    </form>
+  </section>
+</div>

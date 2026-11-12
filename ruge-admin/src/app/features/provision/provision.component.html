@@ -32,6 +32,11 @@
           <option *ngFor="let u of unidades" [value]="u">{{ u }}</option>
         </select>
       </div>
+      <div class="field">
+        <label>Precio unitario (₡)</label>
+        <input type="number" formControlName="precioUnitario" min="0" step="0.01" placeholder="Ej: 1250" />
+        <span class="field-hint">Costo actual por unidad del artículo</span>
+      </div>
     </div>
     <div class="preview-row" *ngIf="form.get('cantidadPorPersona')?.value">
       <lucide-icon name="info" [size]="14" [strokeWidth]="1.5"></lucide-icon>
@@ -64,6 +69,7 @@
       <th>Nombre</th>
       <th>Cant. por persona</th>
       <th>Unidad</th>
+      <th>Precio unitario</th>
       <th>Acciones</th>
     </tr>
   </thead>
@@ -76,6 +82,7 @@
       <td><strong>{{ item.nombre }}</strong></td>
       <td>{{ item.cantidadPorPersona }}</td>
       <td>{{ item.unidad }}</td>
+      <td>{{ item.precioUnitario != null ? (item.precioUnitario | currency:'CRC':'symbol':'1.0-2') : '—' }}</td>
       <td class="actions">
         <button class="btn-sm" (click)="openEdit(item)">Editar</button>
         <button class="btn-sm danger" (click)="delete(item)">Eliminar</button>

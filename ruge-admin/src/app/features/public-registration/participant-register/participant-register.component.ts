@@ -1,9 +1,11 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, DestroyRef, inject, OnInit } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ParticipantService } from '../../../core/services/participant.service';
 import { EventService } from '../../../core/services/event.service';
-import { timeout } from 'rxjs';
+import { Subscription, timeout } from 'rxjs';
+import { RegistrationHistoryService } from '../../../core/services/registration-history.service';
 
 const SHIRT_SIZES = ['XS','S','M','L','XL','2XL','3XL','4XL','5XL'];
 const MARITAL_STATUSES = ['Soltero', 'Casado', 'Divorciado', 'Viudo', 'Unión libre'];
@@ -30,6 +32,13 @@ export class ParticipantRegisterComponent implements OnInit {
   fileTouched = false;
   shirtSizes = SHIRT_SIZES;
   maritalStatuses = MARITAL_STATUSES;
+  checkingDocument = false;
+  documentBlocked = false;
+  documentMessage = '';
+  documentCheckError = '';
+  checkedDocument = '';
+  private documentRequest?: Subscription;
+  private destroyRef = inject(DestroyRef);
 
   // Medications
   tomaMedicamentos = false;
@@ -71,17 +80,20 @@ export class ParticipantRegisterComponent implements OnInit {
     private router: Router,
     private participantService: ParticipantService,
     private eventService: EventService,
+    private historyService: RegistrationHistoryService,
     private cdr: ChangeDetectorRef
   ) {
     this.form = this.fb.group({
       firstName:          ['', [Validators.required]],
       firstLastName:      ['', [Validators.required]],
       secondLastName:     ['', [Validators.required]],
-      cedula:             ['', [Validators.required, Validators.maxLength(20)]],
+      cedula:             ['', [Validators.required, Validators.maxLength(20), Validators.pattern(/^[a-zA-Z0-9 .-]+$/)]],
       nombrePreferido:    ['', [Validators.required]],
       birthDate:          ['', [Validators.required]],
       email:              ['', [Validators.required, Validators.email]],
       phone:              ['', [Validators.required]],
+      emergencyContactName: ['', [Validators.required, Validators.maxLength(150)]],
+      emergencyContactPhone: ['', [Validators.required, Validators.maxLength(30)]],
       asistesIglesia:     [false],
       church:             [''],
       perteneceGrupo:     [false],
@@ -93,6 +105,16 @@ export class ParticipantRegisterComponent implements OnInit {
       telefonoEsposa:     [''],
       country:            ['', [Validators.required]],
       privacyConsentAccepted: [false, [Validators.requiredTrue]],
+    });
+
+    this.form.get('cedula')!.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+      this.documentRequest?.unsubscribe();
+      if (this.documentBlocked) this.error = '';
+      this.checkingDocument = false;
+      this.documentBlocked = false;
+      this.documentMessage = '';
+      this.documentCheckError = '';
+      this.checkedDocument = '';
     });
 
     // React to asistesIglesia changes
@@ -174,6 +196,34 @@ export class ParticipantRegisterComponent implements OnInit {
     });
   }
 
+  checkDocument(): void {
+    const control = this.form.get('cedula')!;
+    const cedula = String(control.value ?? '').trim();
+    if (!this.registrationOpen || control.invalid || this.checkingDocument || this.checkedDocument === cedula) return;
+    this.checkingDocument = true;
+    this.documentCheckError = '';
+    this.documentRequest = this.historyService.checkParticipant(this.eventId, cedula)
+      .pipe(timeout(15000), takeUntilDestroyed(this.destroyRef)).subscribe({
+        next: result => {
+          this.checkingDocument = false;
+          this.checkedDocument = cedula;
+          this.documentBlocked = result.blocked;
+          this.documentMessage = result.message ?? '';
+          this.cdr.markForCheck();
+        },
+        error: err => {
+          this.checkingDocument = false;
+          this.documentCheckError = err.error?.error ?? 'No se pudo verificar la cédula. Intenta nuevamente.';
+          this.cdr.markForCheck();
+        }
+      });
+  }
+
+  get documentVerified(): boolean {
+    return !!this.checkedDocument && this.checkedDocument === String(this.form.get('cedula')?.value ?? '').trim()
+      && !this.documentBlocked && !this.checkingDocument;
+  }
+
   get age(): number | null {
     const bd = this.form.get('birthDate')?.value;
     if (!bd) return null;
@@ -222,6 +272,8 @@ export class ParticipantRegisterComponent implements OnInit {
   submit(): void {
     this.submitted = true;
     this.form.markAllAsTouched();
+    if (this.loading) return;
+    if (!this.documentVerified) { this.checkDocument(); return; }
     if (!this.registrationOpen || this.form.invalid || !this.eventId || !this.medsValid || !this.selectedFile) return;
 
     this.loading = true;
@@ -252,6 +304,11 @@ export class ParticipantRegisterComponent implements OnInit {
       error: err => {
         this.loading = false;
         this.error = err.error?.error ?? 'Error al registrar. Intenta nuevamente.';
+        if (err.error?.code === 'PARTICIPANT_ALREADY_REGISTERED') {
+          this.documentBlocked = true;
+          this.documentMessage = this.error;
+        }
+        this.cdr.markForCheck();
       }
     });
   }

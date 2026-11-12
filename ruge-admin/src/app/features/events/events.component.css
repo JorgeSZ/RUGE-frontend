@@ -22,6 +22,15 @@
   background: rgba(240,180,41,0.05);
 }
 
+.event-card.archived { border-color: rgba(119, 133, 115, 0.45); }
+.event-name-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.event-state { border-radius: 20px; padding: 3px 9px; font-size: 0.72rem; font-weight: 700; }
+.active-state { color: var(--ruge-black); background: var(--ruge-yellow); }
+.archived-state { color: var(--ruge-text-secondary); background: var(--ruge-olive); }
+.event-feedback { border-radius: 7px; padding: 10px 14px; margin: 0 0 14px; }
+.event-feedback.success { color: #a9e3bd; background: rgba(60, 160, 93, 0.12); }
+.event-feedback.error { color: #ffb4aa; background: rgba(220, 70, 70, 0.12); }
+
 .event-name {
   font-family: 'Barlow Condensed', sans-serif;
   font-weight: 700;

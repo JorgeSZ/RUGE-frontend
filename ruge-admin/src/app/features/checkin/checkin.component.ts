@@ -3,7 +3,6 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { CheckInService, QrCheckInResponse, CheckInSummaryResponse } from '../../core/services/checkin.service';
 import { environment } from '../../../environments/environment';
-import jsQR from 'jsqr';
 
 type ResultState = 'success' | 'already' | 'error' | null;
 
@@ -36,6 +35,7 @@ export class CheckinComponent implements OnInit, OnDestroy {
   private animFrame: number | null = null;
   private videoEl: HTMLVideoElement | null = null;
   private canvasEl: HTMLCanvasElement | null = null;
+  private qrDecoder: Promise<typeof import('jsqr').default> | null = null;
 
   @ViewChild('videoRef') set videoRef(el: ElementRef<HTMLVideoElement> | undefined) {
     this.videoEl = el?.nativeElement ?? null;
@@ -139,6 +139,10 @@ export class CheckinComponent implements OnInit, OnDestroy {
       canvas.height = video.videoHeight;
       ctx.drawImage(video, 0, 0);
       const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      // Keep the QR decoder out of the initial bundle; download it only when the
+      // camera scanner is actually used.
+      this.qrDecoder ??= import('jsqr').then(module => module.default);
+      const jsQR = await this.qrDecoder;
       const code = jsQR(imageData.data, imageData.width, imageData.height);
       if (code?.data) {
         const token = this.extractToken(code.data);

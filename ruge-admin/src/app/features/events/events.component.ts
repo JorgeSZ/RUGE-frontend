@@ -1,10 +1,12 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { DialogService } from '../../core/services/dialog.service';
+import { inject, ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { EventService } from '../../core/services/event.service';
 import { TrackService } from '../../core/services/track.service';
 import { EventContextService } from '../../core/services/event-context.service';
 import { Event } from '../../core/models/event.model';
 import { Track } from '../../core/models/track.model';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-events',
@@ -13,6 +15,7 @@ import { Track } from '../../core/models/track.model';
   standalone: false
 })
 export class EventsComponent implements OnInit {
+  private readonly dialogs = inject(DialogService);
   events: Event[] = [];
   tracks: Track[] = [];
   loading = false;
@@ -20,12 +23,16 @@ export class EventsComponent implements OnInit {
   editingId: string | null = null;
   form: FormGroup;
   activeEventId: string | null = null;
+  archivingId: string | null = null;
+  success = '';
+  error = '';
 
   constructor(
     private fb: FormBuilder,
     private eventService: EventService,
     private trackService: TrackService,
     public eventCtx: EventContextService,
+    private router: Router,
     private cdr: ChangeDetectorRef
   ) {
     this.form = this.fb.group({
@@ -46,22 +53,61 @@ export class EventsComponent implements OnInit {
   load(): void {
     this.loading = true;
     this.eventService.getAll().subscribe({
-      next: events => { this.events = events; this.loading = false; this.cdr.detectChanges(); },
+      next: events => {
+        this.events = events.sort((a, b) => {
+          const rank = (event: Event) => event.isActive ? 0 : event.isArchived ? 2 : 1;
+          return rank(a) - rank(b) || new Date(b.startDate).getTime() - new Date(a.startDate).getTime();
+        });
+        this.loading = false;
+        this.cdr.detectChanges();
+      },
       error: () => { this.loading = false; this.cdr.detectChanges(); }
     });
   }
 
   select(event: Event): void {
+    if (event.isArchived) return;
+    this.error = '';
     this.eventService.activate(event.id).subscribe({
       next: activated => { this.eventCtx.setEvent(activated); this.load(); },
-      error: () => {}
+      error: err => { this.error = err?.error?.error ?? 'No se pudo activar el reto.'; this.cdr.detectChanges(); }
     });
+  }
+
+  async archive(event: Event, e: MouseEvent): Promise<void> {
+    e.stopPropagation();
+    if (event.isArchived || this.archivingId) return;
+    const confirmed = (await this.dialogs.confirm(`¿Finalizar “${event.name}”? Quedará archivado, no se podrá editar y su historial seguirá disponible.`, { title: 'Finalizar y archivar', confirmText: 'Finalizar reto', destructive: false }));
+    this.cdr.markForCheck();
+    if (!confirmed) return;
+
+    this.archivingId = event.id;
+    this.error = '';
+    this.success = '';
+    this.eventService.archive(event.id).subscribe({
+      next: () => {
+        if (this.activeEventId === event.id) this.eventCtx.clear();
+        this.success = `“${event.name}” quedó finalizado y archivado.`;
+        this.archivingId = null;
+        this.load();
+      },
+      error: err => {
+        this.error = err?.error?.error ?? 'No se pudo finalizar el reto.';
+        this.archivingId = null;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  openHistory(event: Event): void {
+    if (event.isArchived) this.router.navigate(['/event-history', event.id]);
   }
 
   openCreate(): void { this.editingId = null; this.form.reset(); this.showForm = true; }
 
   openEdit(event: Event, e: MouseEvent): void {
     e.stopPropagation();
+    if (event.isArchived) return;
     this.editingId = event.id;
     this.form.patchValue({
       name: event.name,
@@ -73,9 +119,11 @@ export class EventsComponent implements OnInit {
     this.showForm = true;
   }
 
-  delete(event: Event, e: MouseEvent): void {
+  async delete(event: Event, e: MouseEvent): Promise<void> {
     e.stopPropagation();
-    if (!confirm(`Delete event "${event.name}"?`)) return;
+    if (event.isArchived) return;
+    if (!(await this.dialogs.confirm(`¿Eliminar el reto "${event.name}"?`, { title: 'Eliminar registro', confirmText: 'Eliminar', destructive: true }))) return;
+    this.cdr.markForCheck();
     this.eventService.delete(event.id).subscribe(() => {
       if (this.activeEventId === event.id) this.eventCtx.clear();
       this.load();

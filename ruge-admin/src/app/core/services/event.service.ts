@@ -35,6 +35,14 @@ export class EventService {
     return this.api.patch<Event>(`/events/${id}/activate`, {});
   }
 
+  archive(id: string): Observable<Event> {
+    return this.api.patch<Event>(`/events/${id}/archive`, {});
+  }
+
+  getHistory<T = any>(id: string): Observable<T> {
+    return this.api.get<T>(`/events/${id}/history`);
+  }
+
   updateRegistrationSettings(id: string, settings: Partial<Pick<Event, 'participantRegistrationEnabled' | 'serverRegistrationEnabled'>>): Observable<Event> {
     return this.api.patch<Event>(`/events/${id}/registration-settings`, settings);
   }

@@ -3,6 +3,7 @@ import { ParticipantService } from '../../core/services/participant.service';
 import { EventContextService } from '../../core/services/event-context.service';
 import { CalaqueroEntry } from '../../core/models/participant.model';
 import { environment } from '../../../environments/environment';
+import { compareFullNames } from '../../core/utils/person-sort';
 
 @Component({
   selector: 'app-calaquero',
@@ -36,7 +37,7 @@ export class CalaqueroComponent implements OnInit {
       const nameMatch = !q || e.nombreCompleto.toLowerCase().includes(q);
       const tribuMatch = !this.filterTribu || e.tribu === this.filterTribu;
       return nameMatch && tribuMatch;
-    });
+    }).sort((a, b) => compareFullNames(a.nombreCompleto, b.nombreCompleto));
   }
 
   get groupedByTribu(): { tribu: string; entries: CalaqueroEntry[] }[] {

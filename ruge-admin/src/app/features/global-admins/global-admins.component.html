@@ -1,0 +1,81 @@
+<header class="management-header">
+  <div><span class="eyebrow">Administración global</span><h1>Administradores globales</h1><p>Gestiona las cuentas que administran todas las iglesias, licencias y enseñanzas de RUGE.</p></div>
+  <button class="btn-primary" (click)="openGlobalAdminForm()"><lucide-icon name="user-plus" [size]="18"></lucide-icon>Nuevo administrador</button>
+</header>
+<div class="notice success" *ngIf="success" role="status">{{ success }}</div>
+<div class="notice error" *ngIf="error" role="alert">{{ error }} <button class="text-button" (click)="loadGlobalAdmins()">Reintentar</button></div>
+<div class="loading" *ngIf="loadingGlobalAdmins" role="status"><lucide-icon name="loader-2" class="spinning" [size]="20"></lucide-icon>Cargando administradores...</div>
+<ng-container *ngIf="!loadingGlobalAdmins">
+  <section class="metrics" aria-label="Resumen de administradores">
+    <article class="metric"><div class="metric-label">Total administradores<lucide-icon name="shield-check" [size]="20"></lucide-icon></div><strong>{{ globalAdmins.length }}</strong><p>Cuentas de administración global</p></article>
+    <article class="metric"><div class="metric-label">Activos<lucide-icon name="user-check" [size]="20"></lucide-icon></div><strong>{{ activeCount }}</strong><p>Con acceso habilitado a la plataforma</p></article>
+    <article class="metric"><div class="metric-label">Inactivos<lucide-icon name="user-x" [size]="20"></lucide-icon></div><strong>{{ globalAdmins.length - activeCount }}</strong><p>Cuentas con acceso deshabilitado</p></article>
+  </section>
+  <div class="list-toolbar"><h2>Usuarios globales <span>{{ filteredAdmins.length }} de {{ globalAdmins.length }}</span></h2><div class="filters">
+    <label class="search-box"><lucide-icon name="search" [size]="17"></lucide-icon><input type="search" aria-label="Buscar administrador" placeholder="Buscar por nombre, usuario o correo..." [(ngModel)]="search" (ngModelChange)="page = 1" /></label>
+    <select aria-label="Filtrar administradores por estado" [(ngModel)]="status" (ngModelChange)="page = 1"><option value="all">Todos los estados</option><option value="active">Activos</option><option value="inactive">Inactivos</option></select>
+  </div></div>
+  <section class="admin-table-panel" aria-label="Administradores registrados">
+    <div class="table-scroll" tabindex="0" aria-label="Tabla de administradores; desplaza horizontalmente para ver todas las acciones">
+      <table><thead><tr><th scope="col">Administrador</th><th scope="col">Correo electrónico</th><th scope="col">Acceso</th><th scope="col">Estado</th><th scope="col" class="actions-heading">Acciones</th></tr></thead><tbody>
+        <tr *ngFor="let admin of visibleAdmins" [class.inactive-row]="!admin.activo">
+          <td><div class="admin-identity"><div class="avatar" aria-hidden="true">{{ initials(admin.nombre) }}</div><div><div class="admin-name"><strong>{{ admin.nombre }}</strong><span class="badge" *ngIf="admin.id === auth.currentUser?.id">Tú</span></div><span class="username">@{{ admin.username }}</span></div></div></td>
+          <td class="email-cell">{{ admin.email || 'Sin correo registrado' }}</td>
+          <td><span class="role-badge"><lucide-icon name="shield-check" [size]="14"></lucide-icon>Administrador global</span></td>
+          <td><span class="badge" [class.active-status]="admin.activo" [class.muted]="!admin.activo">{{ admin.activo ? 'Activo' : 'Inactivo' }}</span></td>
+          <td><div class="admin-actions">
+            <button class="icon-button" [disabled]="!!globalAdminActionId" (click)="openGlobalAdminEdit(admin)" [attr.aria-label]="'Editar a ' + admin.nombre" title="Editar"><lucide-icon name="pencil" [size]="17"></lucide-icon></button>
+            <button class="icon-button" [disabled]="!admin.activo || !!globalAdminActionId" (click)="resetGlobalAdminPassword(admin)" [attr.aria-label]="'Restablecer contraseña de ' + admin.nombre" title="Restablecer contraseña"><lucide-icon name="key-round" [size]="17"></lucide-icon></button>
+            <button class="icon-button danger" *ngIf="admin.activo" [disabled]="admin.id === auth.currentUser?.id || !canDeactivateGlobalAdmin(admin) || !!globalAdminActionId" (click)="deactivateGlobalAdmin(admin)" [attr.aria-label]="'Eliminar a ' + admin.nombre" title="Eliminar (desactivar cuenta)"><lucide-icon name="trash-2" [size]="17"></lucide-icon></button>
+            <lucide-icon name="loader-2" class="spinning" *ngIf="globalAdminActionId === admin.id" [size]="16" aria-label="Procesando"></lucide-icon>
+          </div></td>
+        </tr>
+      </tbody></table>
+    </div>
+    <div class="empty-state" *ngIf="!filteredAdmins.length"><lucide-icon name="users" [size]="30"></lucide-icon><h3>{{ globalAdmins.length ? 'No hay coincidencias' : 'No hay administradores registrados' }}</h3><p>{{ globalAdmins.length ? 'Prueba con otro nombre o cambia el filtro.' : 'Agrega una cuenta de administración global.' }}</p><button *ngIf="globalAdmins.length" class="btn-secondary" (click)="resetFilters()">Limpiar filtros</button></div>
+    <footer class="pagination" *ngIf="filteredAdmins.length"><span>{{ filteredAdmins.length }} administradores · Página {{ page }} de {{ pageCount }}</span><div><button class="btn-secondary" [disabled]="page === 1" (click)="page = page - 1" aria-label="Página anterior"><lucide-icon name="chevron-left" [size]="16"></lucide-icon></button><button class="btn-secondary" [disabled]="page === pageCount" (click)="page = page + 1" aria-label="Página siguiente"><lucide-icon name="chevron-right" [size]="16"></lucide-icon></button></div></footer>
+  </section>
+  <div class="access-note"><lucide-icon name="shield-check" [size]="20"></lucide-icon><p>Estas cuentas pueden administrar todas las iglesias. Al crear una cuenta o restablecer su contraseña, se envía una contraseña temporal por correo.</p></div>
+</ng-container>
+
+<div class="modal-backdrop" *ngIf="showGlobalAdminForm" (click)="closeGlobalAdminForm()">
+  <section class="modal-card" role="dialog" aria-modal="true" aria-label="Formulario de administración" (click)="$event.stopPropagation()">
+    <div class="modal-heading">
+      <div><h3>Agregar administrador global</h3><p>Esta cuenta tendrá acceso a todas las iglesias.</p></div>
+      <button class="close-button" type="button" aria-label="Cerrar" [disabled]="savingGlobalAdmin" (click)="closeGlobalAdminForm()">×</button>
+    </div>
+    <form [formGroup]="globalAdminForm" (ngSubmit)="createGlobalAdmin()">
+      <label>Nombre completo<input formControlName="name" placeholder="Nombre del administrador" /></label>
+      <label>Usuario<input formControlName="username" placeholder="usuario.global" /></label>
+      <label>Correo<input type="email" formControlName="email" placeholder="admin@ruge.org" /></label>
+      <p class="form-hint">Enviaremos al correo una contraseña temporal que deberá cambiar al iniciar sesión.</p>
+      <div class="notice error modal-error" *ngIf="globalAdminError">{{ globalAdminError }}</div>
+      <div class="form-actions">
+        <button type="button" class="btn-secondary" [disabled]="savingGlobalAdmin" (click)="closeGlobalAdminForm()">Cancelar</button>
+        <button type="submit" class="btn-primary" [disabled]="globalAdminForm.invalid || savingGlobalAdmin">{{ savingGlobalAdmin ? 'Guardando...' : 'Crear administrador' }}</button>
+      </div>
+    </form>
+  </section>
+</div>
+
+<div class="modal-backdrop" *ngIf="editingGlobalAdmin as admin" (click)="closeGlobalAdminEdit()">
+  <section class="modal-card" role="dialog" aria-modal="true" aria-label="Formulario de administración" (click)="$event.stopPropagation()">
+    <div class="modal-heading">
+      <div><h3>Editar administrador global</h3><p>El usuario de acceso no se puede cambiar.</p></div>
+      <button class="close-button" type="button" aria-label="Cerrar" [disabled]="savingGlobalAdminEdit" (click)="closeGlobalAdminEdit()">×</button>
+    </div>
+    <form [formGroup]="globalAdminEditForm" (ngSubmit)="saveGlobalAdminEdit()">
+      <label>Nombre completo<input formControlName="name" placeholder="Nombre del administrador" /></label>
+      <label>Correo<input type="email" formControlName="email" placeholder="admin@ruge.org" /></label>
+      <div class="readonly-field">
+        <span>Usuario de acceso</span>
+        <strong>@{{ admin.username }}</strong>
+      </div>
+      <div class="notice error modal-error" *ngIf="globalAdminEditError">{{ globalAdminEditError }}</div>
+      <div class="form-actions">
+        <button type="button" class="btn-secondary" [disabled]="savingGlobalAdminEdit" (click)="closeGlobalAdminEdit()">Cancelar</button>
+        <button type="submit" class="btn-primary" [disabled]="globalAdminEditForm.invalid || savingGlobalAdminEdit">{{ savingGlobalAdminEdit ? 'Guardando...' : 'Guardar cambios' }}</button>
+      </div>
+    </form>
+  </section>
+</div>

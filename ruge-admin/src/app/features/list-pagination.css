@@ -1,0 +1,42 @@
+.list-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding: 16px;
+  margin-top: 12px;
+  background: var(--ruge-dark-card);
+  border: 1px solid var(--ruge-border);
+  border-radius: 10px;
+  color: var(--ruge-text-secondary);
+  font-size: 0.78rem;
+}
+.list-page-controls,
+.list-page-controls label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.list-page-controls select {
+  padding: 7px;
+  color: var(--ruge-text-primary);
+  background: var(--ruge-black);
+  border: 1px solid var(--ruge-border);
+  border-radius: 6px;
+  font: inherit;
+}
+.list-page-controls button {
+  font-size: 0.78rem;
+  padding: 7px 12px;
+}
+.list-page-controls button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.list-page-controls button:focus-visible,
+.list-page-controls select:focus-visible {
+  outline: 2px solid var(--ruge-yellow);
+  outline-offset: 2px;
+}

@@ -16,6 +16,22 @@
     <ng-container *ngIf="registrationOpen">
     <div class="error-msg" *ngIf="error">{{ error }}</div>
     <form [formGroup]="form" (ngSubmit)="submit()">
+      <div class="section-title">Identificación</div>
+      <div class="pub-row">
+        <div class="pub-field">
+          <label>Cédula / Documento *</label>
+          <input formControlName="cedula" placeholder="Número de documento" (blur)="checkDocument()" maxlength="20" aria-describedby="document-check" />
+          <span class="field-error" *ngIf="form.get('cedula')?.invalid && form.get('cedula')?.touched">
+            Ingresa una cédula válida
+          </span>
+          <div id="document-check" aria-live="polite">
+            <p class="field-hint" *ngIf="checkingDocument">Verificando cédula en RUGE...</p>
+            <p class="error-msg" *ngIf="documentBlocked" role="alert">{{ documentMessage }}</p>
+            <p class="field-error" *ngIf="documentCheckError">{{ documentCheckError }}</p>
+            <button type="button" class="document-retry" *ngIf="documentCheckError" (click)="checkDocument()">Volver a verificar</button>
+          </div>
+        </div>
+      </div>
       <div class="section-title">Datos Personales</div>
 
       <div class="pub-row">
@@ -59,13 +75,7 @@
       </div>
 
       <div class="pub-row">
-        <div class="pub-field">
-          <label>Cédula / Documento *</label>
-          <input formControlName="cedula" placeholder="Número de documento" />
-          <span class="field-error" *ngIf="form.get('cedula')?.invalid && form.get('cedula')?.touched">
-            La cédula es requerida
-          </span>
-        </div>
+
         <div class="pub-field">
           <label>Fecha de Nacimiento *</label>
           <div class="birth-selects">
@@ -129,6 +139,20 @@
             Este campo es requerido
           </span>
           <p class="field-hint">Debe ser tu propio número, no el de tu esposa, hermano, mamá u otra persona.</p>
+        </div>
+      </div>
+
+      <div class="section-title">Contacto en caso de emergencia</div>
+      <div class="pub-row">
+        <div class="pub-field">
+          <label>Nombre completo *</label>
+          <input formControlName="emergencyContactName" placeholder="Nombre y apellidos" />
+          <span class="field-error" *ngIf="form.get('emergencyContactName')?.invalid && form.get('emergencyContactName')?.touched">Este campo es requerido</span>
+        </div>
+        <div class="pub-field">
+          <label>Número de teléfono *</label>
+          <input type="tel" formControlName="emergencyContactPhone" placeholder="+506..." />
+          <span class="field-error" *ngIf="form.get('emergencyContactPhone')?.invalid && form.get('emergencyContactPhone')?.touched">Este campo es requerido</span>
         </div>
       </div>
 
@@ -320,7 +344,7 @@
       </section>
 
       <div class="pub-actions">
-        <button type="submit" class="btn-register" [disabled]="form.invalid || loading || !medsValid || !selectedFile">
+        <button type="submit" class="btn-register" [disabled]="form.invalid || loading || !documentVerified || !medsValid || !selectedFile">
           {{ loading ? 'Registrando...' : 'Completar Registro' }}
         </button>
       </div>

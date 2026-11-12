@@ -11,11 +11,11 @@ export class UserManagementService {
 
   getAll(): Observable<UserDto[]> { return this.http.get<UserDto[]>(this.base); }
 
-  create(req: { nombre: string; username: string; password: string; rol: string }): Observable<UserDto> {
+  create(req: { nombre: string; username: string; rol: string; email: string }): Observable<UserDto> {
     return this.http.post<UserDto>(this.base, req);
   }
 
-  update(id: string, req: { nombre: string; rol: string; activo: boolean }): Observable<UserDto> {
+  update(id: string, req: { nombre: string; rol: string; activo: boolean; email?: string }): Observable<UserDto> {
     return this.http.put<UserDto>(`${this.base}/${id}`, req);
   }
 

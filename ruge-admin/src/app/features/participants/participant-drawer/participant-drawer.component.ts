@@ -12,6 +12,7 @@ export class ParticipantDrawerComponent {
   @Input() participant: Participant | null = null;
   @Input() isOpen = false;
   @Input() resendingAgreement = false;
+  @Input() readOnly = false;
   @Output() closed        = new EventEmitter<void>();
   @Output() editRequested = new EventEmitter<Participant>();
   @Output() deleteRequested = new EventEmitter<string>();

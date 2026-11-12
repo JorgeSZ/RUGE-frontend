@@ -1,9 +1,11 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { DialogService } from '../../core/services/dialog.service';
+import { inject, ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CommissionService } from '../../core/services/commission.service';
 import { EventContextService } from '../../core/services/event-context.service';
 import { Commission } from '../../core/models/commission.model';
 import { Server } from '../../core/models/server.model';
+import { comparePersonNames } from '../../core/utils/person-sort';
 
 const COMMISSION_COLORS = [
   '#4f46e5', '#0ea5e9', '#10b981', '#f59e0b',
@@ -17,6 +19,7 @@ const COMMISSION_COLORS = [
   standalone: false
 })
 export class CommissionsComponent implements OnInit {
+  private readonly dialogs = inject(DialogService);
   commissions: Commission[] = [];
   selectedCommission: Commission | null = null;
   commissionServers: Server[] = [];
@@ -64,7 +67,7 @@ export class CommissionsComponent implements OnInit {
     this.loadingServers = true;
     this.commissionServers = [];
     this.commissionService.getServers(commission.id, this.eventId).subscribe({
-      next: s => { this.commissionServers = s; this.loadingServers = false; this.cdr.detectChanges(); },
+      next: s => { this.commissionServers = s.sort(comparePersonNames); this.loadingServers = false; this.cdr.detectChanges(); },
       error: () => { this.loadingServers = false; this.cdr.detectChanges(); }
     });
   }
@@ -102,8 +105,9 @@ export class CommissionsComponent implements OnInit {
     }
   }
 
-  delete(id: string): void {
-    if (!confirm('¿Eliminar este equipo? Solo es posible si no tiene servidores asignados.')) return;
+  async delete(id: string): Promise<void> {
+    if (!(await this.dialogs.confirm('¿Eliminar este equipo? Solo es posible si no tiene servidores asignados.', { title: 'Eliminar registro', confirmText: 'Eliminar', destructive: true }))) return;
+    this.cdr.markForCheck();
     this.commissionService.delete(id).subscribe({
       next: () => { this.load(); this.showToast('Equipo eliminado'); },
       error: err => this.showToast(err.error?.error ?? 'Error al eliminar', true)

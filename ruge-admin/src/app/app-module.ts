@@ -44,6 +44,12 @@ import { TribeChallengesComponent } from './features/tribe-challenges/tribe-chal
 import { TerminosCondicionesComponent } from './features/public-registration/terminos-condiciones/terminos-condiciones.component';
 import { SoporteComponent } from './features/public-registration/soporte/soporte.component';
 import { ProfileComponent } from './features/profile/profile.component';
+import { ChurchesComponent } from './features/churches/churches.component';
+import { HomeRedirectComponent } from './features/auth/home-redirect.component';
+import { EventHistoryComponent } from './features/event-history/event-history.component';
+import { StorePaymentsComponent } from './features/store-payments/store-payments.component';
+import { TeachingsAdminComponent } from './features/teachings/teachings-admin.component';
+import { EventTeachingsComponent } from './features/teachings/event-teachings.component';
 
 import { EventContextService } from './core/services/event-context.service';
 import { AuthInterceptor } from './core/interceptors/auth.interceptor';
@@ -86,6 +92,12 @@ import { AuthInterceptor } from './core/interceptors/auth.interceptor';
     TerminosCondicionesComponent,
     SoporteComponent,
     ProfileComponent,
+    ChurchesComponent,
+    HomeRedirectComponent,
+    EventHistoryComponent,
+    StorePaymentsComponent,
+    TeachingsAdminComponent,
+    EventTeachingsComponent,
   ],
   imports: [
     BrowserModule,

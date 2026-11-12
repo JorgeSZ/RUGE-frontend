@@ -1,40 +1,235 @@
-.user-name { font-weight: 600; color: var(--ruge-text-primary); }
-.user-username { font-family: monospace; font-size: 0.82rem; color: var(--ruge-text-muted); }
-.muted-col { font-size: 0.82rem; color: var(--ruge-text-muted); }
-
+.badge-admin {
+  background: rgba(240, 180, 41, 0.15);
+  color: var(--ruge-yellow);
+  border: 1px solid rgba(240, 180, 41, 0.3);
+}
+.badge-logistica {
+  background: rgba(91, 155, 213, 0.15);
+  color: #5b9bd5;
+  border: 1px solid rgba(91, 155, 213, 0.3);
+}
+.badge-eventos {
+  background: rgba(76, 175, 110, 0.15);
+  color: var(--ruge-success);
+  border: 1px solid rgba(76, 175, 110, 0.3);
+}
+.badge-tiempos {
+  background: rgba(196, 116, 222, 0.15);
+  color: #c474de;
+  border: 1px solid rgba(196, 116, 222, 0.3);
+}
+.badge-cocina {
+  background: rgba(76, 175, 110, 0.15);
+  color: var(--ruge-success);
+  border: 1px solid rgba(76, 175, 110, 0.3);
+}
+.badge-calaquero {
+  background: rgba(229, 115, 115, 0.15);
+  color: #e57373;
+  border: 1px solid rgba(229, 115, 115, 0.3);
+}
+.badge-inventario {
+  background: rgba(240, 180, 41, 0.12);
+  color: #f0b429;
+  border: 1px solid rgba(240, 180, 41, 0.3);
+}
+.users-header {
+  background: var(--ruge-dark-card);
+  border: 1px solid var(--ruge-border-light);
+  border-radius: 14px;
+  padding: 24px;
+}
+.users-header h1 {
+  margin: 0;
+}
+.users-filters {
+  padding: 16px;
+  border: 1px solid var(--ruge-border);
+  border-radius: 12px;
+  background: var(--ruge-dark-card);
+  margin-bottom: 20px;
+}
+.filters {
+  align-items: center;
+}
+.search-box {
+  flex: 1;
+}
+.search-box input {
+  width: 100%;
+}
+.role-filters button {
+  border: 1px solid transparent;
+  background: var(--ruge-dark-hover);
+  color: var(--ruge-text-secondary);
+  border-radius: 6px;
+  padding: 7px 10px;
+  font-size: 11px;
+}
+.role-filters button.selected {
+  background: var(--ruge-yellow);
+  color: var(--ruge-black);
+  font-weight: 600;
+}
+.role-filters {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex-wrap: wrap;
+  margin-top: 14px;
+}
+.role-filters > span {
+  font-size: 10px;
+  text-transform: uppercase;
+  color: var(--ruge-text-secondary);
+  margin-right: 4px;
+}
+.role-filters button span {
+  margin-left: 6px;
+}
+.users-table-panel {
+  border: 1px solid var(--ruge-border-light);
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--ruge-dark-card);
+}
+.table-scroll {
+  overflow-x: auto;
+}
+table {
+  width: 100%;
+  min-width: 960px;
+  border-collapse: collapse;
+  text-align: left;
+}
+th {
+  padding: 16px;
+  background: var(--ruge-black);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ruge-text-secondary);
+}
+td {
+  padding: 18px 16px;
+  border-top: 1px solid var(--ruge-border);
+  font-size: 12px;
+}
+tbody tr:hover td {
+  background: var(--ruge-dark-hover);
+}
+.user-identity {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 200px;
+}
+.user-name {
+  font-weight: 600;
+  overflow-wrap: anywhere;
+  max-width: 240px;
+}
+.user-username {
+  display: block;
+  color: var(--ruge-text-secondary);
+  font-size: 11px;
+  margin-top: 5px;
+  overflow-wrap: anywhere;
+}
+.email-cell {
+  overflow-wrap: anywhere;
+  max-width: 230px;
+  color: var(--ruge-text-secondary);
+}
+.last-access {
+  white-space: nowrap;
+  font-size: 11px;
+  color: var(--ruge-text-secondary);
+}
 .role-badge {
   display: inline-block;
-  padding: 2px 10px;
-  border-radius: 20px;
-  font-size: 0.72rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  font-family: 'Barlow Condensed', sans-serif;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 10px;
+  font-weight: 600;
 }
-
-.badge-admin     { background: rgba(240,180,41,0.15); color: var(--ruge-yellow); border: 1px solid rgba(240,180,41,0.3); }
-.badge-logistica { background: rgba(91,155,213,0.15); color: #5B9BD5;            border: 1px solid rgba(91,155,213,0.3); }
-.badge-eventos   { background: rgba(76,175,110,0.15); color: var(--ruge-success); border: 1px solid rgba(76,175,110,0.3); }
-.badge-tiempos   { background: rgba(196,116,222,0.15); color: #C474DE;           border: 1px solid rgba(196,116,222,0.3); }
-
-.row-inactive td { opacity: 0.5; }
-
-.modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 16px; }
-.modal-card { background: var(--ruge-dark-card); border: 1px solid var(--ruge-border); border-radius: 8px; padding: 28px; width: 100%; max-width: 440px; box-shadow: 0 12px 40px rgba(0,0,0,0.7); }
-.modal-card h3 { margin: 0 0 20px; font-size: 1.2rem; color: var(--ruge-text-primary); border-bottom: 1px solid var(--ruge-border); padding-bottom: 12px; }
-
-.form-row { display: flex; flex-direction: column; gap: 4px; margin-bottom: 14px; }
-.form-row label { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: var(--ruge-text-secondary); }
-.form-row input, .form-row select { padding: 8px 10px; background: var(--ruge-black); border: 1px solid var(--ruge-border); border-radius: 6px; font-size: 0.88rem; color: var(--ruge-text-primary); outline: none; font-family: 'Inter', sans-serif; transition: border-color 0.15s; }
-.form-row input:focus, .form-row select:focus { border-color: var(--ruge-yellow); box-shadow: 0 0 0 2px rgba(240,180,41,0.12); }
-.form-check label { flex-direction: row; align-items: center; display: flex; gap: 8px; cursor: pointer; text-transform: none; letter-spacing: 0; }
-.form-check input[type=checkbox] { width: auto; accent-color: var(--ruge-yellow); }
-.form-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; }
-
-.toast { position: fixed; bottom: 24px; right: 24px; background: var(--ruge-dark-card); color: var(--ruge-text-primary); padding: 12px 20px; border-radius: 8px; border-left: 4px solid var(--ruge-success); font-size: 0.88rem; z-index: 9999; box-shadow: 0 4px 16px rgba(0,0,0,0.5); animation: slideIn 0.2s ease; }
-.toast.toast-error { border-left-color: var(--ruge-danger); }
-@keyframes slideIn { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-.badge-cocina    { background: rgba(76,175,110,0.15); color: var(--ruge-success);  border: 1px solid rgba(76,175,110,0.3); }
-.badge-calaquero { background: rgba(229,115,115,0.15); color: #E57373;             border: 1px solid rgba(229,115,115,0.3); }
-.badge-inventario { background: rgba(240,180,41,0.12); color: #F0B429;             border: 1px solid rgba(240,180,41,0.3); }
+.row-inactive .avatar {
+  color: var(--ruge-text-secondary);
+}
+.row-inactive .user-name {
+  color: var(--ruge-text-secondary);
+}
+.temporary-password-badge {
+  display: block;
+  margin-top: 6px;
+  font-size: 10px;
+  color: var(--ruge-yellow);
+  max-width: 150px;
+}
+.user-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+}
+.user-actions .icon-button {
+  padding: 7px;
+  min-height: 32px;
+}
+.danger {
+  color: var(--ruge-danger);
+}
+.actions-heading {
+  text-align: right;
+}
+.pagination {
+  padding: 16px;
+  border-top: 1px solid var(--ruge-border);
+  flex-wrap: wrap;
+}
+.page-controls {
+  align-items: center;
+  flex-wrap: wrap;
+}
+.page-controls label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.page-controls select {
+  padding: 6px;
+  color: var(--ruge-text-primary);
+  background: var(--ruge-black);
+  border: 1px solid var(--ruge-border);
+  border-radius: 6px;
+}
+.empty-state {
+  border: 0;
+}
+.dismiss {
+  margin-left: auto;
+}
+.modal-card {
+  box-sizing: border-box;
+}
+.modal-card input {
+  box-sizing: border-box;
+}
+.modal-card .form-check {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.form-check input {
+  width: auto;
+  min-height: 0;
+  accent-color: var(--ruge-yellow);
+}
+@media (max-width: 560px) {
+  .filters {
+    align-items: stretch;
+  }
+  .users-header {
+    padding: 18px;
+  }
+}

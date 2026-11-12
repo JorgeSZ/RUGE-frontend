@@ -9,6 +9,7 @@ import { ProvisionReport } from '../../core/models/provision.model';
 import { CenaDelReyReport, IngredienteConsolidado } from '../../core/models/menu.model';
 import { ProvisionService } from '../../core/services/provision.service';
 import { MenuService } from '../../core/services/menu.service';
+import { compareFullNames } from '../../core/utils/person-sort';
 
 @Component({
   selector: 'app-reports',
@@ -93,7 +94,10 @@ export class ReportsComponent implements OnInit {
       const q = this.shirtSearch.toLowerCase();
       const matchNombre = !q || (p.nombre + ' ' + p.primerApellido + ' ' + (p.segundoApellido ?? '')).toLowerCase().includes(q);
       return matchTalla && matchNombre;
-    });
+    }).sort((a, b) => compareFullNames(
+      `${a.nombre} ${a.primerApellido} ${a.segundoApellido ?? ''}`,
+      `${b.nombre} ${b.primerApellido} ${b.segundoApellido ?? ''}`
+    ));
   }
 
   get patchesByCommission(): { comision: string; items: DiscipleshipPatchEntry[] }[] {
@@ -101,7 +105,10 @@ export class ReportsComponent implements OnInit {
     const q = this.patchSearch.toLowerCase();
     const filtered = this.patches.servidores.filter(s =>
       !q || (s.nombre + ' ' + s.primerApellido).toLowerCase().includes(q)
-    );
+    ).sort((a, b) => compareFullNames(
+      `${a.nombre} ${a.primerApellido} ${a.segundoApellido ?? ''}`,
+      `${b.nombre} ${b.primerApellido} ${b.segundoApellido ?? ''}`
+    ));
     const map = new Map<string, DiscipleshipPatchEntry[]>();
     filtered.forEach(s => {
       const k = s.comision ?? 'Sin comisión';

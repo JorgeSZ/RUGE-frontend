@@ -1,4 +1,5 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { DialogService } from '../../core/services/dialog.service';
+import { inject, ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ParticipantService } from '../../core/services/participant.service';
 import { TribeService } from '../../core/services/tribe.service';
@@ -9,6 +10,7 @@ import { Tribe } from '../../core/models/tribe.model';
 import { preserveDocumentPaths } from '../../core/utils/document-paths';
 import { downloadExcelCsv, exportFileSlug } from '../../core/utils/excel-export';
 import { environment } from '../../../environments/environment';
+import { comparePersonNames } from '../../core/utils/person-sort';
 
 const SHIRT_SIZES = ['XS','S','M','L','XL','2XL','3XL','4XL','5XL'];
 const MARITAL_STATUSES = ['Soltero', 'Casado', 'Divorciado', 'Viudo', 'Unión libre'];
@@ -16,12 +18,22 @@ const MARITAL_STATUSES = ['Soltero', 'Casado', 'Divorciado', 'Viudo', 'Unión li
 @Component({
   selector: 'app-participants',
   templateUrl: './participants.component.html',
-  styleUrls: ['./participants.component.css'],
+  styleUrls: ['./participants.component.css', '../list-pagination.css'],
   standalone: false
 })
 export class ParticipantsComponent implements OnInit {
+  private readonly dialogs = inject(DialogService);
   participants: Participant[] = [];
   tribes: Tribe[] = [];
+  page = 1;
+  pageSize = 25;
+  filtered: Participant[] = [];
+  paged: Participant[] = [];
+  get pageCount(): number { return Math.max(1, Math.ceil(this.filtered.length / this.pageSize)); }
+  get firstResult(): number { return this.filtered.length ? (this.page - 1) * this.pageSize + 1 : 0; }
+  get lastResult(): number { return Math.min(this.page * this.pageSize, this.filtered.length); }
+  setPage(page: number): void { this.page = page; this.applyFilters(false); }
+  trackPerson(_index: number, person: Participant): string { return person.id; }
   loading = false;
   showForm = false;
   editingId: string | null = null;
@@ -91,6 +103,8 @@ export class ParticipantsComponent implements OnInit {
       perteneceGrupo:     [false],
       nombreLiderGrupo:   [''],
       telefonoLiderGrupo: [''],
+      emergencyContactName: [''],
+      emergencyContactPhone: [''],
       shirtSize:          [''],
       maritalStatus:      [''],
       country:            [''],
@@ -112,7 +126,7 @@ export class ParticipantsComponent implements OnInit {
   load(): void {
     this.loading = true;
     this.participantService.getByEvent(this.eventId).subscribe({
-      next: p => { this.participants = p; this.loading = false; this.cdr.detectChanges(); },
+      next: p => { this.participants = p; this.applyFilters(false); this.loading = false; this.cdr.detectChanges(); },
       error: () => { this.loading = false; this.cdr.detectChanges(); }
     });
     this.tribeService.getByEvent(this.eventId).subscribe(t => { this.tribes = t; this.cdr.detectChanges(); });
@@ -132,7 +146,7 @@ export class ParticipantsComponent implements OnInit {
         this.participantRegistrationEnabled = !enabled;
         this.updatingRegistrationStatus = false;
         this.cdr.detectChanges();
-        alert('No se pudo actualizar el estado del formulario de senderistas.');
+        void this.dialogs.error('No se pudo actualizar el estado del formulario de senderistas.');
       }
     });
   }
@@ -141,9 +155,10 @@ export class ParticipantsComponent implements OnInit {
     return this.participants.filter(p => !p.tribeId).length;
   }
 
-  get filtered(): Participant[] {
+  applyFilters(resetPage = true): void {
+    if (resetPage) this.page = 1;
     const q = this.searchTerm.toLowerCase();
-    return this.participants.filter(p => {
+    this.filtered = this.participants.filter(p => {
       if (q) {
         const name = `${p.firstLastName} ${p.firstName} ${p.secondLastName ?? ''}`.toLowerCase();
         if (!name.includes(q) && !(p.cedula ?? '').toLowerCase().includes(q)) return false;
@@ -153,15 +168,18 @@ export class ParticipantsComponent implements OnInit {
       if (this.filterCheckin === 'done'    && !p.checkInCompleted) return false;
       if (this.filterCheckin === 'pending' && p.checkInCompleted)  return false;
       return true;
-    });
+    }).sort(comparePersonNames);
+    this.page = Math.max(1, Math.min(this.page, this.pageCount));
+    this.paged = this.filtered.slice((this.page - 1) * this.pageSize, this.page * this.pageSize);
   }
 
   toggleSinTribu(): void {
     this.filterSinTribu = !this.filterSinTribu;
     if (this.filterSinTribu) this.filterTribeId = '';
+    this.applyFilters();
   }
 
-  setCheckinFilter(v: string): void { this.filterCheckin = this.filterCheckin === v ? '' : v; }
+  setCheckinFilter(v: string): void { this.filterCheckin = this.filterCheckin === v ? '' : v; this.applyFilters(); }
 
   openDrawer(p: Participant): void { this.drawerParticipant = p; this.drawerOpen = true; }
   closeDrawer(): void { this.drawerOpen = false; }
@@ -176,12 +194,12 @@ export class ParticipantsComponent implements OnInit {
       next: () => {
         this.resendingAgreementId = null;
         this.cdr.detectChanges();
-        alert(`El acuerdo fue enviado nuevamente a ${p.email}.`);
+        void this.dialogs.success(`El acuerdo fue enviado nuevamente a ${p.email}.`);
       },
       error: err => {
         this.resendingAgreementId = null;
         this.cdr.detectChanges();
-        alert(err.error?.error ?? 'No se pudo reenviar el acuerdo.');
+        void this.dialogs.error(err.error?.error ?? 'No se pudo reenviar el acuerdo.');
       }
     });
   }
@@ -215,6 +233,8 @@ export class ParticipantsComponent implements OnInit {
       perteneceGrupo:     p.perteneceGrupo,
       nombreLiderGrupo:   p.nombreLiderGrupo ?? '',
       telefonoLiderGrupo: p.telefonoLiderGrupo ?? '',
+      emergencyContactName: p.emergencyContactName ?? '',
+      emergencyContactPhone: p.emergencyContactPhone ?? '',
       shirtSize:          p.shirtSize,
       maritalStatus:      p.maritalStatus,
       country:            p.country,
@@ -240,8 +260,9 @@ export class ParticipantsComponent implements OnInit {
     }
   }
 
-  delete(id: string): void {
-    if (!confirm('¿Eliminar este senderista?')) return;
+  async delete(id: string): Promise<void> {
+    if (!(await this.dialogs.confirm('¿Eliminar este senderista?', { title: 'Eliminar registro', confirmText: 'Eliminar', destructive: true }))) return;
+    this.cdr.markForCheck();
     this.participantService.delete(this.eventId, id).subscribe(() => this.load());
   }
 
@@ -263,6 +284,7 @@ export class ParticipantsComponent implements OnInit {
       'Cédula', 'Fecha de nacimiento', 'Edad', 'Estado civil', 'Nombre esposa', 'Teléfono esposa',
       'Consentimiento de datos aceptado', 'Fecha de consentimiento', 'Correo', 'Teléfono',
       'Iglesia', 'Asiste a iglesia', 'Pertenece a grupo', 'Nombre del líder', 'Teléfono del líder',
+      'Contacto de emergencia', 'Teléfono de emergencia',
       'País', 'Talla de camisa', 'ID tribu', 'Tribu', 'URL comprobante', 'Código QR',
       'URL acuerdo de participación', 'Check-in completado', 'Fecha de check-in',
       'Medicamentos (JSON)', 'Creado', 'Actualizado'
@@ -272,7 +294,7 @@ export class ParticipantsComponent implements OnInit {
       p.cedula, p.birthDate, p.age, p.maritalStatus, p.nombreEsposa, p.telefonoEsposa,
       p.privacyConsentAccepted ? 'Sí' : 'No', p.privacyConsentAt, p.email, p.phone, p.church,
       p.asistesIglesia ? 'Sí' : 'No', p.perteneceGrupo ? 'Sí' : 'No',
-      p.nombreLiderGrupo, p.telefonoLiderGrupo, p.country, p.shirtSize, p.tribeId,
+      p.nombreLiderGrupo, p.telefonoLiderGrupo, p.emergencyContactName, p.emergencyContactPhone, p.country, p.shirtSize, p.tribeId,
       p.tribeName, this.getComprobanteUrl(p), p.qrCode, this.getAgreementUrl(p),
       p.checkInCompleted ? 'Sí' : 'No', p.checkInDate,
       p.medications?.length ? JSON.stringify(p.medications) : '', p.createdAt, p.updatedAt

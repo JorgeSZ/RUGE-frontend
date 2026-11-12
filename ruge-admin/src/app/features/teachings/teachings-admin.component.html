@@ -1,0 +1,87 @@
+<header class="management-header">
+  <div><span class="eyebrow">Contenido global</span><h1>Catálogo de enseñanzas</h1><p>Gestiona el material disponible para los retos de todas las iglesias.</p></div>
+  <button class="btn-primary" type="button" (click)="openCreate()"><lucide-icon name="plus" [size]="18"></lucide-icon>Nueva enseñanza</button>
+</header>
+<div class="notice success" *ngIf="success" role="status">{{ success }}</div>
+<div class="notice error" *ngIf="error && !showEditor" role="alert">{{ error }} <button class="text-button" (click)="load()">Reintentar</button></div>
+<div class="loading" *ngIf="loading" role="status"><lucide-icon name="loader-2" class="spinning" [size]="20"></lucide-icon>Cargando catálogo…</div>
+<ng-container *ngIf="!loading">
+  <section class="metrics" aria-label="Resumen de enseñanzas">
+    <article class="metric"><div class="metric-label">Total en catálogo<lucide-icon name="file-text" [size]="20"></lucide-icon></div><strong>{{ teachings.length }}</strong><p>Enseñanzas registradas en RUGE</p></article>
+    <article class="metric"><div class="metric-label">Activas<lucide-icon name="badge-check" [size]="20"></lucide-icon></div><strong>{{ activeCount }}</strong><p>Disponibles para todas las iglesias</p></article>
+    <article class="metric"><div class="metric-label">Inactivas<lucide-icon name="file-x" [size]="20"></lucide-icon></div><strong>{{ teachings.length - activeCount }}</strong><p>No disponibles para nuevas asignaciones</p></article>
+  </section>
+  <div class="list-toolbar"><h2>Enseñanzas <span>{{ filteredTeachings.length }} de {{ teachings.length }}</span></h2><div class="filters">
+    <label class="search-box"><lucide-icon name="search" [size]="17"></lucide-icon><input type="search" aria-label="Buscar enseñanza" placeholder="Buscar por nombre o contenido..." [(ngModel)]="search" (ngModelChange)="page = 1" /></label>
+    <select aria-label="Filtrar enseñanzas por estado" [(ngModel)]="status" (ngModelChange)="page = 1"><option value="all">Todos los estados</option><option value="active">Activas</option><option value="inactive">Inactivas</option></select>
+  </div></div>
+  <section class="teaching-table-panel" aria-label="Enseñanzas del catálogo">
+    <div class="table-scroll" tabindex="0" aria-label="Tabla de enseñanzas; desplaza horizontalmente para ver todas las acciones">
+      <table><thead><tr><th scope="col">Enseñanza</th><th scope="col">Documento</th><th scope="col">Versión</th><th scope="col">Estado</th><th scope="col" class="actions-heading">Acciones</th></tr></thead><tbody>
+        <ng-container *ngFor="let teaching of visibleTeachings">
+          <tr>
+            <td class="teaching-title-cell"><button type="button" class="teaching-title" (click)="expandedTeachingId = expandedTeachingId === teaching.id ? null : teaching.id" [attr.aria-expanded]="expandedTeachingId === teaching.id" [attr.aria-controls]="'teaching-details-' + teaching.id"><span class="avatar"><lucide-icon name="file-text" [size]="19"></lucide-icon></span><span class="teaching-name">{{ teaching.name }}</span><lucide-icon [name]="expandedTeachingId === teaching.id ? 'chevron-up' : 'chevron-down'" [size]="14"></lucide-icon></button><p class="message-preview">{{ teaching.generalMessage || 'Sin mensaje general.' }}</p></td>
+            <td class="document-cell"><span [class.missing-pdf]="!teaching.hasPdf">{{ teaching.hasPdf ? (teaching.pdfFileName || 'PDF disponible') : 'Falta PDF' }}</span></td>
+            <td><span class="version">v{{ teaching.version }}</span></td>
+            <td><span class="badge" [class.active-status]="teaching.isActive" [class.muted]="!teaching.isActive">{{ teaching.isActive ? 'Activa' : 'Inactiva' }}</span></td>
+            <td><div class="teaching-actions">
+              <button class="row-button" type="button" (click)="openPdf(teaching)" [disabled]="!teaching.hasPdf || !!pdfLoadingId" [attr.aria-label]="'Ver PDF de ' + teaching.name"><lucide-icon name="eye" [size]="15"></lucide-icon>{{ pdfLoadingId === teaching.id ? 'Abriendo…' : 'Ver PDF' }}</button>
+              <button class="row-button" type="button" (click)="openEdit(teaching)">Editar</button>
+              <button class="row-button" type="button" [disabled]="!!togglingId" (click)="toggle(teaching)">{{ togglingId === teaching.id ? 'Guardando…' : teaching.isActive ? 'Desactivar' : 'Activar' }}</button>
+              <button class="row-button danger" type="button" [disabled]="!!deletingId" (click)="removeTeaching(teaching)" [attr.aria-label]="'Eliminar ' + teaching.name" title="Eliminar"><lucide-icon name="trash-2" [size]="16"></lucide-icon></button>
+            </div></td>
+          </tr>
+          <tr *ngIf="expandedTeachingId === teaching.id" [id]="'teaching-details-' + teaching.id"><td colspan="5"><div class="teaching-details"><div><h3>Objetivos</h3><p>{{ teaching.objectives || 'Sin objetivos registrados.' }}</p></div><div><h3>Mensaje general</h3><p>{{ teaching.generalMessage || 'Sin mensaje general.' }}</p></div></div></td></tr>
+        </ng-container>
+      </tbody></table>
+    </div>
+    <div class="empty-state" *ngIf="!filteredTeachings.length"><lucide-icon name="file-text" [size]="30"></lucide-icon><h3>{{ teachings.length ? 'No hay coincidencias' : 'Tu catálogo empieza aquí' }}</h3><p>{{ teachings.length ? 'Prueba con otro nombre o cambia el filtro.' : 'Agrega una enseñanza para que las iglesias puedan asignarla en sus retos.' }}</p><button *ngIf="teachings.length" class="btn-secondary" (click)="resetFilters()">Limpiar filtros</button><button *ngIf="!teachings.length && !error" class="btn-primary" (click)="openCreate()">Crear primera enseñanza</button></div>
+    <footer class="pagination" *ngIf="filteredTeachings.length"><span>{{ filteredTeachings.length }} enseñanzas · Página {{ page }} de {{ pageCount }}</span><div><button class="btn-secondary" [disabled]="page === 1" (click)="page = page - 1" aria-label="Página anterior"><lucide-icon name="chevron-left" [size]="16"></lucide-icon></button><button class="btn-secondary" [disabled]="page === pageCount" (click)="page = page + 1" aria-label="Página siguiente"><lucide-icon name="chevron-right" [size]="16"></lucide-icon></button></div></footer>
+  </section>
+  <p class="catalog-note"><lucide-icon name="info" [size]="17"></lucide-icon>Al desactivar una enseñanza deja de aparecer para nuevas asignaciones. Las copias y el historial de los retos se conservan.</p>
+</ng-container>
+
+<div class="modal-backdrop" *ngIf="showEditor" (click)="closeEditor()">
+  <section class="editor-modal" role="dialog" aria-modal="true" aria-labelledby="teaching-editor-title" (click)="$event.stopPropagation()">
+    <header class="modal-heading">
+      <div>
+        <p class="eyebrow">CATÁLOGO GLOBAL</p>
+        <h2 id="teaching-editor-title">{{ editing ? 'Editar enseñanza' : 'Nueva enseñanza' }}</h2>
+      </div>
+      <button class="close-btn" type="button" aria-label="Cerrar" (click)="closeEditor()">×</button>
+    </header>
+
+    <div class="editor-fields">
+      <label>Nombre de la enseñanza
+        <input [(ngModel)]="name" maxlength="200" placeholder="Ej. Agua viva" />
+      </label>
+      <label>Objetivos <span class="field-hint">Escribe un objetivo por línea.</span>
+        <textarea [(ngModel)]="objectives" rows="3" placeholder="Aprender…&#10;Comprender…"></textarea>
+      </label>
+      <label>Mensaje general
+        <textarea [(ngModel)]="generalMessage" rows="3" placeholder="Idea central que aparecerá en la columna lateral del PDF."></textarea>
+      </label>
+      <div class="content-label">
+        <label for="teaching-pdf">PDF de la enseñanza</label>
+        <span>Sube el documento ya diseñado. Se conservará una copia fija por cada reto al asignarlo.</span>
+      </div>
+      <div class="pdf-upload">
+        <input id="teaching-pdf" type="file" accept="application/pdf,.pdf" (change)="onPdfSelected($event)" />
+        <span *ngIf="selectedPdf">Seleccionado: {{ selectedPdf.name }}</span>
+        <span *ngIf="!selectedPdf && editing?.hasPdf">PDF actual: {{ editing?.pdfFileName }}</span>
+        <span *ngIf="!selectedPdf && editing && !editing.hasPdf">Esta enseñanza aún no tiene PDF. Adjunta uno para guardarla.</span>
+        <span *ngIf="!selectedPdf && !editing">Selecciona el archivo que recibirán los servidores asignados.</span>
+      </div>
+      <label class="active-toggle">
+        <input type="checkbox" [(ngModel)]="active" />
+        <span><strong>Disponible para todas las iglesias</strong><small>Los administradores podrán asignarla en sus retos.</small></span>
+      </label>
+      <div class="notice error" *ngIf="error">{{ error }}</div>
+    </div>
+
+    <footer class="modal-actions">
+      <button class="secondary-btn" type="button" (click)="closeEditor()">Cancelar</button>
+      <button class="primary-btn" type="button" [disabled]="saving" (click)="save()">{{ saving ? 'Guardando…' : 'Guardar enseñanza' }}</button>
+    </footer>
+  </section>
+</div>

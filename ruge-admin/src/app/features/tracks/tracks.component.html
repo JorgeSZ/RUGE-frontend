@@ -1,228 +1,540 @@
-<div class="page-header">
-  <h2>Tracks</h2>
-  <button class="btn-primary" (click)="openCreateTrack()">+ Nuevo Track</button>
-</div>
-
-<!-- Track form -->
-<div class="card form-card" *ngIf="showTrackForm">
-  <h3>{{ editingTrackId ? 'Editar Track' : 'Nuevo Track' }}</h3>
-  <form [formGroup]="trackForm" (ngSubmit)="submitTrack()">
-    <div class="form-row">
-      <div class="field">
-        <label>Nombre *</label>
-        <input formControlName="name" placeholder="Nombre del Track" />
-      </div>
-      <div class="field">
-        <label>Descripción</label>
-        <input formControlName="description" placeholder="Opcional" />
-      </div>
+<div class="tracks-page">
+  <a *ngIf="trackId" class="back-link" routerLink="/tracks"
+    ><lucide-icon name="chevron-left" [size]="16"></lucide-icon> Todos los tracks</a
+  >
+  <header class="page-header">
+    <div>
+      <span class="eyebrow">TRACKS Y SEGMENTOS</span>
+      <h2>{{ trackId ? selectedTrack?.name || 'Detalle del track' : 'Tracks' }}</h2>
+      <p>
+        {{
+          trackId
+            ? selectedTrack?.description || 'Organiza los segmentos, días y horarios de este track.'
+            : 'Administra tus tracks y abre uno para organizar sus segmentos.'
+        }}
+      </p>
     </div>
-    <div class="form-actions">
-      <button class="btn-secondary" type="button" (click)="cancelTrack()">Cancelar</button>
-      <button class="btn-primary" type="submit" [disabled]="trackForm.invalid">Guardar Track</button>
+    <div class="header-actions">
+      <button *ngIf="!trackId" class="btn-primary" (click)="openCreateTrack()">
+        <lucide-icon name="plus" [size]="17"></lucide-icon> Nuevo track
+      </button>
+      <ng-container *ngIf="selectedTrack as track">
+        <button class="btn-secondary" [disabled]="saving || loading" (click)="openEditTrack(track, $event)">
+          <lucide-icon name="pencil" [size]="16"></lucide-icon> Editar información
+        </button>
+        <button class="btn-primary" [disabled]="saving || loading" (click)="openAddSegment()">
+          <lucide-icon name="plus" [size]="17"></lucide-icon> Agregar segmento
+        </button>
+      </ng-container>
     </div>
-  </form>
-</div>
+  </header>
 
-<div class="layout">
-  <!-- Left: track list -->
-  <div class="track-list">
-    <div *ngIf="loading" class="loading">Cargando...</div>
-
-    <div
-      *ngFor="let t of tracks"
-      class="track-item"
-      [class.selected]="t.id === selectedTrack?.id"
-      (click)="selectTrack(t)"
-    >
-      <div class="track-item-body">
-        <div class="track-item-name">{{ t.name }}</div>
-        <div class="track-item-meta">
-          <span *ngIf="t.segments.length > 0">{{ segmentsKm(t.segments) }} km</span>
-          <span>{{ t.segments.length }} seg{{ t.segments.length !== 1 ? 's' : '' }}</span>
-        </div>
-      </div>
-      <div class="track-item-actions">
-        <button class="btn-sm" (click)="openEditTrack(t, $event)">Editar</button>
-        <button class="btn-sm danger" (click)="deleteTrack(t, $event)">Eliminar</button>
-      </div>
-    </div>
-
-    <div class="empty" *ngIf="!loading && tracks.length === 0">
-      Sin Tracks aún. Crea uno arriba.
-    </div>
+  <div class="notice error" *ngIf="error && !showTrackForm && !showSegmentForm" role="alert">
+    {{ error }} <button class="btn-sm" (click)="loadTracks()" [disabled]="saving || loading">Recargar</button>
   </div>
+  <p class="notice" *ngIf="loading" role="status">
+    <lucide-icon name="loader-2" [size]="18"></lucide-icon> Cargando tracks…
+  </p>
+  <p class="save-status" role="status" aria-live="polite">
+    {{ saving && !showTrackForm && !showSegmentForm ? 'Guardando cambios…' : status }}
+  </p>
 
-  <!-- Right: segment detail -->
-  <div class="segment-panel" *ngIf="selectedTrack">
-    <div class="segment-header">
-      <div>
-        <div class="segment-title">{{ selectedTrack.name }}</div>
-        <div class="segment-subtitle">
-          <span *ngIf="totalDistanceKm > 0">{{ totalDistanceKm | number:'1.1-2' }} km total</span>
-          <span>{{ selectedTrack.segments.length }} segmento{{ selectedTrack.segments.length !== 1 ? 's' : '' }}</span>
-        </div>
-      </div>
-      <button class="btn-primary" (click)="openAddSegment()">+ Agregar Segmento</button>
+  <ng-container *ngIf="!trackId">
+    <div class="filter-bar">
+      <label class="search-field"
+        ><lucide-icon name="search" [size]="17"></lucide-icon
+        ><input
+          type="search"
+          aria-label="Buscar tracks"
+          placeholder="Buscar track por nombre o descripción…"
+          [(ngModel)]="trackSearch"
+          (ngModelChange)="trackPage = 1"
+      /></label>
+      <span>{{ filteredTracks.length }} de {{ tracks.length }} tracks</span>
     </div>
-
-    <!-- Segment form -->
-    <div class="card form-card" *ngIf="showSegmentForm">
-      <h3>{{ editingSegmentId ? 'Editar Segmento' : 'Nuevo Segmento' }}</h3>
-      <form [formGroup]="segmentForm" (ngSubmit)="submitSegment()">
-
-        <div class="form-row">
-          <div class="field">
-            <label>Nombre *</label>
-            <input formControlName="name" placeholder="Nombre del segmento" />
-          </div>
-          <div class="field">
-            <label>Día</label>
-            <select formControlName="dia">
-              <option value="">— ninguno —</option>
-              <option *ngFor="let d of dias" [value]="d">{{ d }}</option>
-            </select>
-          </div>
+    <div class="table-card">
+      <div class="table-scroll" tabindex="0" role="region" aria-label="Tracks disponibles">
+        <table class="data-table catalog-table">
+          <thead>
+            <tr>
+              <th>Track</th>
+              <th>Segmentos</th>
+              <th>Distancia</th>
+              <th>Duración estimada</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let track of pagedTracks; trackBy: trackById">
+              <td>
+                <a class="track-name" [routerLink]="['/tracks', track.id]">{{ track.name }}</a>
+                <p class="detail-text">{{ track.description || 'Sin descripción' }}</p>
+              </td>
+              <td>
+                <span class="count-badge">{{ track.segments.length }}</span>
+              </td>
+              <td>{{ segmentsKm(track.segments) | number: '1.0-2' }} km</td>
+              <td>{{ formatTime(segmentsMinutes(track.segments)) }}</td>
+              <td>
+                <div class="row-actions">
+                  <a class="btn-sm edit" [routerLink]="['/tracks', track.id]"
+                    ><lucide-icon name="pencil" [size]="15"></lucide-icon> Editar</a
+                  ><button
+                    class="icon-btn danger"
+                    [disabled]="saving || loading"
+                    (click)="deleteTrack(track, $event)"
+                    [attr.aria-label]="'Eliminar track ' + track.name"
+                    title="Eliminar track"
+                  >
+                    <lucide-icon name="trash-2" [size]="16"></lucide-icon>
+                  </button>
+                </div>
+              </td>
+            </tr>
+            <tr *ngIf="!loading && !pagedTracks.length">
+              <td colspan="5" class="empty">
+                {{
+                  tracks.length
+                    ? 'No hay tracks que coincidan con la búsqueda.'
+                    : 'Todavía no hay tracks. Crea el primero para agregar segmentos.'
+                }}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <footer class="pagination" *ngIf="filteredTracks.length">
+        <span
+          >Mostrando {{ (trackPage - 1) * trackPageSize + 1 }}–{{ lastTrackResult }} de
+          {{ filteredTracks.length }}</span
+        >
+        <div class="page-controls">
+          <label
+            >Filas
+            <select
+              aria-label="Tracks por página"
+              [(ngModel)]="trackPageSize"
+              (ngModelChange)="trackPage = 1"
+            >
+              <option [ngValue]="10">10</option>
+              <option [ngValue]="25">25</option>
+              <option [ngValue]="50">50</option>
+            </select></label
+          ><button class="btn-sm" [disabled]="trackPage === 1" (click)="trackPage = trackPage - 1">
+            Anterior</button
+          ><span>{{ trackPage }} / {{ trackPageCount }}</span
+          ><button
+            class="btn-sm"
+            [disabled]="trackPage >= trackPageCount"
+            (click)="trackPage = trackPage + 1"
+          >
+            Siguiente
+          </button>
         </div>
+      </footer>
+    </div>
+  </ng-container>
 
-        <!-- Scheduled time with cascade indicators -->
-        <div class="form-row">
-          <div class="field time-field" style="flex: 0 0 220px">
-            <label class="label-with-badge">
-              Hora de inicio
-              <span class="badge-auto"
-                    *ngIf="isAutoTime"
-                    title="Calculado automáticamente desde el segmento anterior">
-                ⟳ auto
-              </span>
-              <span class="badge-manual"
-                    *ngIf="timeManuallyChanged"
-                    title="Este valor fue editado manualmente. Los cambios en segmentos anteriores no lo actualizarán.">
-                ⚠ manual
-              </span>
-            </label>
-            <input type="time"
-                   formControlName="scheduledTime"
-                   (change)="onScheduledTimeChange()" />
-            <button class="btn-reset-auto"
-                    type="button"
-                    *ngIf="timeManuallyChanged"
-                    (click)="resetToAutoTime()"
-                    title="Volver al cálculo automático">
-              ↺ Restablecer automático
+  <ng-container *ngIf="selectedTrack as track">
+    <section class="metrics" aria-label="Resumen del track completo">
+      <div class="metric">
+        <lucide-icon name="map" [size]="20"></lucide-icon><span>Distancia total</span
+        ><strong>{{ totalDistanceKm | number: '1.0-2' }} <small>km</small></strong
+        ><small>{{ track.segments.length }} segmentos</small>
+      </div>
+      <div class="metric">
+        <lucide-icon name="clock" [size]="20"></lucide-icon><span>Tiempo estimado</span
+        ><strong>{{ formatTime(totalEstimatedMinutes) }}</strong
+        ><small>Duración total del track</small>
+      </div>
+      <div class="metric">
+        <lucide-icon name="message-circle" [size]="20"></lucide-icon><span>Prédicas</span
+        ><strong>{{ preachingCount }}</strong
+        ><small>Segmentos con prédica</small>
+      </div>
+      <div class="metric">
+        <lucide-icon name="layers" [size]="20"></lucide-icon><span>Días</span><strong>{{ dayCount }}</strong
+        ><small>Días con segmentos asignados</small>
+      </div>
+    </section>
+
+    <div *ngIf="showSegmentForm" [class.editor-backdrop]="editingSegmentId">
+      <section
+        class="card segment-form-card"
+        [class.editor-dialog]="editingSegmentId"
+        [attr.role]="editingSegmentId ? 'dialog' : 'region'"
+        [attr.aria-modal]="editingSegmentId ? true : null"
+        aria-labelledby="segment-editor-title"
+        (keydown)="editingSegmentId && trapFocus($event)"
+      >
+        <div class="form-heading">
+          <div>
+            <h3 id="segment-editor-title">
+              {{ editingSegmentId ? 'Editar segmento' : 'Nuevo segmento de ruta' }}
+            </h3>
+            <p>
+              {{
+                editingSegmentId
+                  ? 'Actualiza la información sin perder tu lugar en la lista.'
+                  : 'Agrega un tramo o una parada al final del track.'
+              }}
+            </p>
+          </div>
+          <button
+            class="icon-btn"
+            [disabled]="saving"
+            (click)="cancelSegment()"
+            aria-label="Cerrar formulario de segmento"
+          >
+            <lucide-icon name="x" [size]="20"></lucide-icon>
+          </button>
+        </div>
+        <p *ngIf="error" class="notice error" role="alert">{{ error }}</p>
+        <form [formGroup]="segmentForm" (ngSubmit)="submitSegment()">
+          <div class="form-row">
+            <div class="field">
+              <label for="segment-name">Nombre *</label>
+              <input
+                id="segment-name"
+                aria-label="Nombre del segmento"
+                formControlName="name"
+                placeholder="Nombre del segmento"
+              />
+            </div>
+            <div class="field">
+              <label for="segment-dia">Día</label>
+              <select id="segment-dia" formControlName="dia">
+                <option value="">— ninguno —</option>
+                <option *ngFor="let d of dias" [value]="d">{{ d }}</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Scheduled time with cascade indicators -->
+          <div class="form-row">
+            <div class="field time-field">
+              <label for="segment-scheduledTime" class="label-with-badge">
+                Hora de inicio
+                <span
+                  class="badge-auto"
+                  *ngIf="isAutoTime"
+                  title="Calculado automáticamente desde el segmento anterior"
+                >
+                  ⟳ auto
+                </span>
+                <span
+                  class="badge-manual"
+                  *ngIf="timeManuallyChanged"
+                  title="Este valor fue editado manualmente. Los cambios en segmentos anteriores no lo actualizarán."
+                >
+                  ⚠ manual
+                </span>
+              </label>
+              <input
+                type="time"
+                id="segment-scheduledTime"
+                formControlName="scheduledTime"
+                (change)="onScheduledTimeChange()"
+              />
+              <button
+                class="btn-reset-auto"
+                type="button"
+                *ngIf="timeManuallyChanged"
+                (click)="resetToAutoTime()"
+                title="Volver al cálculo automático"
+              >
+                ↺ Restablecer automático
+              </button>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="field">
+              <label for="segment-distanceKm">Distancia (km)</label>
+              <input
+                type="number"
+                id="segment-distanceKm"
+                formControlName="distanceKm"
+                placeholder="ej. 5.2"
+                step="0.1"
+                min="0"
+              />
+            </div>
+            <div class="field">
+              <label for="segment-estimatedTimeMinutes">Tiempo Estimado (min) *</label>
+              <input
+                type="number"
+                id="segment-estimatedTimeMinutes"
+                formControlName="estimatedTimeMinutes"
+                placeholder="ej. 60"
+                min="1"
+              />
+              <div class="hora-fin-info" *ngIf="formEndTime">
+                → Fin: <strong>{{ formEndTime.time }}</strong>
+                <span class="next-day-badge" *ngIf="formEndTime.nextDay"> +día siguiente</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="field">
+              <label for="segment-predica">Prédica</label>
+              <input id="segment-predica" formControlName="predica" placeholder="Tema de la prédica" />
+            </div>
+            <div class="field">
+              <label for="segment-predicador">Predicador</label>
+              <input
+                id="segment-predicador"
+                formControlName="predicador"
+                placeholder="Nombre del predicador"
+              />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="field">
+              <label for="segment-lugar">Lugar</label>
+              <input id="segment-lugar" formControlName="lugar" placeholder="Lugar" />
+            </div>
+            <div class="field">
+              <label for="segment-description">Descripción</label>
+              <input id="segment-description" formControlName="description" placeholder="Notas opcionales" />
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <span class="form-note">* Campos obligatorios</span>
+            <button class="btn-secondary" type="button" [disabled]="saving" (click)="cancelSegment()">
+              Cancelar
+            </button>
+            <button class="btn-primary" type="submit" [disabled]="segmentForm.invalid || saving">
+              {{ saving ? 'Guardando…' : 'Guardar segmento' }}
             </button>
           </div>
-        </div>
-
-        <div class="form-row">
-          <div class="field">
-            <label>Distancia (km)</label>
-            <input type="number" formControlName="distanceKm" placeholder="ej. 5.2" step="0.1" min="0" />
-          </div>
-          <div class="field">
-            <label>Tiempo Estimado (min) *</label>
-            <input type="number" formControlName="estimatedTimeMinutes" placeholder="ej. 60" min="1" />
-            <div class="hora-fin-info" *ngIf="formEndTime">
-              → Fin: <strong>{{ formEndTime.time }}</strong>
-              <span class="next-day-badge" *ngIf="formEndTime.nextDay"> +día siguiente</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="form-row">
-          <div class="field">
-            <label>Predica</label>
-            <input formControlName="predica" placeholder="Tema de la predica" />
-          </div>
-          <div class="field">
-            <label>Predicador</label>
-            <input formControlName="predicador" placeholder="Nombre del predicador" />
-          </div>
-        </div>
-
-        <div class="form-row">
-          <div class="field">
-            <label>Lugar</label>
-            <input formControlName="lugar" placeholder="Lugar" />
-          </div>
-          <div class="field">
-            <label>Descripción</label>
-            <input formControlName="description" placeholder="Notas opcionales" />
-          </div>
-        </div>
-
-        <div class="form-actions">
-          <button class="btn-secondary" type="button" (click)="cancelSegment()">Cancelar</button>
-          <button class="btn-primary" type="submit" [disabled]="segmentForm.invalid">Guardar Segmento</button>
-        </div>
-      </form>
+        </form>
+      </section>
     </div>
 
-    <!-- Segments table -->
-    <table class="data-table" *ngIf="selectedTrack.segments.length > 0">
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>Día</th>
-          <th>Inicio / Fin</th>
-          <th>Segmento</th>
-          <th>Predica</th>
-          <th>Predicador</th>
-          <th>Lugar</th>
-          <th>Dist.</th>
-          <th>Tiempo</th>
-          <th>Acciones</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let s of selectedTrack.segments; let i = index" [class.has-predica]="s.predica">
-          <td class="order-cell">{{ s.order }}</td>
-          <td>{{ s.dia || '—' }}</td>
-          <td class="time-cell">
-            <div class="time-start">
-              <span *ngIf="s.scheduledTime">{{ s.scheduledTime }}</span>
-              <span *ngIf="!s.scheduledTime" class="muted">—</span>
-              <span *ngIf="isAutoCalculated(s, i)"
-                    class="auto-dot"
-                    title="Calculado automáticamente desde el segmento anterior">⟳</span>
-              <span *ngIf="manualOverrides.has(s.id)"
-                    class="manual-dot"
-                    title="Editado manualmente — no se actualizará con cambios anteriores">⚠</span>
-            </div>
-            <div class="time-end" *ngIf="segEndTime(s) as et">
-              → {{ et.time }}<span *ngIf="et.nextDay" class="next-day-small"> +día</span>
-            </div>
-          </td>
-          <td>
-            <div class="seg-name">{{ s.name }}</div>
-            <div class="seg-desc" *ngIf="s.description">{{ s.description }}</div>
-          </td>
-          <td>{{ s.predica || '—' }}</td>
-          <td>{{ s.predicador || '—' }}</td>
-          <td>{{ s.lugar || '—' }}</td>
-          <td>{{ s.distanceKm ? s.distanceKm + ' km' : '—' }}</td>
-          <td>{{ formatTime(s.estimatedTimeMinutes) }}</td>
-          <td class="actions">
-            <button class="btn-sm" (click)="openEditSegment(s)">Editar</button>
-            <button class="btn-sm danger" (click)="deleteSegment(s)">Eliminar</button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-
-    <!-- Track totals -->
-    <div class="track-totals" *ngIf="selectedTrack.segments.length > 0 && totalEstimatedMinutes > 0">
-      <span class="totals-label">Duración total estimada:</span>
-      <span class="totals-value">{{ formatTime(totalEstimatedMinutes) }}</span>
-      <span class="totals-range" *ngIf="trackTimeRange">· {{ trackTimeRange }}</span>
+    <section class="segment-filters" aria-label="Filtros de segmentos">
+      <div class="day-tabs" role="group" aria-label="Filtrar por día">
+        <button
+          *ngFor="let day of segmentDays"
+          [class.active]="selectedDay === day"
+          [attr.aria-pressed]="selectedDay === day"
+          (click)="setDay(day)"
+        >
+          {{ day }} <span>{{ daySegmentCount(day) }}</span>
+        </button>
+      </div>
+      <div class="filter-bar">
+        <label class="search-field"
+          ><lucide-icon name="search" [size]="17"></lucide-icon
+          ><input
+            type="search"
+            aria-label="Buscar segmentos"
+            placeholder="Buscar segmento, prédica, predicador o lugar…"
+            [(ngModel)]="search"
+            (ngModelChange)="applyFilters()" /></label
+        ><select aria-label="Tipo de segmento" [(ngModel)]="segmentType" (ngModelChange)="applyFilters()">
+          <option value="all">Todos los segmentos</option>
+          <option value="preaching">Con prédica</option>
+          <option value="withoutPreaching">Sin prédica</option></select
+        ><button
+          class="btn-sm"
+          *ngIf="search || selectedDay !== 'Todos' || segmentType !== 'all'"
+          (click)="clearFilters()"
+        >
+          Limpiar filtros
+        </button>
+      </div>
+    </section>
+    <p class="reorder-hint">
+      <lucide-icon name="grip-vertical" [size]="16"></lucide-icon
+      >{{
+        selectedDay !== 'Todos' || search.trim() || segmentType !== 'all'
+          ? 'Quita los filtros para arrastrar segmentos. Las flechas mueven una posición en el orden completo.'
+          : 'Arrastra desde el asa para cambiar el orden, o utiliza las flechas. Para arrastrar entre páginas, selecciona «Todos» en filas.'
+      }}
+    </p>
+    <div class="table-card">
+      <div class="table-scroll" tabindex="0" role="region" aria-label="Segmentos del track">
+        <table class="data-table segments-table">
+          <thead>
+            <tr>
+              <th aria-label="Ordenar"></th>
+              <th>#</th>
+              <th>Día / horario</th>
+              <th>Segmento / detalle</th>
+              <th>Prédica / predicador</th>
+              <th>Lugar</th>
+              <th>Distancia</th>
+              <th>Duración</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              *ngFor="let s of visibleSegments; trackBy: trackById"
+              [attr.data-segment-id]="s.id"
+              [class.dragging]="draggedId === s.id"
+              [class.drop-before]="dropTargetId === s.id && !dropAfter"
+              [class.drop-after]="dropTargetId === s.id && dropAfter"
+              (dragover)="dragOver($event, s)"
+              (drop)="dropSegment($event, s)"
+            >
+              <td class="grip-cell">
+                <span
+                  class="drag-handle"
+                  [class.disabled]="!canDrag"
+                  [attr.draggable]="canDrag"
+                  (dragstart)="startDrag($event, s)"
+                  (dragend)="endDrag()"
+                  title="Arrastrar para cambiar el orden"
+                  aria-hidden="true"
+                  ><lucide-icon name="grip-vertical" [size]="18"></lucide-icon
+                ></span>
+              </td>
+              <td class="order-cell">{{ s.order }}</td>
+              <td>
+                <span class="day-badge">{{ s.dia || 'Sin día' }}</span>
+                <div class="time-start">
+                  {{ s.scheduledTime || '—'
+                  }}<span *ngIf="manualOverrides.has(s.id)" title="Hora ajustada manualmente"> *</span>
+                </div>
+                <div class="detail-text" *ngIf="segEndTime(s) as end">
+                  → {{ end.time }}{{ end.nextDay ? ' (+día)' : '' }}
+                </div>
+              </td>
+              <td>
+                <strong class="seg-name">{{ s.name }}</strong>
+                <p class="detail-text">{{ s.description }}</p>
+              </td>
+              <td>
+                <span [class.muted]="!s.predica">{{ s.predica || 'Sin prédica' }}</span>
+                <p class="detail-text">{{ s.predicador }}</p>
+              </td>
+              <td>{{ s.lugar || '—' }}</td>
+              <td class="nowrap">
+                {{ s.distanceKm != null ? (s.distanceKm | number: '1.0-2') + ' km' : '—' }}
+              </td>
+              <td class="nowrap">{{ formatTime(s.estimatedTimeMinutes) }}</td>
+              <td>
+                <div class="row-actions">
+                  <div class="move-actions">
+                    <button
+                      class="icon-btn"
+                      [disabled]="saving || loading || track.segments[0].id === s.id"
+                      (click)="moveSegment(s, -1)"
+                      [attr.aria-label]="'Mover antes: ' + s.name"
+                      title="Mover una posición antes"
+                    >
+                      <lucide-icon name="chevron-up" [size]="16"></lucide-icon></button
+                    ><button
+                      class="icon-btn"
+                      [disabled]="saving || loading || track.segments[track.segments.length - 1].id === s.id"
+                      (click)="moveSegment(s, 1)"
+                      [attr.aria-label]="'Mover después: ' + s.name"
+                      title="Mover una posición después"
+                    >
+                      <lucide-icon name="chevron-down" [size]="16"></lucide-icon>
+                    </button>
+                  </div>
+                  <button class="btn-sm edit" [disabled]="saving || loading" (click)="openEditSegment(s)">
+                    Editar</button
+                  ><button
+                    class="icon-btn danger"
+                    [disabled]="saving || loading"
+                    (click)="deleteSegment(s)"
+                    [attr.aria-label]="'Eliminar segmento ' + s.name"
+                    title="Eliminar segmento"
+                  >
+                    <lucide-icon name="trash-2" [size]="16"></lucide-icon>
+                  </button>
+                </div>
+              </td>
+            </tr>
+            <tr *ngIf="!visibleSegments.length">
+              <td colspan="9" class="empty">
+                {{
+                  track.segments.length
+                    ? 'No hay segmentos que coincidan con los filtros.'
+                    : 'Este track todavía no tiene segmentos. Agrega el primero.'
+                }}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <footer class="pagination">
+        <span
+          >Mostrando {{ firstResult }}–{{ lastResult }} de {{ filteredSegments.length }} segmentos<span
+            *ngIf="filteredSegments.length !== track.segments.length"
+          >
+            ({{ track.segments.length }} en total)</span
+          ></span
+        >
+        <div class="page-controls">
+          <label
+            >Filas
+            <select aria-label="Segmentos por página" [(ngModel)]="pageSize" (ngModelChange)="applyFilters()">
+              <option [ngValue]="10">10</option>
+              <option [ngValue]="25">25</option>
+              <option [ngValue]="50">50</option>
+              <option [ngValue]="100">100</option>
+              <option [ngValue]="2147483647">Todos</option>
+            </select></label
+          ><button class="btn-sm" [disabled]="page === 1" (click)="setPage(page - 1)">Anterior</button
+          ><span>{{ page }} / {{ pageCount }}</span
+          ><button class="btn-sm" [disabled]="page >= pageCount" (click)="setPage(page + 1)">
+            Siguiente
+          </button>
+        </div>
+      </footer>
     </div>
+  </ng-container>
+</div>
 
-    <div class="empty" *ngIf="selectedTrack.segments.length === 0 && !showSegmentForm">
-      Sin segmentos aún. Agrega el primero.
+<div class="editor-backdrop" *ngIf="showTrackForm">
+  <section
+    class="editor-dialog card"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="track-editor-title"
+    (keydown)="trapFocus($event)"
+  >
+    <div class="form-heading">
+      <h3 id="track-editor-title">{{ editingTrackId ? 'Editar información del track' : 'Nuevo track' }}</h3>
+      <button
+        class="icon-btn"
+        [disabled]="saving"
+        (click)="cancelTrack()"
+        aria-label="Cerrar formulario de track"
+      >
+        <lucide-icon name="x" [size]="20"></lucide-icon>
+      </button>
     </div>
-  </div>
-
-  <div class="no-selection" *ngIf="!selectedTrack && !loading">
-    ← Selecciona un track para gestionar sus segmentos
-  </div>
+    <p *ngIf="error" class="notice error" role="alert">{{ error }}</p>
+    <form [formGroup]="trackForm" (ngSubmit)="submitTrack()">
+      <div class="field">
+        <label for="track-name">Nombre *</label
+        ><input id="track-name" formControlName="name" placeholder="Nombre del track" />
+      </div>
+      <div class="field">
+        <label for="track-description">Descripción</label
+        ><textarea
+          id="track-description"
+          rows="3"
+          formControlName="description"
+          placeholder="Descripción opcional"
+        ></textarea>
+      </div>
+      <div class="form-actions">
+        <button class="btn-secondary" type="button" [disabled]="saving" (click)="cancelTrack()">
+          Cancelar</button
+        ><button class="btn-primary" type="submit" [disabled]="trackForm.invalid || saving">
+          {{ saving ? 'Guardando…' : 'Guardar track' }}
+        </button>
+      </div>
+    </form>
+  </section>
 </div>

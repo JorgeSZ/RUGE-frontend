@@ -58,6 +58,10 @@
       <div class="field"><label>Teléfono</label><input formControlName="phone" placeholder="+1 555..." /></div>
     </div>
     <div class="form-row">
+      <div class="field"><label>Contacto de emergencia</label><input formControlName="emergencyContactName" placeholder="Nombre y apellidos" /></div>
+      <div class="field"><label>Teléfono de emergencia</label><input type="tel" formControlName="emergencyContactPhone" placeholder="+506..." /></div>
+    </div>
+    <div class="form-row">
       <div class="field">
         <label>¿Asiste a iglesia?</label>
         <label style="display:flex;align-items:center;gap:8px;margin-top:6px;">
@@ -97,7 +101,7 @@
 <div class="table-controls">
   <div class="search-wrap">
     <lucide-icon name="search" [size]="15" [strokeWidth]="1.5" class="search-icon"></lucide-icon>
-    <input class="search-input" [(ngModel)]="searchTerm" placeholder="Buscar por nombre o cédula..." />
+    <input class="search-input" [(ngModel)]="searchTerm" (ngModelChange)="applyFilters()" placeholder="Buscar por nombre o cédula..." />
   </div>
   <div class="filter-chips">
     <button class="chip" [class.active]="filterCheckin === 'done'"    (click)="setCheckinFilter('done')">✅ Con Check-in</button>
@@ -105,12 +109,12 @@
     <button class="chip" [class.active]="filterSinTribu"              (click)="toggleSinTribu()">
       Sin Tribu <span class="chip-badge">{{ sinTribuCount }}</span>
     </button>
-    <select class="chip-select" [(ngModel)]="filterTribeId" [disabled]="filterSinTribu">
+    <select class="chip-select" [(ngModel)]="filterTribeId" (ngModelChange)="applyFilters()" [disabled]="filterSinTribu">
       <option value="">Todas las tribus</option>
       <option *ngFor="let t of tribes" [value]="t.id">{{ t.name }}</option>
     </select>
   </div>
-  <span class="count">Mostrando {{ filtered.length }} de {{ participants.length }}</span>
+  <span class="count">{{ filtered.length }} de {{ participants.length }} senderistas</span>
 </div>
 
 <div *ngIf="loading" class="loading">Cargando...</div>
@@ -129,7 +133,7 @@
     </tr>
   </thead>
   <tbody>
-    <tr *ngFor="let p of filtered" (click)="openDrawer(p)" class="row-clickable">
+    <tr *ngFor="let p of paged; trackBy: trackPerson" (click)="openDrawer(p)" class="row-clickable">
       <td class="name-cell">{{ p.firstName }} {{ p.firstLastName }} {{ p.secondLastName || '' }}</td>
       <td>{{ p.cedula || '—' }}</td>
       <td>{{ p.maritalStatus || '—' }}</td>
@@ -157,6 +161,15 @@
     </tr>
   </tbody>
 </table>
+
+<nav class="list-pagination" *ngIf="!loading && filtered.length" aria-label="Paginación de senderistas">
+  <span>Mostrando {{ firstResult }}–{{ lastResult }} de {{ filtered.length }} senderistas</span>
+  <div class="list-page-controls">
+    <label>Filas por página <select aria-label="Senderistas por página" [(ngModel)]="pageSize" (ngModelChange)="applyFilters()"><option [ngValue]="10">10</option><option [ngValue]="25">25</option><option [ngValue]="50">50</option><option [ngValue]="100">100</option></select></label>
+    <button class="btn-secondary" [disabled]="page === 1" (click)="setPage(page - 1)">Anterior</button><span>Página {{ page }} de {{ pageCount }}</span><button class="btn-secondary" [disabled]="page >= pageCount" (click)="setPage(page + 1)">Siguiente</button>
+  </div>
+</nav>
+
 
 <app-participant-drawer
   [participant]="drawerParticipant"

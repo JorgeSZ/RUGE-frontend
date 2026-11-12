@@ -3,6 +3,9 @@
   <button class="btn-primary" (click)="openCreate()">+ Nuevo Reto</button>
 </div>
 
+<div class="event-feedback success" *ngIf="success">{{ success }}</div>
+<div class="event-feedback error" *ngIf="error">{{ error }}</div>
+
 <div class="card form-card" *ngIf="showForm">
   <h3>{{ editingId ? 'Editar Reto' : 'Nuevo Reto' }}</h3>
   <form [formGroup]="form" (ngSubmit)="submit()">
@@ -49,21 +52,35 @@
     class="event-card"
     *ngFor="let event of events"
     [class.active]="event.id === activeEventId"
+    [class.archived]="event.isArchived"
   >
     <div class="event-info">
-      <div class="event-name">{{ event.name }}</div>
+      <div class="event-name-row">
+        <div class="event-name">{{ event.name }}</div>
+        <span class="event-state active-state" *ngIf="event.id === activeEventId && !event.isArchived">Activo</span>
+        <span class="event-state archived-state" *ngIf="event.isArchived">Histórico · Solo lectura</span>
+      </div>
       <div class="event-meta">
         <span *ngIf="event.location">📍 {{ event.location }}</span>
         <span>{{ event.startDate | date:'mediumDate' }} → {{ event.endDate | date:'mediumDate' }}</span>
         <span *ngIf="event.trackName" class="track-badge">🗺 {{ event.trackName }}</span>
+        <span *ngIf="event.archivedAt">Finalizado {{ event.archivedAt | date:'dd/MM/yyyy' }}</span>
       </div>
     </div>
     <div class="event-actions">
-      <button class="btn-select" [class.selected]="event.id === activeEventId" (click)="select(event)">
-        {{ event.id === activeEventId ? 'Activo' : 'Seleccionar' }}
-      </button>
-      <button class="btn-sm" (click)="openEdit(event, $event)">Editar</button>
-      <button class="btn-sm danger" (click)="delete(event, $event)">Eliminar</button>
+      <ng-container *ngIf="event.isArchived; else editableEventActions">
+        <button class="btn-select selected" (click)="openHistory(event)">Ver historial</button>
+      </ng-container>
+      <ng-template #editableEventActions>
+        <button class="btn-select" [class.selected]="event.id === activeEventId" (click)="select(event)">
+          {{ event.id === activeEventId ? 'Activo' : 'Seleccionar' }}
+        </button>
+        <button class="btn-sm" [disabled]="archivingId === event.id" (click)="archive(event, $event)">
+          {{ archivingId === event.id ? 'Finalizando…' : 'Finalizar reto' }}
+        </button>
+        <button class="btn-sm" (click)="openEdit(event, $event)">Editar</button>
+        <button class="btn-sm danger" (click)="delete(event, $event)">Eliminar</button>
+      </ng-template>
     </div>
   </div>
 

@@ -1,4 +1,5 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { DialogService } from '../../core/services/dialog.service';
+import { inject, ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { TimeoutError, finalize, forkJoin, timeout } from 'rxjs';
 import { EventInventoryItem, EventInventoryItemInput, EventInventoryOption } from '../../core/models/inventory.model';
@@ -12,6 +13,7 @@ import { InventoryService } from '../../core/services/inventory.service';
   standalone: false
 })
 export class EventInventoryComponent implements OnInit {
+  private readonly dialogs = inject(DialogService);
   items: EventInventoryItem[] = [];
   inventory: EventInventoryOption[] = [];
   loading = false;
@@ -150,8 +152,9 @@ export class EventInventoryComponent implements OnInit {
     });
   }
 
-  markReturned(item: EventInventoryItem): void {
-    if (!this.eventId || !confirm(`¿Marcar ${item.articulo} como devuelto?`)) return;
+  async markReturned(item: EventInventoryItem): Promise<void> {
+    if (!this.eventId || !(await this.dialogs.confirm(`¿Marcar ${item.articulo} como devuelto?`, { title: 'Devolver material', confirmText: 'Registrar devolución', destructive: false }))) return;
+    this.cdr.markForCheck();
     this.inventoryService.markReturned(this.eventId, item.id, this.today()).subscribe({
       next: () => { this.load(); this.showToast('Devolución registrada y stock liberado.', 'success'); },
       error: () => this.showToast('No se pudo registrar la devolución.', 'error')

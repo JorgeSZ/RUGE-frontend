@@ -1,4 +1,5 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { DialogService } from '../../core/services/dialog.service';
+import { inject, ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { TribeService } from '../../core/services/tribe.service';
 import { ParticipantService } from '../../core/services/participant.service';
@@ -12,6 +13,7 @@ import { Tribe } from '../../core/models/tribe.model';
   standalone: false
 })
 export class TribesComponent implements OnInit {
+  private readonly dialogs = inject(DialogService);
   tribes: Tribe[] = [];
   loading = false;
 
@@ -94,8 +96,9 @@ export class TribesComponent implements OnInit {
     }
   }
 
-  delete(id: string): void {
-    if (!confirm('¿Eliminar esta tribu?')) return;
+  async delete(id: string): Promise<void> {
+    if (!(await this.dialogs.confirm('¿Eliminar esta tribu?', { title: 'Eliminar registro', confirmText: 'Eliminar', destructive: true }))) return;
+    this.cdr.markForCheck();
     this.tribeService.delete(this.eventId, id).subscribe(() => {
       this.load();
       this.showToast('Tribu eliminada.', 'success');

@@ -1,10 +1,11 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { BehaviorSubject, from, Observable, switchMap, tap } from 'rxjs';
+import { BehaviorSubject, from, Observable, of, switchMap, tap, map } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { AuthUser, LoginRequest, LoginResponse } from '../models/auth.model';
 import { EventContextService } from './event-context.service';
+import { ChurchContextService } from './church-context.service';
 
 const TOKEN_KEY = 'ruge_token';
 const USER_KEY  = 'ruge_user';
@@ -17,7 +18,8 @@ export class AuthService {
   constructor(
     private http: HttpClient,
     private router: Router,
-    private eventCtx: EventContextService
+    private eventCtx: EventContextService,
+    private churchCtx: ChurchContextService
   ) {
     this.restoreSession();
   }
@@ -50,15 +52,17 @@ export class AuthService {
         this._user.next(res.user);
       }),
       // Esperar a que el evento activo esté cargado antes de completar
-      switchMap(res => from(this.eventCtx.initialize()).pipe(
+      switchMap(res => res.user.mustChangePassword || res.user.rol === 'GlobalAdmin'
+        ? of(res)
+        : from(this.eventCtx.initialize()).pipe(
         // Devolver la respuesta original para que el caller la reciba
-        switchMap(() => [res])
+        map(() => res)
       ))
     );
   }
 
-  updateProfile(nombre: string): Observable<AuthUser> {
-    return this.http.put<AuthUser>(`${environment.apiUrl}/auth/profile`, { nombre }).pipe(
+  updateProfile(nombre: string, email?: string | null): Observable<AuthUser> {
+    return this.http.put<AuthUser>(`${environment.apiUrl}/auth/profile`, { nombre, email }).pipe(
       tap(user => {
         localStorage.setItem(USER_KEY, JSON.stringify(user));
         this._user.next(user);
@@ -70,7 +74,13 @@ export class AuthService {
     return this.http.post<{ message: string }>(`${environment.apiUrl}/auth/change-password`, {
       currentPassword,
       newPassword,
-    });
+    }).pipe(tap(() => {
+      const user = this._user.value;
+      if (!user?.mustChangePassword) return;
+      const updated = { ...user, mustChangePassword: false };
+      localStorage.setItem(USER_KEY, JSON.stringify(updated));
+      this._user.next(updated);
+    }));
   }
 
   logout(): void {
@@ -80,14 +90,20 @@ export class AuthService {
     }
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(USER_KEY);
+    this.churchCtx.clear();
     this._user.next(null);
     this.eventCtx.clear();
     this.router.navigate(['/login']);
   }
 
   navigateToHome(): void {
+    if (this.currentUser?.mustChangePassword) {
+      this.router.navigate(['/mi-perfil']);
+      return;
+    }
     const role = this.currentUser?.rol;
-    if (role === 'Admin')     this.router.navigate(['/events']);
+    if (role === 'GlobalAdmin') this.router.navigate(['/churches']);
+    else if (role === 'Admin' || role === 'Coordinador') this.router.navigate(['/events']);
     else if (role === 'Logistica') this.router.navigate(['/logistics']);
     else if (role === 'Eventos')   this.router.navigate(['/ev-tasks']);
     else if (role === 'Tiempos')   this.router.navigate(['/tracks']);
@@ -95,6 +111,7 @@ export class AuthService {
     else if (role === 'Calaquero') this.router.navigate(['/calaquero']);
     else if (role === 'Guia')      this.router.navigate(['/mi-perfil']);
     else if (role === 'Inventario') this.router.navigate(['/inventario-evento']);
+    else if (role === 'Registrador') this.router.navigate(['/impact-store']);
     else this.router.navigate(['/login']);
   }
 

@@ -1,4 +1,5 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { DialogService } from '../../core/services/dialog.service';
+import { inject, ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { EventContextService } from '../../core/services/event-context.service';
 import { TribeChallengeEntry, TribeChallengeOverview } from '../../core/models/tribe-challenge.model';
 import { TribeChallengeService } from '../../core/services/tribe-challenge.service';
@@ -10,6 +11,7 @@ import { TribeChallengeService } from '../../core/services/tribe-challenge.servi
   standalone: false
 })
 export class TribeChallengesComponent implements OnInit {
+  private readonly dialogs = inject(DialogService);
   overview: TribeChallengeOverview | null = null;
   loading = false;
   error = '';
@@ -34,9 +36,10 @@ export class TribeChallengesComponent implements OnInit {
     });
   }
 
-  deleteChallenge(challenge: TribeChallengeEntry): void {
+  async deleteChallenge(challenge: TribeChallengeEntry): Promise<void> {
     const eventId = this.eventCtx.activeEvent?.id;
-    if (!eventId || !confirm(`¿Eliminar el reto "${challenge.name}" y sus puntos? Esta acción no se puede deshacer.`)) return;
+    if (!eventId || !(await this.dialogs.confirm(`¿Eliminar el reto "${challenge.name}" y sus puntos? Esta acción no se puede deshacer.`, { title: 'Eliminar registro', confirmText: 'Eliminar', destructive: true }))) return;
+    this.cdr.markForCheck();
 
     this.deletingChallengeId = challenge.id;
     this.error = '';

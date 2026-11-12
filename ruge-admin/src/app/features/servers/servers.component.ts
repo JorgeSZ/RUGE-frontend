@@ -1,4 +1,5 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { DialogService } from '../../core/services/dialog.service';
+import { inject, ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ServerService } from '../../core/services/server.service';
 import { CommissionService } from '../../core/services/commission.service';
@@ -12,19 +13,30 @@ import { Tribe } from '../../core/models/tribe.model';
 import { preserveDocumentPaths } from '../../core/utils/document-paths';
 import { downloadExcelCsv, exportFileSlug } from '../../core/utils/excel-export';
 import { environment } from '../../../environments/environment';
+import { comparePersonNames } from '../../core/utils/person-sort';
 
 const MARITAL_STATUSES = ['Soltero', 'Casado', 'Divorciado', 'Viudo', 'Unión libre'];
 
 @Component({
   selector: 'app-servers',
   templateUrl: './servers.component.html',
-  styleUrls: ['./servers.component.css'],
+  styleUrls: ['./servers.component.css', '../list-pagination.css'],
   standalone: false
 })
 export class ServersComponent implements OnInit {
+  private readonly dialogs = inject(DialogService);
   servers: Server[] = [];
   commissions: Commission[] = [];
   tribes: Tribe[] = [];
+  page = 1;
+  pageSize = 25;
+  filtered: Server[] = [];
+  paged: Server[] = [];
+  get pageCount(): number { return Math.max(1, Math.ceil(this.filtered.length / this.pageSize)); }
+  get firstResult(): number { return this.filtered.length ? (this.page - 1) * this.pageSize + 1 : 0; }
+  get lastResult(): number { return Math.min(this.page * this.pageSize, this.filtered.length); }
+  setPage(page: number): void { this.page = page; this.applyFilters(false); }
+  trackPerson(_index: number, person: Server): string { return person.id; }
   loading = false;
   showForm = false;
   editingId: string | null = null;
@@ -124,7 +136,7 @@ export class ServersComponent implements OnInit {
   load(): void {
     this.loading = true;
     this.serverService.getByEvent(this.eventId).subscribe({
-      next: s => { this.servers = s; this.loading = false; this.cdr.detectChanges(); },
+      next: s => { this.servers = s; this.applyFilters(false); this.loading = false; this.cdr.detectChanges(); },
       error: () => { this.loading = false; this.cdr.detectChanges(); }
     });
     this.commissionService.getAll().subscribe(c => { this.commissions = c; this.cdr.detectChanges(); });
@@ -145,14 +157,15 @@ export class ServersComponent implements OnInit {
         this.serverRegistrationEnabled = !enabled;
         this.updatingRegistrationStatus = false;
         this.cdr.detectChanges();
-        alert('No se pudo actualizar el estado del formulario de servidores.');
+        void this.dialogs.error('No se pudo actualizar el estado del formulario de servidores.');
       }
     });
   }
 
-  get filtered(): Server[] {
+  applyFilters(resetPage = true): void {
+    if (resetPage) this.page = 1;
     const q = this.searchTerm.toLowerCase();
-    return this.servers.filter(s => {
+    this.filtered = this.servers.filter(s => {
       if (q) {
         const name = `${s.firstLastName} ${s.firstName} ${s.secondLastName ?? ''}`.toLowerCase();
         if (!name.includes(q) && !(s.cedula ?? '').toLowerCase().includes(q)) return false;
@@ -162,11 +175,13 @@ export class ServersComponent implements OnInit {
       if (this.filterCheckin === 'done'    && !s.checkInCompleted) return false;
       if (this.filterCheckin === 'pending' && s.checkInCompleted)  return false;
       return true;
-    });
+    }).sort(comparePersonNames);
+    this.page = Math.max(1, Math.min(this.page, this.pageCount));
+    this.paged = this.filtered.slice((this.page - 1) * this.pageSize, this.page * this.pageSize);
   }
 
-  setApprovalFilter(v: string): void { this.filterApprovalStatus = this.filterApprovalStatus === v ? '' : v; }
-  setCheckinFilter(v: string):   void { this.filterCheckin = this.filterCheckin === v ? '' : v; }
+  setApprovalFilter(v: string): void { this.filterApprovalStatus = this.filterApprovalStatus === v ? '' : v; this.applyFilters(); }
+  setCheckinFilter(v: string):   void { this.filterCheckin = this.filterCheckin === v ? '' : v; this.applyFilters(); }
 
   openDrawer(s: Server): void  { this.drawerServer = s; this.drawerOpen = true; }
   closeDrawer(): void          { this.drawerOpen = false; }
@@ -182,48 +197,51 @@ export class ServersComponent implements OnInit {
       next: () => {
         this.resendingAgreementId = null;
         this.cdr.detectChanges();
-        alert(`El acuerdo fue enviado nuevamente a ${s.email}.`);
+        void this.dialogs.success(`El acuerdo fue enviado nuevamente a ${s.email}.`);
       },
       error: err => {
         this.resendingAgreementId = null;
         this.cdr.detectChanges();
-        alert(err.error?.error ?? 'No se pudo reenviar el acuerdo.');
+        void this.dialogs.error(err.error?.error ?? 'No se pudo reenviar el acuerdo.');
       }
     });
   }
 
-  onDrawerResendApprovalRequest(s: Server): void {
+  async onDrawerResendApprovalRequest(s: Server): Promise<void> {
     if (this.resendingApprovalRequestId || !s.emailLider || s.approvalStatus !== 'Pendiente') return;
-    if (!confirm(`¿Reenviar la solicitud de aprobación de ${s.firstName} ${s.firstLastName} a ${s.emailLider}?`)) return;
+    if (!(await this.dialogs.confirm(`¿Reenviar la solicitud de aprobación de ${s.firstName} ${s.firstLastName} a ${s.emailLider}?`, { title: 'Reenviar aprobación', confirmText: 'Reenviar solicitud', destructive: false }))) return;
+    this.cdr.markForCheck();
 
     this.resendingApprovalRequestId = s.id;
     this.serverService.resendApprovalRequest(this.eventId, s.id).subscribe({
       next: () => {
         this.resendingApprovalRequestId = null;
         this.cdr.detectChanges();
-        alert(`La solicitud de aprobación fue enviada nuevamente a ${s.emailLider}.`);
+        void this.dialogs.success(`La solicitud de aprobación fue enviada nuevamente a ${s.emailLider}.`);
       },
       error: err => {
         this.resendingApprovalRequestId = null;
         this.cdr.detectChanges();
-        alert(err.error?.error ?? 'No se pudo reenviar la solicitud de aprobación.');
+        void this.dialogs.error(err.error?.error ?? 'No se pudo reenviar la solicitud de aprobación.');
       }
     });
   }
 
-  approveServer(s: Server): void {
-    if (!confirm(`¿Aprobar manualmente a ${s.firstName} ${s.firstLastName}?`)) return;
+  async approveServer(s: Server): Promise<void> {
+    if (!(await this.dialogs.confirm(`¿Aprobar manualmente a ${s.firstName} ${s.firstLastName}?`, { title: 'Aprobar servidor', confirmText: 'Aprobar', destructive: false }))) return;
+    this.cdr.markForCheck();
     this.approvalService.approveServer(this.eventId, s.id).subscribe({
       next: () => this.load(),
-      error: err => alert(err.error?.error ?? 'Error al aprobar')
+      error: err => void this.dialogs.error(err.error?.error ?? 'Error al aprobar')
     });
   }
 
-  denyServer(s: Server): void {
-    if (!confirm(`¿Denegar la participación de ${s.firstName} ${s.firstLastName}?`)) return;
+  async denyServer(s: Server): Promise<void> {
+    if (!(await this.dialogs.confirm(`¿Denegar la participación de ${s.firstName} ${s.firstLastName}?`, { title: 'Denegar participación', confirmText: 'Denegar', destructive: true }))) return;
+    this.cdr.markForCheck();
     this.approvalService.denyServer(this.eventId, s.id).subscribe({
       next: () => this.load(),
-      error: err => alert(err.error?.error ?? 'Error al denegar')
+      error: err => void this.dialogs.error(err.error?.error ?? 'Error al denegar')
     });
   }
 
@@ -295,8 +313,9 @@ export class ServersComponent implements OnInit {
       .subscribe(() => { this.reassigningId = null; this.load(); });
   }
 
-  delete(id: string): void {
-    if (!confirm('¿Eliminar este servidor?')) return;
+  async delete(id: string): Promise<void> {
+    if (!(await this.dialogs.confirm('¿Eliminar este servidor?', { title: 'Eliminar registro', confirmText: 'Eliminar', destructive: true }))) return;
+    this.cdr.markForCheck();
     this.serverService.delete(this.eventId, id).subscribe(() => this.load());
   }
 
