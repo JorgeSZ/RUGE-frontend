@@ -125,13 +125,14 @@ describe('User design and participant/server pagination', () => {
     await fixture.whenStable();
     expect(fixture.componentInstance.form.invalid).toBe(true);
     fill(root, '#user-name', 'Nueva persona');
-    fill(root, '#user-username', 'nueva.persona');
+    expect(root.querySelector('#user-username')).toBeNull();
     fill(root, '#user-email', 'nueva@example.test');
     await fixture.whenStable();
     click(root, 'Guardar');
     await fixture.whenStable();
     const req = http.expectOne({ url: `${base}/users`, method: 'POST' });
-    expect(req.request.body.username).toBe('nueva.persona');
+    expect(req.request.body.username).toBeUndefined();
+    expect(req.request.body.email).toBe('nueva@example.test');
     expect(root.querySelector<HTMLButtonElement>('[aria-label="Cerrar formulario"]')?.disabled).toBe(true);
     req.flush({ ...users[0], id: 'new' });
     http.expectOne(`${base}/users`).flush(users);

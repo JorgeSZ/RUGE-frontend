@@ -39,6 +39,7 @@
         <div class="church-actions">
           <button class="btn-primary" [disabled]="!canOpen(church) || !!openingChurchId" (click)="openChurch(church)">{{ openingChurchId === church.id ? 'Abriendo...' : 'Abrir iglesia' }}<lucide-icon name="chevron-right" [size]="15"></lucide-icon></button>
           <button class="btn-secondary" (click)="openEdit(church)" [disabled]="!church.administrator">Editar info</button>
+          <button class="btn-secondary change-administrator" *ngIf="auth.currentUser?.rol === 'GlobalAdmin'" (click)="openAdministrator(church)"><lucide-icon name="user" [size]="14"></lucide-icon>Cambiar administrador</button>
           <button class="btn-secondary" (click)="openLicense(church)">Asignar licencia<lucide-icon name="chevron-down" [size]="14"></lucide-icon></button>
           <button class="text-button" (click)="toggleActive(church)" [disabled]="!!statusActionId">{{ statusActionId === church.id ? 'Actualizando...' : church.isActive ? 'Desactivar' : 'Activar' }}</button>
         </div>
@@ -59,7 +60,6 @@
       <label>Nombre de la iglesia<input formControlName="name" placeholder="Iglesia RUGE" /></label>
       <div class="form-grid">
         <label>Nombre del administrador<input formControlName="adminName" placeholder="Nombre completo" /></label>
-        <label>Usuario<input formControlName="adminUsername" placeholder="usuario.iglesia" /></label>
         <label>Correo del administrador<input type="email" formControlName="adminEmail" placeholder="admin@iglesia.org" /></label>
       </div>
       <label>Licencia inicial
@@ -67,7 +67,7 @@
           <option *ngFor="let license of licenseTypes" [value]="license.value">{{ license.label }}</option>
         </select>
       </label>
-      <p class="form-hint">El usuario debe ser único. Enviaremos al correo del administrador una contraseña temporal que deberá cambiar al iniciar sesión.</p>
+      <p class="form-hint">El correo será su usuario de acceso y debe ser único. Enviaremos al correo del administrador una contraseña temporal que deberá cambiar al iniciar sesión.</p>
       <div class="notice error" *ngIf="createError" role="alert">{{ createError }}</div>
       <div class="form-actions">
         <button type="button" class="btn-secondary" (click)="closeCreate()">Cancelar</button>
@@ -111,6 +111,33 @@
       <p class="form-hint">La licencia seleccionada reemplazará la vigencia actual a partir de hoy.</p>
       <div class="notice error" *ngIf="licenseError" role="alert">{{ licenseError }}</div>
       <div class="form-actions"><button type="button" class="btn-secondary" [disabled]="licenseSaving" (click)="closeLicense()">Cancelar</button><button type="submit" class="btn-primary" [disabled]="licenseSaving">{{ licenseSaving ? 'Guardando...' : 'Asignar licencia' }}</button></div>
+    </form>
+  </section>
+</div>
+
+<div class="modal-backdrop" *ngIf="administratorChurch as church" (click)="closeAdministrator()" (keydown.escape)="closeAdministrator()">
+  <section class="modal-card administrator-modal" role="dialog" aria-modal="true" aria-labelledby="administrator-title" (click)="$event.stopPropagation()">
+    <div class="modal-heading">
+      <div><h3 id="administrator-title">Cambiar administrador principal</h3><p>{{ church.name }}</p></div>
+      <button class="close-button" type="button" aria-label="Cerrar" [disabled]="administratorSaving" (click)="closeAdministrator()">×</button>
+    </div>
+    <div class="readonly-field"><span>Administrador principal actual</span><strong>{{ church.administrator?.nombre || 'Sin asignar' }}</strong><small *ngIf="church.administrator">@{{ church.administrator.username }}</small></div>
+    <p class="form-hint">El anterior conservará su rol Admin y su acceso. El nuevo responsable recibirá los avisos dirigidos al administrador de la iglesia.</p>
+    <div class="notice error" *ngIf="administratorLoadError" role="alert">{{ administratorLoadError }} <button class="text-button" (click)="loadAdministratorCandidates()">Reintentar</button></div>
+    <p *ngIf="administratorLoading" role="status">Cargando usuarios...</p>
+    <form (ngSubmit)="changeAdministrator()">
+      <label for="administrator-search">Nuevo administrador principal</label>
+      <input id="administrator-search" name="administratorSearch" type="search" [(ngModel)]="administratorSearch" placeholder="Buscar por nombre, usuario o correo" [disabled]="administratorSaving || administratorLoading" />
+      <div class="administrator-options" *ngIf="!administratorLoading && !administratorLoadError" role="radiogroup" aria-label="Usuarios de la iglesia">
+        <label class="administrator-option" *ngFor="let candidate of filteredAdministratorCandidates" [class.selected]="selectedAdministratorId === candidate.id">
+          <input type="radio" name="administrator" [value]="candidate.id" [(ngModel)]="selectedAdministratorId" [disabled]="administratorSaving" />
+          <span><strong>{{ candidate.nombre }}</strong><small>@{{ candidate.username }} · {{ candidate.role }}</small><small>{{ candidate.email }}</small></span>
+        </label>
+        <p *ngIf="!filteredAdministratorCandidates.length" class="form-hint">{{ administratorCandidates.length ? 'No hay usuarios que coincidan con la búsqueda.' : 'No hay otros usuarios activos con correo. Crea o actualiza primero la cuenta en Usuarios de esta iglesia.' }}</p>
+      </div>
+      <p class="form-hint">Conservará su usuario y contraseña. Si tiene otro rol, pasará a Admin y deberá iniciar sesión nuevamente.</p>
+      <div class="notice error" *ngIf="administratorError" role="alert">{{ administratorError }}</div>
+      <div class="form-actions"><button type="button" class="btn-secondary" [disabled]="administratorSaving" (click)="closeAdministrator()">Cancelar</button><button type="submit" class="btn-primary" [disabled]="!selectedAdministratorId || administratorSaving || administratorLoading || !!administratorLoadError">{{ administratorSaving ? 'Guardando...' : 'Cambiar administrador' }}</button></div>
     </form>
   </section>
 </div>
