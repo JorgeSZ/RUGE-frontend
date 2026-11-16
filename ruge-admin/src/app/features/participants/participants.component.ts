@@ -103,6 +103,7 @@ export class ParticipantsComponent implements OnInit {
       perteneceGrupo:     [false],
       nombreLiderGrupo:   [''],
       telefonoLiderGrupo: [''],
+      medicalConditions: ['', Validators.maxLength(2000)],
       emergencyContactName: [''],
       emergencyContactPhone: [''],
       shirtSize:          [''],
@@ -233,6 +234,7 @@ export class ParticipantsComponent implements OnInit {
       perteneceGrupo:     p.perteneceGrupo,
       nombreLiderGrupo:   p.nombreLiderGrupo ?? '',
       telefonoLiderGrupo: p.telefonoLiderGrupo ?? '',
+      medicalConditions: p.medicalConditions ?? '',
       emergencyContactName: p.emergencyContactName ?? '',
       emergencyContactPhone: p.emergencyContactPhone ?? '',
       shirtSize:          p.shirtSize,
@@ -287,7 +289,7 @@ export class ParticipantsComponent implements OnInit {
       'Contacto de emergencia', 'Teléfono de emergencia',
       'País', 'Talla de camisa', 'ID tribu', 'Tribu', 'URL comprobante', 'Código QR',
       'URL acuerdo de participación', 'Check-in completado', 'Fecha de check-in',
-      'Medicamentos (JSON)', 'Creado', 'Actualizado'
+      'Padecimientos', 'Medicamentos (JSON)', 'Creado', 'Actualizado'
     ];
     const rows = this.participants.map(p => [
       p.id, p.eventId, p.firstName, p.firstLastName, p.secondLastName, p.nombrePreferido,
@@ -297,7 +299,7 @@ export class ParticipantsComponent implements OnInit {
       p.nombreLiderGrupo, p.telefonoLiderGrupo, p.emergencyContactName, p.emergencyContactPhone, p.country, p.shirtSize, p.tribeId,
       p.tribeName, this.getComprobanteUrl(p), p.qrCode, this.getAgreementUrl(p),
       p.checkInCompleted ? 'Sí' : 'No', p.checkInDate,
-      p.medications?.length ? JSON.stringify(p.medications) : '', p.createdAt, p.updatedAt
+      p.medicalConditions, p.medications?.length ? JSON.stringify(p.medications) : '', p.createdAt, p.updatedAt
     ]);
     const date = new Date().toISOString().slice(0, 10);
     downloadExcelCsv(`senderistas-${exportFileSlug(this.eventCtx.activeEvent?.name)}-${date}.csv`, headers, rows);
