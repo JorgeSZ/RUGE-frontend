@@ -97,12 +97,12 @@ const routes: Routes = [
       { path: 'retos',        component: TribeChallengesComponent, canActivate: [RoleGuard, EventGuard], data: ADMIN },
 
       // Admin + Logistica
-      { path: 'logistics',                       component: LogisticsComponent,      canActivate: [RoleGuard, EventGuard], data: ADMIN_LOGISTICA },
-      { path: 'logistics/segment/:segmentId',    component: LogisticsDetailComponent, canActivate: [RoleGuard, EventGuard], data: ADMIN_LOGISTICA },
+      { path: 'logistics',                       loadComponent: () => import('./features/team-tasks/team-tasks.component').then(m => m.TeamTasksComponent),      canActivate: [RoleGuard, EventGuard], data: { ...ADMIN_LOGISTICA, department: 'Logistica' } },
+      { path: 'logistics/segment/:segmentId', redirectTo: '/logistics' },
 
       // Admin + Eventos
-      { path: 'ev-tasks',                        component: EvTasksComponent,        canActivate: [RoleGuard, EventGuard], data: ADMIN_EVENTOS },
-      { path: 'ev-tasks/segment/:segmentId',     component: EvTasksDetailComponent,  canActivate: [RoleGuard, EventGuard], data: ADMIN_EVENTOS },
+      { path: 'ev-tasks',                        loadComponent: () => import('./features/team-tasks/team-tasks.component').then(m => m.TeamTasksComponent),        canActivate: [RoleGuard, EventGuard], data: { ...ADMIN_EVENTOS, department: 'Eventos' } },
+      { path: 'ev-tasks/segment/:segmentId', redirectTo: '/ev-tasks' },
 
       // Global modules (Admin + Cocina)
       { path: 'provision',     component: ProvisionComponent,  canActivate: [RoleGuard], data: ADMIN_COCINA },

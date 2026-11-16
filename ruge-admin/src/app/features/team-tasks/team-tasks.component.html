@@ -1,0 +1,22 @@
+<header><div><h1>{{ title }}</h1><p>Tareas de {{ eventCtx.activeEvent?.name }} · {{ completed }} de {{ tasks.length }} completadas</p></div>
+  <button class="btn-primary" *ngIf="manager && !readonly" (click)="edit()">+ Nueva tarea</button></header>
+<p *ngIf="readonly" class="notice">Reto finalizado. La información es de solo lectura.</p>
+<p role="alert" *ngIf="error" class="notice">{{ error }}</p>
+<div class="filters"><input aria-label="Buscar tarea o responsable" [(ngModel)]="search" (ngModelChange)="page=1" placeholder="Buscar tarea o responsable…" />
+  <select aria-label="Estado" [(ngModel)]="status" (ngModelChange)="page=1"><option value="">Todos los estados</option><option value="false">Pendientes</option><option value="true">Completadas</option></select></div>
+<p *ngIf="loading">Cargando tareas…</p>
+<div class="table-scroll" *ngIf="!loading"><table><thead><tr><th>Tarea</th><th>Responsable</th><th>Estado</th><th>Completada por</th><th>Acciones</th></tr></thead>
+  <tbody><tr *ngFor="let task of rows"><td><strong>{{ task.name }}</strong><small>{{ task.description }}</small></td>
+    <td>{{ task.assignedUserName || 'Sin asignar' }}</td><td><span [class.done]="task.completed">{{ task.completed ? 'Completada' : 'Pendiente' }}</span></td>
+    <td>{{ task.completedByName || '—' }}<small *ngIf="task.completedAt">{{ task.completedAt | date:'dd/MM/yyyy HH:mm' }}</small></td>
+    <td><div class="actions"><button *ngIf="manager && !readonly" (click)="edit(task)" [disabled]="saving">Editar / asignar</button>
+      <button *ngIf="!readonly && (manager || !task.completed)" (click)="toggle(task)" [disabled]="saving">{{ task.completed ? 'Reabrir' : 'Completar' }}</button></div></td></tr>
+    <tr *ngIf="!rows.length"><td colspan="5">No hay tareas para mostrar.</td></tr></tbody></table></div>
+<footer><span>{{ filtered.length }} tareas · Página {{ page }} de {{ pages }}</span><div class="actions"><button [disabled]="page===1" (click)="page=page-1">Anterior</button><button [disabled]="page===pages" (click)="page=page+1">Siguiente</button></div></footer>
+<div class="overlay" *ngIf="editing" (click)="!saving && (editing=null)"><section role="dialog" aria-modal="true" aria-labelledby="task-title" (click)="$event.stopPropagation()">
+  <h2 id="task-title">{{ editing.revision ? 'Editar tarea' : 'Nueva tarea' }}</h2>
+  <form #form="ngForm" (ngSubmit)="save()"><label>Nombre *<input name="name" required maxlength="200" [(ngModel)]="editing.name" /></label>
+    <label>Descripción<textarea name="description" maxlength="4000" rows="4" [(ngModel)]="editing.description"></textarea></label>
+    <label>Asignar responsable<select name="assigned" [(ngModel)]="editing.assignedUserId"><option [ngValue]="null">Sin asignar</option><option *ngFor="let u of users" [ngValue]="u.id">{{ u.nombre }}</option></select></label>
+    <p role="alert" *ngIf="error" class="notice">{{ error }}</p><div class="actions"><button type="button" [disabled]="saving" (click)="editing=null">Cancelar</button><button type="submit" class="btn-primary" [disabled]="saving || form.invalid || !editing.name.trim()">{{ saving ? 'Guardando…' : 'Guardar' }}</button></div>
+  </form></section></div>

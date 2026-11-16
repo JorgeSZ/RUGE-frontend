@@ -32,6 +32,7 @@ export interface Participant {
   maritalStatus?: string;
   nombreEsposa?: string;
   telefonoEsposa?: string;
+  medicalConditions?: string;
   emergencyContactName?: string;
   emergencyContactPhone?: string;
   privacyConsentAccepted?: boolean;
@@ -73,6 +74,7 @@ export interface CreateParticipantRequest {
   perteneceGrupo?: boolean;
   nombreLiderGrupo?: string;
   telefonoLiderGrupo?: string;
+  medicalConditions?: string;
   emergencyContactName?: string;
   emergencyContactPhone?: string;
 }
@@ -96,6 +98,7 @@ export interface UpdateParticipantRequest {
   perteneceGrupo?: boolean;
   nombreLiderGrupo?: string;
   telefonoLiderGrupo?: string;
+  medicalConditions?: string;
   emergencyContactName?: string;
   emergencyContactPhone?: string;
 }

@@ -45,6 +45,8 @@ export class UsersComponent implements OnInit {
     'Eventos',
     'Tiempos',
     'TiemposServidor',
+    'LogisticaServidor',
+    'EventosServidor',
     'Cocina',
     'Calaquero',
     'Guia',

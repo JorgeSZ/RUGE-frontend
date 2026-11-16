@@ -92,6 +92,7 @@ export class ParticipantRegisterComponent implements OnInit {
       birthDate:          ['', [Validators.required]],
       email:              ['', [Validators.required, Validators.email]],
       phone:              ['', [Validators.required]],
+      medicalConditions: ['', [Validators.maxLength(2000)]],
       emergencyContactName: ['', [Validators.required, Validators.maxLength(150)]],
       emergencyContactPhone: ['', [Validators.required, Validators.maxLength(30)]],
       asistesIglesia:     [false],

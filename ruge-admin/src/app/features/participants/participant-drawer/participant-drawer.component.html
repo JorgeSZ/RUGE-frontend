@@ -20,6 +20,7 @@
         <div class="drawer-row" *ngIf="participant.nombrePreferido"><span class="drawer-label">Nombre gorra</span><span style="color:var(--ruge-yellow);font-weight:600;">{{ participant.nombrePreferido }}</span></div>
         <div class="drawer-row"><span class="drawer-label">Cédula</span><span>{{ participant.cedula || '—' }}</span></div>
         <div class="drawer-row"><span class="drawer-label">Teléfono</span><span>{{ participant.phone || '—' }}</span></div>
+        <div class="drawer-row"><span class="drawer-label">Padecimientos</span><span>{{ participant.medicalConditions || 'No indicados' }}</span></div>
         <div class="drawer-row"><span class="drawer-label">Contacto de emergencia</span><span>{{ participant.emergencyContactName || '—' }}</span></div>
         <div class="drawer-row"><span class="drawer-label">Teléfono de emergencia</span><span>{{ participant.emergencyContactPhone || '—' }}</span></div>
         <div class="drawer-row"><span class="drawer-label">Correo</span><span>{{ participant.email || '—' }}</span></div>
