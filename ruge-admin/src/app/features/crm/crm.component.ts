@@ -4,7 +4,7 @@ import { FormsModule, NgForm } from '@angular/forms';
 import { LucideAngularModule } from 'lucide-angular';
 import { finalize, forkJoin, Subject, Subscription, debounceTime, Observable } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { CrmService, CrmPerson, CrmAttendance, CrmWrite } from '../../core/services/crm.service';
+import { CrmService, CrmPerson, CrmAttendance, CrmServiceHistoryItem, CrmWrite } from '../../core/services/crm.service';
 import { ConsolidationNote, CreateConsolidationNote } from '../../core/models/consolidation-note.model';
 
 @Component({ selector: 'app-crm', standalone: true, imports: [CommonModule, FormsModule, LucideAngularModule],
@@ -22,6 +22,7 @@ export class CrmComponent implements OnInit {
   loading = false; error = ''; modal = false; detailLoading = false; detailReady = false; saving = false; noteSaving = false;
   modalError = ''; noteError = ''; noteDraft = ''; noteSuccess = '';
   selected: CrmPerson | null = null; draft: CrmWrite = { firstName: '' };
+  serviceHistory: CrmServiceHistoryItem[] = [];
   attendances: CrmAttendance[] = []; notes: ConsolidationNote[] = [];
   readonly fields: { key: Exclude<keyof CrmWrite, 'd12Patch' | 'eventName' | 'eventDate'>; label: string; max: number; type?: string }[] = [
     { key: 'firstName', label: 'Nombre', max: 200 }, { key: 'firstLastName', label: 'Primer apellido', max: 150 },
@@ -59,7 +60,7 @@ export class CrmComponent implements OnInit {
   open(person: CrmPerson | null = null) {
     this.detailRequest?.unsubscribe(); this.returnFocus = document.activeElement as HTMLElement;
     this.selected = person; this.modal = true; this.modalError = ''; this.noteError = ''; this.noteSuccess = '';
-    this.pendingNote = undefined; this.noteDraft = ''; this.notes = []; this.attendances = [];
+    this.pendingNote = undefined; this.noteDraft = ''; this.notes = []; this.attendances = []; this.serviceHistory = [];
     this.draft = { firstName: '' }; this.detailLoading = !!person; this.detailReady = !person;
     if (person) this.detailRequest = forkJoin({ detail: this.crm.get(person.id), notes: this.crm.notes(person.id) })
       .pipe(takeUntilDestroyed(this.destroyRef), finalize(() => { this.detailLoading = false; this.cdr.markForCheck(); }))
@@ -68,7 +69,7 @@ export class CrmComponent implements OnInit {
         this.draft = { firstName: p.firstName, d12Patch: p.d12Patch ?? null };
         for (const f of this.fields) this.draft[f.key] = p[f.key] ?? '';
         this.draft.birthDate = p.birthDate?.slice(0,10) ?? '';
-        this.attendances = detail.attendances; this.notes = notes;
+        this.attendances = detail.attendances; this.serviceHistory = detail.serviceHistory ?? []; this.notes = notes;
         this.detailReady = true;
         setTimeout(() => document.getElementById('crm-firstName')?.focus());
       }, error: () => { this.modalError = 'No se pudo cargar el registro. Cierra e intenta nuevamente.'; } });
