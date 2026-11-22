@@ -93,6 +93,7 @@ const routes: Routes = [
       { path: 'checkin-admin',component: CheckinAdminComponent,canActivate: [RoleGuard, EventGuard], data: ADMIN },
       { path: 'reports',        component: ReportsComponent,      canActivate: [RoleGuard, EventGuard], data: ADMIN_COCINA },
       { path: 'calaquero',      component: CalaqueroComponent,    canActivate: [RoleGuard, EventGuard], data: ADMIN_CALAQUERO },
+      { path: 'crm', loadComponent: () => import('./features/crm/crm.component').then(m => m.CrmComponent), canActivate: [RoleGuard], data: ADMIN },
       { path: 'consolidacion',  component: ConsolidacionComponent, canActivate: [RoleGuard], data: ADMIN },
       { path: 'retos',        component: TribeChallengesComponent, canActivate: [RoleGuard, EventGuard], data: ADMIN },
 

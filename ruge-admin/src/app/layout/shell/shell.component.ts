@@ -14,7 +14,7 @@ import { environment } from '../../../environments/environment';
 export class ShellComponent {
   readonly isProd = environment.production;
   mobileNavigationOpen = false;
-  get isConsolidation(): boolean { return this.router.url.split(/[?#]/)[0] === '/consolidacion'; }
+  get isConsolidation(): boolean { return ['/consolidacion', '/crm'].includes(this.router.url.split(/[?#]/)[0]); }
   get isGlobalArea(): boolean {
     return this.isGlobalAdmin && ['/churches', '/global-admins', '/enseñanzas-globales'].includes(decodeURI(this.router.url.split(/[?#]/)[0]));
   }
