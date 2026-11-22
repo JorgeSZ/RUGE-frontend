@@ -1,0 +1,40 @@
+<header class="crm-header"><div><span class="eyebrow">Personas de la iglesia</span><h2>CRM</h2><p>Datos personales e historial de RUGE.</p></div>
+  <button class="btn-primary btn-icon-row" (click)="open()"><lucide-icon name="user-plus" [size]="18"></lucide-icon>Agregar persona</button></header>
+<section class="crm-filters" aria-label="Filtros del CRM">
+  <label class="search">Buscar<input type="search" [(ngModel)]="search" (ngModelChange)="searchChanged()" placeholder="Nombre, apellidos, cédula, número de Legendarios o contacto"></label>
+  <label>Reto<select [(ngModel)]="eventName" (change)="filterChanged()"><option value="">Todos los retos</option><option *ngFor="let event of events" [value]="event">{{ event }}</option></select></label>
+  <label>Origen<select [(ngModel)]="origin" (change)="filterChanged()"><option value="">Todos</option><option *ngFor="let value of origins" [value]="value">{{ value }}</option></select></label>
+  <label class="check"><input type="checkbox" [(ngModel)]="missingIdentity" (change)="filterChanged()">Sin cédula ni número</label>
+</section>
+<p class="error" *ngIf="error" role="alert">{{ error }} <button class="btn-secondary" (click)="load()">Reintentar</button></p>
+<p *ngIf="loading" role="status" class="empty">Cargando personas…</p>
+<div class="table-wrap" *ngIf="!loading && !error"><table><thead><tr><th>Persona</th><th>Identificación</th><th>Contacto</th><th>Iglesia / País</th><th>Retos</th><th>Notas</th><th>Acciones</th></tr></thead><tbody>
+  <tr *ngFor="let person of rows; trackBy: trackPerson"><td><strong>{{ fullName(person) }}</strong></td>
+    <td>{{ person.cedula || (person.legacyNumber ? 'LGND ' + person.legacyNumber : 'Sin identificación') }}<small *ngIf="person.cedula && person.legacyNumber">LGND {{ person.legacyNumber }}</small></td>
+    <td>{{ person.phone || '—' }}<small>{{ person.email || '—' }}</small></td><td>{{ person.church || '—' }}<small>{{ person.country || '—' }}</small></td>
+    <td>{{ person.events?.join(', ') || 'Sin reto registrado' }}</td><td>{{ person.notesCount || 0 }}</td>
+    <td><button class="btn-secondary btn-icon-row" (click)="open(person)" [attr.aria-label]="'Ver datos y notas de ' + fullName(person)"><lucide-icon name="eye" [size]="16"></lucide-icon>Gestionar</button></td></tr>
+  <tr *ngIf="!rows.length"><td colspan="7" class="empty">No hay personas que coincidan con la búsqueda.</td></tr>
+</tbody></table></div>
+<nav class="list-pagination" aria-label="Paginación del CRM" *ngIf="!error"><span>{{ firstResult }}–{{ lastResult }} de {{ total }} personas</span>
+  <div class="pagination-controls"><label>Por página <select [(ngModel)]="pageSize" (change)="filterChanged()"><option [ngValue]="25">25</option><option [ngValue]="50">50</option><option [ngValue]="100">100</option></select></label>
+  <button class="btn-secondary" [disabled]="loading || page <= 1" (click)="setPage(page - 1)">Anterior</button><span>{{ page }} / {{ pageCount }}</span><button class="btn-secondary" [disabled]="loading || page >= pageCount" (click)="setPage(page + 1)">Siguiente</button></div></nav>
+<div class="crm-backdrop" *ngIf="modal"><section class="crm-dialog" role="dialog" aria-modal="true" aria-labelledby="crm-title" (keydown)="trapFocus($event)">
+  <header><div><span class="eyebrow">Ficha de la persona</span><h3 id="crm-title">{{ selected ? fullName(selected) : 'Agregar persona' }}</h3></div><button class="btn-icon" [disabled]="saving || noteSaving" (click)="close()" aria-label="Cerrar"><lucide-icon name="x" [size]="22"></lucide-icon></button></header>
+  <div class="dialog-body"><p *ngIf="detailLoading" role="status">Cargando información…</p><p class="error" *ngIf="modalError" role="alert">{{ modalError }}</p>
+    <form #personForm="ngForm" id="crm-form" (ngSubmit)="save(personForm)" *ngIf="detailReady">
+      <div class="form-grid"><label *ngFor="let field of fields" [for]="'crm-' + field.key">{{ field.label }}{{ field.key === 'firstName' ? ' *' : '' }}
+        <input [id]="'crm-' + field.key" [name]="field.key" [type]="field.type || 'text'" [maxlength]="field.max" [required]="field.key === 'firstName'" [(ngModel)]="draft[field.key]" [disabled]="saving || noteSaving"></label>
+        <label>Parche D12<select name="patch" [(ngModel)]="draft.d12Patch" [disabled]="saving || noteSaving"><option [ngValue]="null">Sin información</option><option [ngValue]="true">Sí</option><option [ngValue]="false">No</option></select></label>
+        <ng-container *ngIf="!selected"><label>Reto al que asistió<input name="eventName" maxlength="250" [(ngModel)]="draft.eventName"></label><label>Fecha del reto<input name="eventDate" type="date" [(ngModel)]="draft.eventDate"></label></ng-container>
+      </div>
+    </form>
+    <ng-container *ngIf="selected && detailReady">
+      <section class="history"><h4>Historial de retos</h4><p *ngIf="!attendances.length" class="muted">Sin retos registrados.</p><ul><li *ngFor="let item of attendances"><strong>{{ item.eventName }}</strong><span>{{ item.origin }}<ng-container *ngIf="item.eventDate"> · {{ item.eventDate | date:'dd/MM/yyyy' }}</ng-container><ng-container *ngIf="item.tribeName"> · {{ item.tribeName }}</ng-container></span></li></ul></section>
+      <section class="notes"><h4>Notas de seguimiento</h4><form (ngSubmit)="saveNote()"><label for="crm-note">Nueva nota</label><textarea id="crm-note" name="note" rows="3" maxlength="4000" [(ngModel)]="noteDraft" [disabled]="saving || noteSaving"></textarea>
+        <div class="note-actions"><span>{{ noteDraft.length }} / 4000</span><button class="btn-primary" [disabled]="noteSaving || saving || !noteDraft.trim()">{{ noteSaving ? 'Guardando…' : 'Agregar nota' }}</button></div></form>
+        <p *ngIf="noteError" class="error" role="alert">{{ noteError }}</p><p *ngIf="noteSuccess" class="success" role="status">{{ noteSuccess }}</p>
+        <p *ngIf="!notes.length" class="muted">Todavía no hay notas.</p><article *ngFor="let note of notes"><div><strong>{{ note.createdByName }}</strong><time>{{ note.createdAt | date:'dd/MM/yyyy HH:mm' }}</time></div><p>{{ note.content }}</p></article></section>
+    </ng-container>
+  </div><footer><button class="btn-secondary" [disabled]="saving || noteSaving" (click)="close()">Cerrar</button><button type="submit" form="crm-form" class="btn-primary" [disabled]="saving || noteSaving || !detailReady || !draft.firstName.trim()">{{ saving ? 'Guardando…' : 'Guardar datos' }}</button></footer>
+</section></div>
