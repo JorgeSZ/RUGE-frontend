@@ -10,6 +10,8 @@ import { ConsolidationNote, CreateConsolidationNote } from '../../core/models/co
 @Component({ selector: 'app-crm', standalone: true, imports: [CommonModule, FormsModule, LucideAngularModule],
   templateUrl: './crm.component.html', styleUrls: ['./crm.component.css', '../list-pagination.css'] })
 export class CrmComponent implements OnInit {
+  private readonly eventNameCollator = new Intl.Collator('es', { numeric: true, sensitivity: 'base' });
+  private readonly compareEventNames = (a: string, b: string) => this.eventNameCollator.compare(a.trim(), b.trim());
   private destroyRef = inject(DestroyRef);
   private changes = new Subject<void>();
   private request?: Subscription;
@@ -43,7 +45,7 @@ export class CrmComponent implements OnInit {
     this.load(); this.loadFilters();
   }
   loadFilters() { this.crm.filters().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({ next: data => {
-    this.events = data.events; this.origins = data.origins; this.cdr.markForCheck();
+    this.events = [...data.events].sort(this.compareEventNames); this.origins = data.origins; this.cdr.markForCheck();
   }, error: () => {} }); }
   searchChanged() { this.page = 1; this.request?.unsubscribe(); this.changes.next(); }
   filterChanged() { this.page = 1; this.load(); }
@@ -53,7 +55,10 @@ export class CrmComponent implements OnInit {
     this.request = this.crm.list({ search: this.search, eventName: this.eventName, origin: this.origin,
       missingIdentity: this.missingIdentity, page: this.page, pageSize: this.pageSize })
       .pipe(takeUntilDestroyed(this.destroyRef), finalize(() => { this.loading = false; this.cdr.markForCheck(); }))
-      .subscribe({ next: data => { this.rows = data.items; this.total = data.total; this.page = data.page; },
+      .subscribe({ next: data => {
+        this.rows = data.items.map(person => ({ ...person, events: [...(person.events ?? [])].sort(this.compareEventNames) }));
+        this.total = data.total; this.page = data.page;
+      },
         error: () => { this.error = 'No se pudo cargar el CRM. Intenta nuevamente.'; } });
   }
   fullName(p: CrmPerson) { return [p.firstName, p.firstLastName, p.secondLastName].filter(Boolean).join(' '); }
@@ -69,7 +74,9 @@ export class CrmComponent implements OnInit {
         this.draft = { firstName: p.firstName, d12Patch: p.d12Patch ?? null };
         for (const f of this.fields) this.draft[f.key] = p[f.key] ?? '';
         this.draft.birthDate = p.birthDate?.slice(0,10) ?? '';
-        this.attendances = detail.attendances; this.serviceHistory = detail.serviceHistory ?? []; this.notes = notes;
+        this.attendances = [...detail.attendances].sort((a, b) => this.compareEventNames(a.eventName, b.eventName));
+        this.serviceHistory = [...(detail.serviceHistory ?? [])].sort((a, b) => this.compareEventNames(a.eventName, b.eventName));
+        this.notes = notes;
         this.detailReady = true;
         setTimeout(() => document.getElementById('crm-firstName')?.focus());
       }, error: () => { this.modalError = 'No se pudo cargar el registro. Cierra e intenta nuevamente.'; } });
