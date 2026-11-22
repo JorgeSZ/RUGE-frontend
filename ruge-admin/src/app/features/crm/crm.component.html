@@ -30,7 +30,7 @@
       </div>
     </form>
     <ng-container *ngIf="selected && detailReady">
-      <section class="history"><h4>Historial de retos</h4><p *ngIf="!attendances.length" class="muted">Sin retos registrados.</p><ul><li *ngFor="let item of attendances"><strong>{{ item.eventName }}</strong><span>{{ item.origin }}<ng-container *ngIf="item.eventDate"> · {{ item.eventDate | date:'dd/MM/yyyy' }}</ng-container><ng-container *ngIf="item.tribeName"> · {{ item.tribeName }}</ng-container></span></li></ul></section>
+      <section class="history"><h4>Reto en que recibió</h4><p *ngIf="!attendances.length" class="muted">Sin retos registrados.</p><ul><li *ngFor="let item of attendances"><strong>{{ item.eventName }}</strong><span>{{ item.origin }}<ng-container *ngIf="item.eventDate"> · {{ item.eventDate | date:'dd/MM/yyyy' }}</ng-container><ng-container *ngIf="item.tribeName"> · {{ item.tribeName }}</ng-container></span></li></ul></section>
       <section class="history service-history" *ngIf="serviceHistory.length">
         <h4>Historial de servicio</h4>
         <ul><li *ngFor="let item of serviceHistory"><strong>{{ item.eventName }}</strong><span>{{ item.eventDate ? (item.eventDate | date:'dd/MM/yyyy':'UTC') : 'Sin fecha registrada' }}</span></li></ul>

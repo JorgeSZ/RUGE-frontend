@@ -70,7 +70,7 @@ describe('CRM church directory', () => {
       serviceHistory:[{eventId:'e1',eventName:'Reto como servidor',eventDate:'2025-11-21T00:00:00'}]});
     http.expectOne(base+'/person-1/notes').flush([]);await f.whenStable();
     const sections=Array.from(f.nativeElement.querySelectorAll('h4')).map((el:any)=>el.textContent);
-    expect(sections).toEqual(['Historial de retos','Historial de servicio','Notas de seguimiento']);
+    expect(sections).toEqual(['Reto en que recibió','Historial de servicio','Notas de seguimiento']);
     const history:HTMLElement=f.nativeElement.querySelector('.service-history');
     expect(history.textContent).toContain('Reto como servidor');expect(history.textContent).toContain('21/11/2025');
     expect(history.querySelector('button')).toBeNull();expect(history.querySelectorAll('li').length).toBe(1);
