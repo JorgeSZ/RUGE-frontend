@@ -64,6 +64,28 @@ describe('CRM church directory', () => {
     await f.whenStable();expect(f.componentInstance.modal).toBe(true);expect(f.componentInstance.saving).toBe(false);
     expect(f.componentInstance.draft.firstName).toBe('Ana');expect(f.nativeElement.textContent).toContain('No disponible');
   });
+  it('shows service retreats below received retreats with name and date only', async () => {
+    const f=await render();f.componentInstance.open(person);
+    http.expectOne(base+'/person-1').flush({person,attendances:[{id:'a1',eventName:'Reto recibido',origin:'RUGE'}],
+      serviceHistory:[{eventId:'e1',eventName:'Reto como servidor',eventDate:'2025-11-21T00:00:00'}]});
+    http.expectOne(base+'/person-1/notes').flush([]);await f.whenStable();
+    const sections=Array.from(f.nativeElement.querySelectorAll('h4')).map((el:any)=>el.textContent);
+    expect(sections).toEqual(['Historial de retos','Historial de servicio','Notas de seguimiento']);
+    const history:HTMLElement=f.nativeElement.querySelector('.service-history');
+    expect(history.textContent).toContain('Reto como servidor');expect(history.textContent).toContain('21/11/2025');
+    expect(history.querySelector('button')).toBeNull();expect(history.querySelectorAll('li').length).toBe(1);
+  });
+  it('hides service history when no matching document exists and clears previous results', async () => {
+    const f=await render();await open(f);
+    expect(f.nativeElement.querySelector('.service-history')).toBeNull();
+    f.componentInstance.serviceHistory=[{eventId:'e1',eventName:'Previous person',eventDate:null}];
+    f.componentInstance.open({...person,id:'person-2'});
+    expect(f.componentInstance.serviceHistory).toEqual([]);
+    http.expectOne(base+'/person-2').flush({person:{...person,id:'person-2'},attendances:[],serviceHistory:[]});
+    http.expectOne(base+'/person-2/notes').flush([]);await f.whenStable();
+    expect(f.nativeElement.querySelector('.service-history')).toBeNull();
+    expect(f.nativeElement.textContent).not.toContain('Previous person');
+  });
   it('reuses the same note id on retry, preventing duplicate notes', async () => {
     const f=await render();await open(f);const c=f.componentInstance;c.noteDraft='Llamar mañana';c.saveNote();
     const req=http.expectOne(base+'/person-1/notes');const id=req.request.body.id;req.flush({},{status:500,statusText:'Error'});

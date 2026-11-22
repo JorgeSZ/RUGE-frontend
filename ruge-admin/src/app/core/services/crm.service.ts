@@ -9,6 +9,7 @@ export interface CrmPerson {
   d12Patch?: boolean | null; events?: string[]; notesCount?: number;
 }
 export interface CrmAttendance { id: string; eventName: string; eventDate?: string; tribeName?: string; origin: string; }
+export interface CrmServiceHistoryItem { eventId: string; eventName: string; eventDate: string | null; }
 export interface CrmWrite extends Partial<Omit<CrmPerson, 'id' | 'events' | 'notesCount'>> { firstName: string; eventName?: string; eventDate?: string; }
 export interface CrmPage { items: CrmPerson[]; total: number; page: number; pageSize: number; }
 @Injectable({ providedIn: 'root' })
@@ -19,7 +20,7 @@ export class CrmService {
     return this.api.get<CrmPage>(`/crm?${params}`);
   }
   filters() { return this.api.get<{ events: string[]; origins: string[] }>('/crm/filters'); }
-  get(id: string) { return this.api.get<{ person: CrmPerson; attendances: CrmAttendance[] }>(`/crm/${id}`); }
+  get(id: string) { return this.api.get<{ person: CrmPerson; attendances: CrmAttendance[]; serviceHistory: CrmServiceHistoryItem[] }>(`/crm/${id}`); }
   create(data: CrmWrite) { return this.api.post<{ id: string }>('/crm', data); }
   update(id: string, data: CrmWrite) { return this.api.put<void>(`/crm/${id}`, data); }
   notes(id: string) { return this.api.get<ConsolidationNote[]>(`/crm/${id}/notes`); }
