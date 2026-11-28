@@ -53,7 +53,13 @@
     </section>
 
     <section *ngIf="activeTab === 'participants'" class="panel">
-      <h3>Senderistas <span class="count">{{ data.participants.length }}</span></h3>
+      <div class="people-heading">
+        <h3>Senderistas <span class="count">{{ data.participants.length }}</span></h3>
+        <button type="button" class="btn-secondary btn-icon-row export-participants" (click)="exportParticipants()"
+          [disabled]="!data.participants.length" title="Descargar todos los senderistas de este reto">
+          <lucide-icon name="download" [size]="16" [strokeWidth]="1.5"></lucide-icon>Exportar a Excel
+        </button>
+      </div>
       <div class="table-scroll">
         <table><thead><tr><th>Nombre</th><th>Cédula</th><th>Edad</th><th>Correo</th><th>Celular</th><th>Estado civil</th><th>Talla</th><th>Tribu</th><th>Check-in</th><th>Comprobante</th></tr></thead>
           <tbody><tr *ngFor="let person of data.participants">
@@ -76,7 +82,13 @@
     </section>
 
     <section *ngIf="activeTab === 'servers'" class="panel">
-      <h3>Servidores <span class="count">{{ data.servers.length }}</span></h3>
+      <div class="people-heading">
+        <h3>Servidores <span class="count">{{ data.servers.length }}</span></h3>
+        <button type="button" class="btn-secondary btn-icon-row export-servers" (click)="exportServers()"
+          [disabled]="!data.servers.length" title="Descargar todos los servidores de este reto">
+          <lucide-icon name="download" [size]="16" [strokeWidth]="1.5"></lucide-icon>Exportar a Excel
+        </button>
+      </div>
       <div class="table-scroll"><table><thead><tr><th>Nombre</th><th>Cédula</th><th>Edad</th><th>Correo</th><th>Celular</th><th>Comisión</th><th>Tribu</th><th>Aprobación</th><th>Check-in</th><th>Comprobante</th></tr></thead>
         <tbody><tr *ngFor="let person of data.servers"><td>{{ fullName(person) }}<details class="person-details"><summary>Ficha</summary><small>Iglesia: {{ person.church || '—' }} · País: {{ person.country || '—' }} · Estado civil: {{ person.maritalStatus || '—' }}</small><small>Discipulado: {{ person.hasDiscipleship ? 'Sí' : 'No' }} · Parche: {{ person.hasDiscipleshipPatch ? 'Sí' : 'No' }} · Tiene grupo: {{ person.hasGroup ? 'Sí' : 'No' }}</small><small>New Life: {{ person.estaEnNewLife ? 'Sí' : 'No' }} · Módulo: {{ person.modulo || '—' }}</small><small>Líder: {{ person.nombreLider || '—' }} · {{ person.telefonoLider || '—' }} · {{ person.emailLider || '—' }}</small><small>Consentimiento de datos: {{ person.privacyConsentAccepted ? 'Aceptado' : 'No registrado' }}<span *ngIf="person.privacyConsentAt"> · {{ person.privacyConsentAt | date:'dd/MM/yyyy' }}</span></small><small *ngIf="person.qrCode">Código QR: {{ person.qrCode }}</small><small *ngIf="person.approvalDate">Aprobado: {{ person.approvalDate | date:'dd/MM/yyyy HH:mm' }}</small><small *ngIf="person.checkInDate">Check-in: {{ person.checkInDate | date:'dd/MM/yyyy HH:mm' }}</small></details></td><td>{{ person.cedula || '—' }}</td><td>{{ age(person.birthDate) }}</td><td>{{ person.email || '—' }}</td><td>{{ person.phone || '—' }}</td><td>{{ person.commissionName || '—' }}</td><td>{{ person.tribeName || '—' }}</td><td>{{ person.approvalStatus }}</td><td>{{ person.checkInCompleted ? 'Completado' : 'Pendiente' }}</td><td><a *ngIf="person.comprobantePagoPath" [href]="person.comprobantePagoPath" target="_blank" rel="noopener">Abrir</a><span *ngIf="!person.comprobantePagoPath">—</span></td></tr>
           <tr *ngIf="!data.servers.length"><td colspan="10" class="empty">No hay servidores registrados.</td></tr></tbody>

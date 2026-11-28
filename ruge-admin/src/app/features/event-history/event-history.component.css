@@ -60,3 +60,7 @@ details small { color: var(--ruge-text-muted); margin-left: 6px; }
 .score-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 0 18px; }
 .score-row { grid-template-columns: 14px 1fr auto; }
 @media (max-width: 760px) { .history-header { align-items: flex-start; flex-direction: column; } .summary-grid { grid-template-columns: repeat(2,minmax(0,1fr)); } .event-details dl, .tribe-grid, .two-column, .score-grid { grid-template-columns: 1fr; } }
+
+.people-heading { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 14px; }
+.people-heading h3 { margin: 0; }
+.people-heading button:disabled { opacity: .45; cursor: not-allowed; }
