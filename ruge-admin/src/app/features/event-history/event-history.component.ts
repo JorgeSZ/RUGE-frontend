@@ -2,6 +2,8 @@ import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { EventService } from '../../core/services/event.service';
 
+import { exportParticipantsExcel, exportServersExcel } from '../../core/utils/people-export';
+
 type HistoryTab = 'summary' | 'participants' | 'servers' | 'tribes' | 'route' | 'operations' | 'inventory' | 'challenges';
 
 @Component({
@@ -50,6 +52,16 @@ export class EventHistoryComponent implements OnInit {
         this.cdr.detectChanges();
       }
     });
+  }
+
+  exportParticipants(): void {
+    if (this.loading || !this.data?.event?.id || !this.data.participants?.length) return;
+    exportParticipantsExcel(this.data.participants, this.data.event);
+  }
+
+  exportServers(): void {
+    if (this.loading || !this.data?.event?.id || !this.data.servers?.length) return;
+    exportServersExcel(this.data.servers, this.data.event);
   }
 
   goBack(): void { this.router.navigate(['/events']); }
